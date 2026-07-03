@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revision - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><span class="current">Revision</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>📝 Quick Revision Guide</h1>
+                <p style="font-size:1.1rem; color:var(--text-secondary);">One-page summaries for every major topic. Perfect for last-minute review before interviews.</p>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📊</span> Data Structures Summary</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Data Structure</th><th>Access</th><th>Search</th><th>Insert</th><th>Delete</th><th>Space</th><th>Best For</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>Array</strong></td><td class="best">O(1)</td><td class="avg">O(n)</td><td class="worst">O(n)</td><td class="worst">O(n)</td><td>O(n)</td><td>Random access, cache-friendly</td></tr>
+                        <tr><td><strong>Linked List</strong></td><td class="avg">O(n)</td><td class="avg">O(n)</td><td class="best">O(1)*</td><td class="best">O(1)*</td><td>O(n)</td><td>Frequent insert/delete at known position</td></tr>
+                        <tr><td><strong>Stack</strong></td><td class="avg">O(n)</td><td class="avg">O(n)</td><td class="best">O(1)</td><td class="best">O(1)</td><td>O(n)</td><td>LIFO, undo, parsing, DFS</td></tr>
+                        <tr><td><strong>Queue</strong></td><td class="avg">O(n)</td><td class="avg">O(n)</td><td class="best">O(1)</td><td class="best">O(1)</td><td>O(n)</td><td>FIFO, BFS, scheduling</td></tr>
+                        <tr><td><strong>HashMap</strong></td><td>—</td><td class="best">O(1)*</td><td class="best">O(1)*</td><td class="best">O(1)*</td><td>O(n)</td><td>Fast lookup, counting, grouping</td></tr>
+                        <tr><td><strong>BST</strong></td><td>—</td><td class="best">O(log n)*</td><td class="best">O(log n)*</td><td class="best">O(log n)*</td><td>O(n)</td><td>Sorted data, range queries</td></tr>
+                        <tr><td><strong>Heap</strong></td><td>—</td><td class="avg">O(n)</td><td class="best">O(log n)</td><td class="best">O(log n)</td><td>O(n)</td><td>Priority queue, top-K</td></tr>
+                        <tr><td><strong>Trie</strong></td><td>—</td><td class="best">O(L)</td><td class="best">O(L)</td><td class="best">O(L)</td><td>O(N·L)</td><td>Prefix search, autocomplete</td></tr>
+                    </tbody>
+                </table>
+                <p class="text-muted" style="font-size:0.8rem;">* Average case. L = key length.</p>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚡</span> Algorithm Complexity Summary</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Algorithm</th><th>Time</th><th>Space</th><th>Key Idea</th></tr></thead>
+                    <tbody>
+                        <tr><td>Binary Search</td><td class="best">O(log n)</td><td class="best">O(1)</td><td>Halve search space each step</td></tr>
+                        <tr><td>Two Pointers</td><td class="best">O(n)</td><td class="best">O(1)</td><td>Converge from both ends</td></tr>
+                        <tr><td>Sliding Window</td><td class="best">O(n)</td><td class="best">O(k)</td><td>Maintain window state</td></tr>
+                        <tr><td>Merge Sort</td><td class="avg">O(n log n)</td><td class="avg">O(n)</td><td>Divide, sort halves, merge</td></tr>
+                        <tr><td>Quick Sort</td><td class="avg">O(n log n)*</td><td class="best">O(log n)</td><td>Partition around pivot</td></tr>
+                        <tr><td>DFS</td><td class="avg">O(V+E)</td><td class="avg">O(V)</td><td>Go deep, backtrack</td></tr>
+                        <tr><td>BFS</td><td class="avg">O(V+E)</td><td class="avg">O(V)</td><td>Level by level, shortest path</td></tr>
+                        <tr><td>Dijkstra's</td><td class="avg">O((V+E)log V)</td><td class="avg">O(V)</td><td>Greedy shortest path</td></tr>
+                        <tr><td>Kadane's</td><td class="best">O(n)</td><td class="best">O(1)</td><td>Max subarray sum</td></tr>
+                        <tr><td>KMP</td><td class="best">O(n+m)</td><td class="avg">O(m)</td><td>Failure function for pattern matching</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🎯</span> Pattern → Algorithm Quick Map</h2>
+                <ul>
+                    <li><strong>"Sorted array + search"</strong> → Binary Search</li>
+                    <li><strong>"Contiguous subarray"</strong> → Sliding Window or Prefix Sum</li>
+                    <li><strong>"Find pair with sum"</strong> → Two Pointers (sorted) or HashMap</li>
+                    <li><strong>"All subsets/permutations"</strong> → Backtracking</li>
+                    <li><strong>"Shortest path"</strong> → BFS (unweighted), Dijkstra (weighted)</li>
+                    <li><strong>"Connected components"</strong> → DFS/BFS or Union-Find</li>
+                    <li><strong>"Overlapping subproblems"</strong> → Dynamic Programming</li>
+                    <li><strong>"Top K / Kth element"</strong> → Heap or QuickSelect</li>
+                    <li><strong>"Next greater element"</strong> → Monotonic Stack</li>
+                    <li><strong>"Frequency / existence"</strong> → HashMap / HashSet</li>
+                    <li><strong>"Prefix search"</strong> → Trie</li>
+                    <li><strong>"Cycle detection"</strong> → Fast-Slow Pointer</li>
+                </ul>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📐</span> Key Formulas</h2>
+                <ul>
+                    <li>Sum 1 to n: <code>n(n+1)/2</code></li>
+                    <li>Number of subarrays: <code>n(n+1)/2</code></li>
+                    <li>Number of subsets: <code>2ⁿ</code></li>
+                    <li>Permutations of n: <code>n!</code></li>
+                    <li>Combinations C(n,k): <code>n! / (k!(n-k)!)</code></li>
+                    <li>Height of balanced BST: <code>⌊log₂(n)⌋</code></li>
+                    <li>Nodes in complete binary tree: <code>2^(h+1) - 1</code></li>
+                    <li>Amortized push for dynamic array: <code>O(1)</code></li>
+                    <li>log₂(10⁶) ≈ 20, log₂(10⁹) ≈ 30</li>
+                </ul>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards — Key Concepts</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">When to use HashMap vs TreeMap?</div>
+                            <div class="flashcard-back">HashMap: O(1) lookup, unordered.<br>TreeMap: O(log n) lookup, sorted keys.<br>Use TreeMap when you need sorted iteration.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">DFS vs BFS: when to use which?</div>
+                            <div class="flashcard-back">DFS: path finding, cycle detection, topological sort, backtracking.<br>BFS: shortest path (unweighted), level-order, minimum steps.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Memoization vs Tabulation?</div>
+                            <div class="flashcard-back">Memoization: top-down, recursive, stores computed results, only computes needed states.<br>Tabulation: bottom-up, iterative, fills table systematically, no recursion overhead.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Stable vs Unstable sort?</div>
+                            <div class="flashcard-back">Stable: preserves relative order of equal elements (Merge, Insertion, Counting sort).<br>Unstable: may change order of equal elements (Quick, Heap, Selection sort).</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚡</span> n Constraint → Algorithm Guide</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Max n</th><th>Acceptable Complexity</th><th>Typical Algorithms</th></tr></thead>
+                    <tbody>
+                        <tr><td>≤ 10</td><td class="worst">O(n!), O(2ⁿ)</td><td>Brute force, permutations</td></tr>
+                        <tr><td>≤ 20</td><td class="worst">O(2ⁿ)</td><td>Bitmask DP, backtracking with pruning</td></tr>
+                        <tr><td>≤ 500</td><td class="worst">O(n³)</td><td>Floyd-Warshall, 3D DP</td></tr>
+                        <tr><td>≤ 5,000</td><td class="worst">O(n²)</td><td>Bubble/Selection sort, 2D DP, nested loops</td></tr>
+                        <tr><td>≤ 10⁵</td><td class="avg">O(n log n)</td><td>Merge/Quick sort, binary search, segment tree</td></tr>
+                        <tr><td>≤ 10⁶</td><td class="best">O(n)</td><td>Linear scan, two pointers, sliding window, HashMap</td></tr>
+                        <tr><td>≤ 10⁸</td><td class="best">O(n) or O(log n)</td><td>Mathematical formula, binary search</td></tr>
+                        <tr><td>≤ 10¹⁸</td><td class="best">O(log n)</td><td>Binary search, math, fast exponentiation</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

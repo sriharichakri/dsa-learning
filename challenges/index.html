@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>150-Day Challenge - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><span class="current">150-Day Challenge</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>🏆 150-Day DSA Challenge</h1>
+                <p style="font-size:1.1rem; color:var(--text-secondary);">A structured daily plan with theory + practice to make you interview-ready in 150 days.</p>
+            </div>
+
+            <!-- Progress Overview -->
+            <div class="section-card">
+                <h2><span class="section-icon">📊</span> Your Challenge Progress</h2>
+                <div style="display: flex; gap: 24px; flex-wrap: wrap; align-items: center;">
+                    <div class="progress-card" style="flex:1; min-width:150px;">
+                        <div class="progress-value" id="challenge-completed">0</div>
+                        <div class="progress-label">Days Completed</div>
+                    </div>
+                    <div class="progress-card" style="flex:1; min-width:150px;">
+                        <div class="progress-value" id="challenge-total">150</div>
+                        <div class="progress-label">Total Days</div>
+                    </div>
+                    <div class="progress-card" style="flex:1; min-width:150px;">
+                        <div class="progress-value" id="challenge-pct">0%</div>
+                        <div class="progress-label">Progress</div>
+                    </div>
+                </div>
+                <div class="progress-bar-container" style="margin-top:16px; height:12px;">
+                    <div class="progress-bar-fill" id="challenge-bar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- How to Use -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> How to Use This Challenge</h2>
+                <ol>
+                    <li><strong>Read the theory</strong> for the day's topic</li>
+                    <li><strong>Solve the problems</strong> — try on your own for 20 min before looking at hints</li>
+                    <li><strong>Review the solution approach</strong> (collapsible hints below each problem)</li>
+                    <li><strong>Mark the day as complete</strong> by clicking the checkbox</li>
+                    <li><strong>Consistency &gt; Perfection</strong> — doing 2 problems daily beats 20 in one day</li>
+                </ol>
+                <div class="callout tip">
+                    <div class="callout-title">💡 Golden Rule</div>
+                    <p>Spend at most 30-45 minutes on a problem. If stuck, read the approach, understand it, and re-implement from scratch. Understanding > memorizing.</p>
+                </div>
+            </div>
+
+            <!-- Days -->
+            <div id="challenge-list">
+                <!-- Populated by JavaScript -->
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof CHALLENGE_DATA === 'undefined') return;
+    
+    const container = document.getElementById('challenge-list');
+    if (!container) return;
+
+    let html = '';
+    CHALLENGE_DATA.forEach(day => {
+        const isCompleted = ChallengeProgress.isCompleted(day.day);
+        html += `
+        <div class="challenge-day">
+            <div class="challenge-day-header">
+                <div class="day-info">
+                    <span class="day-num">Day ${day.day}</span>
+                    <span class="day-topic">${day.topic}</span>
+                </div>
+                <div class="day-check ${isCompleted ? 'completed' : ''}" 
+                     data-day="${day.day}" 
+                     onclick="event.stopPropagation(); toggleChallengeDay(this, ${day.day})"
+                     role="checkbox" 
+                     aria-checked="${isCompleted}"
+                     aria-label="Mark day ${day.day} complete">
+                    ${isCompleted ? '✓' : ''}
+                </div>
+            </div>
+            <div class="challenge-day-body">
+                <p><strong>Theory:</strong> ${day.theory}</p>
+                <h4 style="margin-top:12px;">Problems:</h4>
+                <ul class="leetcode-list">
+                    ${day.problems.map(p => `
+                        <li class="leetcode-item">
+                            <span class="lc-name"><a href="${p.link}" target="_blank" rel="noopener">${p.name}</a></span>
+                            <span class="lc-difficulty ${p.difficulty.toLowerCase()}">${p.difficulty}</span>
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+        </div>`;
+    });
+
+    container.innerHTML = html;
+
+    // Make day headers toggle body
+    container.querySelectorAll('.challenge-day-header').forEach(header => {
+        header.addEventListener('click', function(e) {
+            if (e.target.classList.contains('day-check')) return;
+            const body = this.nextElementSibling;
+            if (body) body.classList.toggle('active');
+        });
+    });
+
+    updateChallengeProgress();
+});
+
+function toggleChallengeDay(el, day) {
+    const completed = ChallengeProgress.toggle(day);
+    if (completed) {
+        el.classList.add('completed');
+        el.textContent = '✓';
+        el.setAttribute('aria-checked', 'true');
+    } else {
+        el.classList.remove('completed');
+        el.textContent = '';
+        el.setAttribute('aria-checked', 'false');
+    }
+    updateChallengeProgress();
+}
+
+function updateChallengeProgress() {
+    const completed = ChallengeProgress.getCompletedCount();
+    const total = typeof CHALLENGE_DATA !== 'undefined' ? CHALLENGE_DATA.length : 150;
+    const pct = Math.round((completed / total) * 100);
+    
+    const elCompleted = document.getElementById('challenge-completed');
+    const elPct = document.getElementById('challenge-pct');
+    const elBar = document.getElementById('challenge-bar');
+    
+    if (elCompleted) elCompleted.textContent = completed;
+    if (elPct) elPct.textContent = pct + '%';
+    if (elBar) elBar.style.width = pct + '%';
+}
+</script>
+</body>
+</html>

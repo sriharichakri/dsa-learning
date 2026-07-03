@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pattern Recognition - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><span class="current">Pattern Recognition</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>🎯 Pattern Recognition</h1>
+                <p style="font-size:1.1rem; color:var(--text-secondary);">The most important skill in DSA — knowing <strong>which algorithm to use</strong> before writing a single line of code.</p>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🧠</span> The Decision Framework</h2>
+                <p>When you see a problem, ask yourself these questions in order. Each question narrows down which algorithm or data structure to use.</p>
+            </div>
+
+            <!-- Decision Flowchart -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔀</span> Algorithm Decision Tree</h2>
+                <div class="viz-container" style="overflow-x: auto;">
+                    <svg viewBox="0 0 900 1400" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; font-family: var(--font-sans);">
+                        <!-- Title -->
+                        <text x="450" y="30" text-anchor="middle" font-size="18" font-weight="bold" fill="currentColor">Which Algorithm Should I Use?</text>
+                        
+                        <!-- Start -->
+                        <rect x="325" y="50" width="250" height="40" rx="20" fill="#6366f1" stroke="none"/>
+                        <text x="450" y="75" text-anchor="middle" fill="white" font-size="14" font-weight="bold">Read the Problem</text>
+
+                        <line x1="450" y1="90" x2="450" y2="110" stroke="#6366f1" stroke-width="2" marker-end="url(#arrow)"/>
+
+                        <!-- Q1: Sorted Array? -->
+                        <rect x="300" y="110" width="300" height="45" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+                        <text x="450" y="137" text-anchor="middle" font-size="13" font-weight="600" fill="#92400e">Is the input a sorted array?</text>
+
+                        <!-- Yes: Binary Search -->
+                        <line x1="600" y1="132" x2="700" y2="132" stroke="#10b981" stroke-width="2"/>
+                        <text x="640" y="125" font-size="11" fill="#10b981" font-weight="bold">Yes</text>
+                        <rect x="700" y="112" width="170" height="40" rx="20" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+                        <text x="785" y="137" text-anchor="middle" font-size="12" font-weight="bold" fill="#065f46">→ Binary Search</text>
+
+                        <!-- No -->
+                        <line x1="450" y1="155" x2="450" y2="185" stroke="#ef4444" stroke-width="2"/>
+                        <text x="465" y="175" font-size="11" fill="#ef4444" font-weight="bold">No</text>
+
+                        <!-- Q2: Contiguous subarray? -->
+                        <rect x="275" y="185" width="350" height="45" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+                        <text x="450" y="212" text-anchor="middle" font-size="13" font-weight="600" fill="#92400e">Need contiguous subarray/substring?</text>
+
+                        <line x1="625" y1="207" x2="700" y2="207" stroke="#10b981" stroke-width="2"/>
+                        <text x="650" y="200" font-size="11" fill="#10b981" font-weight="bold">Yes</text>
+                        <rect x="700" y="187" width="170" height="40" rx="20" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+                        <text x="785" y="212" text-anchor="middle" font-size="12" font-weight="bold" fill="#065f46">→ Sliding Window</text>
+
+                        <line x1="450" y1="230" x2="450" y2="260" stroke="#ef4444" stroke-width="2"/>
+                        <text x="465" y="250" font-size="11" fill="#ef4444" font-weight="bold">No</text>
+
+                        <!-- Q3: Find pair/triplet with target? -->
+                        <rect x="275" y="260" width="350" height="45" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+                        <text x="450" y="287" text-anchor="middle" font-size="13" font-weight="600" fill="#92400e">Find pairs with target sum?</text>
+
+                        <line x1="625" y1="282" x2="700" y2="282" stroke="#10b981" stroke-width="2"/>
+                        <text x="650" y="275" font-size="11" fill="#10b981" font-weight="bold">Yes</text>
+                        <rect x="700" y="262" width="170" height="40" rx="20" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+                        <text x="785" y="287" text-anchor="middle" font-size="12" font-weight="bold" fill="#065f46">→ Two Pointers / HashMap</text>
+
+                        <line x1="450" y1="305" x2="450" y2="335" stroke="#ef4444" stroke-width="2"/>
+                        <text x="465" y="325" font-size="11" fill="#ef4444" font-weight="bold">No</text>
+
+                        <!-- Q4: All combinations/permutations? -->
+                        <rect x="250" y="335" width="400" height="45" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+                        <text x="450" y="362" text-anchor="middle" font-size="13" font-weight="600" fill="#92400e">Need all combinations/permutations/subsets?</text>
+
+                        <line x1="650" y1="357" x2="700" y2="357" stroke="#10b981" stroke-width="2"/>
+                        <text x="665" y="350" font-size="11" fill="#10b981" font-weight="bold">Yes</text>
+                        <rect x="700" y="337" width="170" height="40" rx="20" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+                        <text x="785" y="362" text-anchor="middle" font-size="12" font-weight="bold" fill="#065f46">→ Backtracking</text>
+
+                        <line x1="450" y1="380" x2="450" y2="410" stroke="#ef4444" stroke-width="2"/>
+                        <text x="465" y="400" font-size="11" fill="#ef4444" font-weight="bold">No</text>
+
+                        <!-- Q5: Shortest path / network? -->
+                        <rect x="275" y="410" width="350" height="45" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+                        <text x="450" y="437" text-anchor="middle" font-size="13" font-weight="600" fill="#92400e">Shortest path / connected components?</text>
+
+                        <line x1="625" y1="432" x2="700" y2="432" stroke="#10b981" stroke-width="2"/>
+                        <text x="650" y="425" font-size="11" fill="#10b981" font-weight="bold">Yes</text>
+                        <rect x="700" y="412" width="170" height="40" rx="20" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+                        <text x="785" y="437" text-anchor="middle" font-size="12" font-weight="bold" fill="#065f46">→ BFS / DFS / Graph</text>
+
+                        <line x1="450" y1="455" x2="450" y2="485" stroke="#ef4444" stroke-width="2"/>
+                        <text x="465" y="475" font-size="11" fill="#ef4444" font-weight="bold">No</text>
+
+                        <!-- Q6: Overlapping subproblems? -->
+                        <rect x="250" y="485" width="400" height="45" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+                        <text x="450" y="512" text-anchor="middle" font-size="13" font-weight="600" fill="#92400e">Overlapping subproblems? Optimal substructure?</text>
+
+                        <line x1="650" y1="507" x2="700" y2="507" stroke="#10b981" stroke-width="2"/>
+                        <text x="665" y="500" font-size="11" fill="#10b981" font-weight="bold">Yes</text>
+                        <rect x="700" y="487" width="170" height="40" rx="20" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+                        <text x="785" y="512" text-anchor="middle" font-size="12" font-weight="bold" fill="#065f46">→ Dynamic Programming</text>
+
+                        <line x1="450" y1="530" x2="450" y2="560" stroke="#ef4444" stroke-width="2"/>
+                        <text x="465" y="550" font-size="11" fill="#ef4444" font-weight="bold">No</text>
+
+                        <!-- Q7: Frequency / lookup? -->
+                        <rect x="275" y="560" width="350" height="45" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+                        <text x="450" y="587" text-anchor="middle" font-size="13" font-weight="600" fill="#92400e">Need O(1) lookup / frequency count?</text>
+
+                        <line x1="625" y1="582" x2="700" y2="582" stroke="#10b981" stroke-width="2"/>
+                        <text x="650" y="575" font-size="11" fill="#10b981" font-weight="bold">Yes</text>
+                        <rect x="700" y="562" width="170" height="40" rx="20" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+                        <text x="785" y="587" text-anchor="middle" font-size="12" font-weight="bold" fill="#065f46">→ HashMap / HashSet</text>
+
+                        <line x1="450" y1="605" x2="450" y2="635" stroke="#ef4444" stroke-width="2"/>
+                        <text x="465" y="625" font-size="11" fill="#ef4444" font-weight="bold">No</text>
+
+                        <!-- Q8: Min/Max in range or window? -->
+                        <rect x="250" y="635" width="400" height="45" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+                        <text x="450" y="662" text-anchor="middle" font-size="13" font-weight="600" fill="#92400e">Min/max in a range or sliding window?</text>
+
+                        <line x1="650" y1="657" x2="700" y2="657" stroke="#10b981" stroke-width="2"/>
+                        <text x="665" y="650" font-size="11" fill="#10b981" font-weight="bold">Yes</text>
+                        <rect x="700" y="637" width="170" height="40" rx="20" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+                        <text x="785" y="662" text-anchor="middle" font-size="12" font-weight="bold" fill="#065f46">→ Deque / Monotonic</text>
+
+                        <line x1="450" y1="680" x2="450" y2="710" stroke="#ef4444" stroke-width="2"/>
+                        <text x="465" y="700" font-size="11" fill="#ef4444" font-weight="bold">No</text>
+
+                        <!-- Q9: Next greater/smaller? -->
+                        <rect x="275" y="710" width="350" height="45" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+                        <text x="450" y="737" text-anchor="middle" font-size="13" font-weight="600" fill="#92400e">Next greater/smaller element?</text>
+
+                        <line x1="625" y1="732" x2="700" y2="732" stroke="#10b981" stroke-width="2"/>
+                        <text x="650" y="725" font-size="11" fill="#10b981" font-weight="bold">Yes</text>
+                        <rect x="700" y="712" width="170" height="40" rx="20" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+                        <text x="785" y="737" text-anchor="middle" font-size="12" font-weight="bold" fill="#065f46">→ Monotonic Stack</text>
+
+                        <line x1="450" y1="755" x2="450" y2="785" stroke="#ef4444" stroke-width="2"/>
+                        <text x="465" y="775" font-size="11" fill="#ef4444" font-weight="bold">No</text>
+
+                        <!-- Q10: Connected components/grouping? -->
+                        <rect x="250" y="785" width="400" height="45" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+                        <text x="450" y="812" text-anchor="middle" font-size="13" font-weight="600" fill="#92400e">Group connected components dynamically?</text>
+
+                        <line x1="650" y1="807" x2="700" y2="807" stroke="#10b981" stroke-width="2"/>
+                        <text x="665" y="800" font-size="11" fill="#10b981" font-weight="bold">Yes</text>
+                        <rect x="700" y="787" width="170" height="40" rx="20" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+                        <text x="785" y="812" text-anchor="middle" font-size="12" font-weight="bold" fill="#065f46">→ Union Find</text>
+
+                        <line x1="450" y1="830" x2="450" y2="860" stroke="#ef4444" stroke-width="2"/>
+                        <text x="465" y="850" font-size="11" fill="#ef4444" font-weight="bold">No</text>
+
+                        <!-- Q11: Top K / stream? -->
+                        <rect x="275" y="860" width="350" height="45" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+                        <text x="450" y="887" text-anchor="middle" font-size="13" font-weight="600" fill="#92400e">Top K elements / median of stream?</text>
+
+                        <line x1="625" y1="882" x2="700" y2="882" stroke="#10b981" stroke-width="2"/>
+                        <text x="650" y="875" font-size="11" fill="#10b981" font-weight="bold">Yes</text>
+                        <rect x="700" y="862" width="170" height="40" rx="20" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+                        <text x="785" y="887" text-anchor="middle" font-size="12" font-weight="bold" fill="#065f46">→ Heap</text>
+
+                        <line x1="450" y1="905" x2="450" y2="935" stroke="#ef4444" stroke-width="2"/>
+                        <text x="465" y="925" font-size="11" fill="#ef4444" font-weight="bold">No</text>
+
+                        <!-- Q12: Prefix search / autocomplete? -->
+                        <rect x="275" y="935" width="350" height="45" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+                        <text x="450" y="962" text-anchor="middle" font-size="13" font-weight="600" fill="#92400e">Prefix search / word matching?</text>
+
+                        <line x1="625" y1="957" x2="700" y2="957" stroke="#10b981" stroke-width="2"/>
+                        <text x="650" y="950" font-size="11" fill="#10b981" font-weight="bold">Yes</text>
+                        <rect x="700" y="937" width="170" height="40" rx="20" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+                        <text x="785" y="962" text-anchor="middle" font-size="12" font-weight="bold" fill="#065f46">→ Trie</text>
+
+                        <line x1="450" y1="980" x2="450" y2="1010" stroke="#ef4444" stroke-width="2"/>
+                        <text x="465" y="1000" font-size="11" fill="#ef4444" font-weight="bold">No</text>
+
+                        <!-- Fallback -->
+                        <rect x="300" y="1010" width="300" height="45" rx="20" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+                        <text x="450" y="1037" text-anchor="middle" font-size="13" font-weight="bold" fill="#1e40af">→ Brute Force → Optimize</text>
+
+                        <defs>
+                            <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="#6366f1"/>
+                            </marker>
+                        </defs>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Quick Pattern Guide -->
+            <div class="section-card">
+                <h2><span class="section-icon">📋</span> Quick Pattern Reference</h2>
+                <table class="complexity-table">
+                    <thead>
+                        <tr><th>If You See...</th><th>Think...</th><th>Algorithm/DS</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>"Sorted array" + "find target"</td><td>Halve the search space</td><td class="best">Binary Search</td></tr>
+                        <tr><td>"Maximum/minimum subarray of size k"</td><td>Slide a window</td><td class="best">Sliding Window (Fixed)</td></tr>
+                        <tr><td>"Longest/shortest substring with condition"</td><td>Expand & shrink window</td><td class="best">Sliding Window (Variable)</td></tr>
+                        <tr><td>"Pair with target sum" in sorted array</td><td>Two ends converging</td><td class="best">Two Pointers</td></tr>
+                        <tr><td>"Find cycle" in linked list</td><td>Fast & slow pointer</td><td class="best">Floyd's Algorithm</td></tr>
+                        <tr><td>"Top K" / "Kth largest"</td><td>Maintain a heap of size K</td><td class="best">Min/Max Heap</td></tr>
+                        <tr><td>"Frequency" / "count occurrences"</td><td>Count in a map</td><td class="best">HashMap</td></tr>
+                        <tr><td>"Next greater element"</td><td>Process in reverse, maintain stack</td><td class="best">Monotonic Stack</td></tr>
+                        <tr><td>"Number of islands" / "connected regions"</td><td>Explore all neighbors</td><td class="best">DFS / BFS</td></tr>
+                        <tr><td>"Shortest path (unweighted)"</td><td>Level-by-level exploration</td><td class="best">BFS</td></tr>
+                        <tr><td>"Shortest path (weighted)"</td><td>Greedy with priority queue</td><td class="best">Dijkstra's</td></tr>
+                        <tr><td>"Prerequisites" / "ordering"</td><td>Directed graph ordering</td><td class="best">Topological Sort</td></tr>
+                        <tr><td>"All subsets/permutations/combinations"</td><td>Explore decision tree</td><td class="avg">Backtracking</td></tr>
+                        <tr><td>"Min/max ways to..." / "can you reach..."</td><td>Break into subproblems</td><td class="avg">Dynamic Programming</td></tr>
+                        <tr><td>"Merge overlapping intervals"</td><td>Sort by start, merge</td><td class="best">Greedy + Sort</td></tr>
+                        <tr><td>"Prefix sum" / "range sum query"</td><td>Precompute cumulative sums</td><td class="best">Prefix Sum Array</td></tr>
+                        <tr><td>"Word dictionary" / "autocomplete"</td><td>Prefix tree</td><td class="best">Trie</td></tr>
+                        <tr><td>"Union" / "group" / "connected"</td><td>Merge sets efficiently</td><td class="best">Union-Find</td></tr>
+                        <tr><td>"Balanced parentheses" / "matching"</td><td>Last in, first out</td><td class="best">Stack</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Detailed Pattern Breakdowns -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Pattern: When to Use Binary Search</h2>
+                <p>Binary search isn't just for sorted arrays! Use it whenever you can define a <strong>monotonic condition</strong>:</p>
+                <ul>
+                    <li>✅ Sorted array search</li>
+                    <li>✅ Find boundary (first true / last false)</li>
+                    <li>✅ "Minimum X such that condition is satisfied" → Binary search on answer</li>
+                    <li>✅ Search in rotated sorted array</li>
+                    <li>✅ Find peak element</li>
+                </ul>
+                <div class="callout info">
+                    <div class="callout-title">💡 The Key Test</div>
+                    <p>If you can define a function f(x) that returns false for all x &lt; answer and true for all x ≥ answer (or vice versa), binary search works!</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Pattern: When to Use Sliding Window</h2>
+                <p>Sliding window works when you need to find an <strong>optimal contiguous sequence</strong>:</p>
+                <ul>
+                    <li>✅ Fixed window: "Max sum of subarray of size K"</li>
+                    <li>✅ Variable window: "Smallest subarray with sum ≥ S"</li>
+                    <li>✅ String pattern: "Longest substring with at most K distinct characters"</li>
+                </ul>
+                <div class="callout info">
+                    <div class="callout-title">💡 The Key Test</div>
+                    <p>If the problem asks about a <strong>contiguous</strong> subarray/substring and you can maintain valid state by expanding right and shrinking left, use sliding window!</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Pattern: When to Use DP vs Greedy</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Aspect</th><th>Dynamic Programming</th><th>Greedy</th></tr></thead>
+                    <tbody>
+                        <tr><td>Approach</td><td>Try all options, pick best</td><td>Make locally optimal choice</td></tr>
+                        <tr><td>Guarantee</td><td>Always optimal</td><td>Only if greedy property holds</td></tr>
+                        <tr><td>Speed</td><td>Usually O(n²) or O(n·W)</td><td>Usually O(n log n) or O(n)</td></tr>
+                        <tr><td>Examples</td><td>Knapsack, LCS, Edit Distance</td><td>Activity Selection, Huffman</td></tr>
+                        <tr><td>Key Question</td><td>"Can I break into overlapping subproblems?"</td><td>"Does choosing local best always lead to global best?"</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Pattern: Optimization Strategy</h2>
+                <p>When you have a brute force solution, optimize using this progression:</p>
+                <div class="ascii-diagram">
+O(n³) → Sort + Two Pointers    → O(n²)
+O(n²) → HashMap/HashSet        → O(n)
+O(n²) → Sort + Binary Search   → O(n log n)
+O(n²) → Sliding Window         → O(n)
+O(n²) → Prefix Sum             → O(n)
+O(n²) → Monotonic Stack        → O(n)
+O(2ⁿ) → Memoization (DP)      → O(n·k)
+                </div>
+                <div class="callout tip">
+                    <div class="callout-title">🎯 The Golden Rule</div>
+                    <p>If you're doing redundant work (checking things you've already checked), there's likely a data structure or technique that can eliminate that redundancy.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🎓</span> Practice: Pattern Identification</h2>
+                <p>For each problem below, identify the pattern before looking at the answer:</p>
+                
+                <div class="collapsible">
+                    <div class="collapsible-header">"Given a sorted array, find two numbers that sum to target" <span class="arrow">▼</span></div>
+                    <div class="collapsible-body"><strong>Pattern: Two Pointers</strong> — Array is sorted, looking for pair → put one pointer at start, one at end, converge based on sum comparison.</div>
+                </div>
+                <div class="collapsible">
+                    <div class="collapsible-header">"Find the longest substring with at most 2 distinct characters" <span class="arrow">▼</span></div>
+                    <div class="collapsible-body"><strong>Pattern: Sliding Window (Variable)</strong> — Contiguous substring + condition on distinct characters → expand right, shrink left when condition violated.</div>
+                </div>
+                <div class="collapsible">
+                    <div class="collapsible-header">"Given n courses with prerequisites, find a valid order to take them" <span class="arrow">▼</span></div>
+                    <div class="collapsible-body"><strong>Pattern: Topological Sort</strong> — Dependencies/prerequisites = directed edges → topological ordering.</div>
+                </div>
+                <div class="collapsible">
+                    <div class="collapsible-header">"Find minimum number of coins to make amount X" <span class="arrow">▼</span></div>
+                    <div class="collapsible-body"><strong>Pattern: Dynamic Programming (Unbounded Knapsack)</strong> — Overlapping subproblems (many ways to make sub-amounts), optimal substructure (min coins for X = 1 + min coins for X-coin).</div>
+                </div>
+                <div class="collapsible">
+                    <div class="collapsible-header">"Count the number of islands in a 2D grid" <span class="arrow">▼</span></div>
+                    <div class="collapsible-body"><strong>Pattern: DFS/BFS (Graph traversal on grid)</strong> — Connected components on a grid → traverse each island, mark visited.</div>
+                </div>
+                <div class="collapsible">
+                    <div class="collapsible-header">"Given daily temperatures, find days until a warmer day" <span class="arrow">▼</span></div>
+                    <div class="collapsible-body"><strong>Pattern: Monotonic Stack</strong> — "Next greater element" pattern → maintain a decreasing stack, pop when we find something greater.</div>
+                </div>
+                <div class="collapsible">
+                    <div class="collapsible-header">"Find if there's a cycle in a linked list" <span class="arrow">▼</span></div>
+                    <div class="collapsible-body"><strong>Pattern: Fast & Slow Pointer (Floyd's)</strong> — Cycle detection in linked structure → two pointers at different speeds will meet if cycle exists.</div>
+                </div>
+                <div class="collapsible">
+                    <div class="collapsible-header">"Generate all valid combinations of n pairs of parentheses" <span class="arrow">▼</span></div>
+                    <div class="collapsible-body"><strong>Pattern: Backtracking</strong> — Generate all valid combinations → decision tree with pruning (open count must ≥ close count).</div>
+                </div>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

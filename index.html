@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSA Mastery - Learn Data Structures & Algorithms</title>
+    <meta name="description" content="Master Data Structures and Algorithms from zero to interview-ready with visual explanations, animations, and 150-day challenge.">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⟨/⟩</text></svg>">
+</head>
+<body>
+    <div id="app">
+        <div id="sidebar"></div>
+        <div class="sidebar-overlay"></div>
+
+        <main id="main-content">
+            <div id="header"></div>
+
+            <!-- Hero Section -->
+            <section class="hero">
+                <h1>DSA Mastery</h1>
+                <p>Master Data Structures & Algorithms from absolute zero to interview-ready. Visual explanations, step-by-step dry runs, and 150+ days of structured practice.</p>
+                
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <div class="stat-num">15</div>
+                        <div class="stat-label">Phases</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="stat-num">90+</div>
+                        <div class="stat-label">Topics</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="stat-num">500+</div>
+                        <div class="stat-label">Problems</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="stat-num">150</div>
+                        <div class="stat-label">Day Challenge</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Progress Dashboard -->
+            <section class="progress-dashboard" id="dashboard">
+                <h2 style="text-align:center; border:none; margin-bottom:24px;">Your Progress</h2>
+                <div class="progress-overview">
+                    <div class="progress-card">
+                        <div class="progress-value" id="dash-completed">0</div>
+                        <div class="progress-label">Topics Completed</div>
+                    </div>
+                    <div class="progress-card">
+                        <div class="progress-value" id="dash-percentage">0%</div>
+                        <div class="progress-label">Overall Progress</div>
+                    </div>
+                    <div class="progress-card">
+                        <div class="progress-value" id="dash-challenges">0</div>
+                        <div class="progress-label">Challenge Days</div>
+                    </div>
+                    <div class="progress-card">
+                        <div class="progress-value" id="dash-streak">—</div>
+                        <div class="progress-label">Last Visited</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Learning Path -->
+            <section style="padding: 0 32px 32px; max-width: 1200px; margin: 0 auto;">
+                <h2 style="text-align:center; border:none; margin-bottom: 8px;">Learning Path</h2>
+                <p style="text-align:center; color:var(--text-secondary); margin-bottom:24px;">Follow this structured path from beginner to expert</p>
+            </section>
+            
+            <div class="phase-grid" id="phase-grid">
+                <!-- Populated by JS -->
+            </div>
+
+            <!-- Quick Links -->
+            <section style="padding: 32px; max-width: 1200px; margin: 0 auto;">
+                <h2 style="text-align:center; border:none; margin-bottom:24px;">Quick Access</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px;">
+                    <a href="patterns/index.html" class="phase-card" style="text-align:center;">
+                        <div style="font-size:2rem; margin-bottom:8px;">🎯</div>
+                        <h3 style="margin:0 0 4px;">Pattern Recognition</h3>
+                        <p>Learn which algorithm to use for any problem</p>
+                    </a>
+                    <a href="cheatsheets/index.html" class="phase-card" style="text-align:center;">
+                        <div style="font-size:2rem; margin-bottom:8px;">📋</div>
+                        <h3 style="margin:0 0 4px;">Cheat Sheets</h3>
+                        <p>Quick reference for every pattern and technique</p>
+                    </a>
+                    <a href="challenges/index.html" class="phase-card" style="text-align:center;">
+                        <div style="font-size:2rem; margin-bottom:8px;">🏆</div>
+                        <h3 style="margin:0 0 4px;">150-Day Challenge</h3>
+                        <p>Daily problems from easy to hard</p>
+                    </a>
+                    <a href="tips/index.html" class="phase-card" style="text-align:center;">
+                        <div style="font-size:2rem; margin-bottom:8px;">💡</div>
+                        <h3 style="margin:0 0 4px;">Tips & Tricks</h3>
+                        <p>Interview strategies and optimization techniques</p>
+                    </a>
+                </div>
+            </section>
+
+            <footer class="site-footer">
+                <p>DSA Mastery @Srihari Chakri</p>
+            </footer>
+        </main>
+    </div>
+
+    <div id="search-modal"></div>
+
+    <script src="assets/data/curriculum.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script>
+        // Populate phase grid
+        document.addEventListener('DOMContentLoaded', function() {
+            const grid = document.getElementById('phase-grid');
+            if (!grid || typeof DSA_CURRICULUM === 'undefined') return;
+
+            grid.innerHTML = DSA_CURRICULUM.phases.map(phase => {
+                const completed = phase.topics.filter(t => Progress.isCompleted(t.id)).length;
+                const pct = Math.round((completed / phase.topics.length) * 100);
+                return `
+                <a href="topics/${phase.topics[0].file}" class="phase-card">
+                    <div class="phase-num">${phase.name}</div>
+                    <h3>${phase.title}</h3>
+                    <p>${phase.description}</p>
+                    <div class="phase-topics-list">
+                        ${phase.topics.slice(0, 5).map(t => `<span class="topic-chip">${t.title}</span>`).join('')}
+                        ${phase.topics.length > 5 ? `<span class="topic-chip">+${phase.topics.length - 5} more</span>` : ''}
+                    </div>
+                    <div class="phase-progress-bar">
+                        <div class="phase-progress-fill" style="width: ${pct}%"></div>
+                    </div>
+                </a>`;
+            }).join('');
+
+            // Update dashboard
+            document.getElementById('dash-completed').textContent = Progress.getCompletedCount();
+            document.getElementById('dash-percentage').textContent = Progress.getPercentage() + '%';
+            document.getElementById('dash-challenges').textContent = ChallengeProgress.getCompletedCount();
+            
+            const last = Progress.getLastVisited();
+            if (last) {
+                let name = last;
+                DSA_CURRICULUM.phases.forEach(p => {
+                    p.topics.forEach(t => {
+                        if (t.id === last) name = t.title;
+                    });
+                });
+                document.getElementById('dash-streak').textContent = name;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cheat Sheets - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><span class="current">Cheat Sheets</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>📋 Cheat Sheets</h1>
+                <p style="font-size:1.1rem; color:var(--text-secondary);">Quick-reference checklists for every major DSA pattern. Print these or review before interviews.</p>
+            </div>
+
+            <!-- Binary Search -->
+            <div class="cheatsheet-card">
+                <h3>🔍 Binary Search Checklist</h3>
+                <ul class="cheatsheet-checklist">
+                    <li>Is the input sorted or has a monotonic property?</li>
+                    <li>Use <code>left + (right - left) / 2</code> for mid (avoid overflow)</li>
+                    <li>Decide: <code>left &lt;= right</code> (inclusive) or <code>left &lt; right</code> (exclusive)?</li>
+                    <li>Move <code>left = mid + 1</code> or <code>right = mid - 1</code> (never leave mid in range)</li>
+                    <li>For lower/upper bound: use <code>right = mid</code> (not mid-1)</li>
+                    <li>Binary search on answer: define a feasibility function</li>
+                    <li>Edge cases: empty array, single element, target not present</li>
+                    <li>Time: O(log n) | Space: O(1) iterative, O(log n) recursive</li>
+                </ul>
+                <div style="margin-top:12px; font-size:0.85rem; color:var(--text-muted);">
+                    <strong>Template:</strong> left=0, right=n-1, while left≤right, mid=(left+right)/2, compare, adjust
+                </div>
+            </div>
+
+            <!-- Sliding Window -->
+            <div class="cheatsheet-card">
+                <h3>🪟 Sliding Window Checklist</h3>
+                <ul class="cheatsheet-checklist">
+                    <li>Problem involves <strong>contiguous</strong> subarray or substring</li>
+                    <li><strong>Fixed window:</strong> maintain window of size K, slide right, add new, remove old</li>
+                    <li><strong>Variable window:</strong> expand right pointer, shrink left when condition violated</li>
+                    <li>Track window state with HashMap, counter, or running sum</li>
+                    <li>Update answer when window is valid (max/min)</li>
+                    <li>For string problems: use frequency array (size 26 for lowercase)</li>
+                    <li>Edge cases: empty input, window larger than input, all same characters</li>
+                    <li>Time: O(n) — each element enters and leaves window once | Space: O(k) or O(1)</li>
+                </ul>
+                <div style="margin-top:12px; font-size:0.85rem; color:var(--text-muted);">
+                    <strong>Template:</strong> left=0, for right in range(n): add arr[right], while invalid: remove arr[left], left++, update answer
+                </div>
+            </div>
+
+            <!-- Two Pointers -->
+            <div class="cheatsheet-card">
+                <h3>👆👆 Two Pointers Checklist</h3>
+                <ul class="cheatsheet-checklist">
+                    <li><strong>Opposite direction:</strong> left=0, right=n-1, converge based on condition</li>
+                    <li><strong>Same direction:</strong> slow and fast pointer for in-place operations</li>
+                    <li>Usually requires <strong>sorted array</strong> for pair-finding problems</li>
+                    <li>For 3Sum: fix one element, use two pointers for remaining</li>
+                    <li>Skip duplicates to avoid duplicate results</li>
+                    <li>Edge cases: empty array, two elements, all same values</li>
+                    <li>Time: O(n) with sort O(n log n) | Space: O(1)</li>
+                </ul>
+            </div>
+
+            <!-- DFS -->
+            <div class="cheatsheet-card">
+                <h3>🌊 DFS Checklist</h3>
+                <ul class="cheatsheet-checklist">
+                    <li>Use for: explore all paths, connected components, cycle detection, topological sort</li>
+                    <li>Implement with: recursion (implicit stack) or explicit stack</li>
+                    <li>Always mark visited nodes to avoid infinite loops</li>
+                    <li>For grids: check bounds and visited before exploring neighbors</li>
+                    <li>For trees: no need for visited array (no cycles)</li>
+                    <li>Preorder: process node, then recurse children</li>
+                    <li>Postorder: recurse children, then process node</li>
+                    <li>Time: O(V + E) | Space: O(V) for visited + O(V) for stack</li>
+                </ul>
+            </div>
+
+            <!-- BFS -->
+            <div class="cheatsheet-card">
+                <h3>🌐 BFS Checklist</h3>
+                <ul class="cheatsheet-checklist">
+                    <li>Use for: shortest path (unweighted), level-order traversal, minimum steps</li>
+                    <li>Implement with: queue (FIFO)</li>
+                    <li>Add to visited WHEN ADDING to queue (not when popping) to avoid duplicates</li>
+                    <li>For level-by-level: process queue size at each level</li>
+                    <li>Multi-source BFS: start with all sources in queue simultaneously</li>
+                    <li>For grids: 4-directional → dx=[0,0,1,-1], dy=[1,-1,0,0]</li>
+                    <li>Time: O(V + E) | Space: O(V) for queue + visited</li>
+                </ul>
+            </div>
+
+            <!-- DP -->
+            <div class="cheatsheet-card">
+                <h3>🧩 Dynamic Programming Checklist</h3>
+                <ul class="cheatsheet-checklist">
+                    <li><strong>Step 1:</strong> Can I define the problem in terms of smaller subproblems?</li>
+                    <li><strong>Step 2:</strong> Define state — what variables describe a subproblem? (dp[i], dp[i][j])</li>
+                    <li><strong>Step 3:</strong> Write recurrence relation (transition formula)</li>
+                    <li><strong>Step 4:</strong> Identify base cases</li>
+                    <li><strong>Step 5:</strong> Choose top-down (memoization) or bottom-up (tabulation)</li>
+                    <li><strong>Step 6:</strong> Optimize space if possible (rolling array, two rows)</li>
+                    <li>Common patterns: Fibonacci, Knapsack, LCS, LIS, Grid traversal, Interval DP</li>
+                    <li>If problem says "count ways" or "min/max cost" → likely DP</li>
+                    <li>Time: depends on states × transitions | Space: depends on state dimensions</li>
+                </ul>
+                <div style="margin-top:12px; font-size:0.85rem; color:var(--text-muted);">
+                    <strong>Template:</strong> dp[i] = best answer considering first i elements. Transition: dp[i] = f(dp[i-1], dp[i-2], ...)
+                </div>
+            </div>
+
+            <!-- Backtracking -->
+            <div class="cheatsheet-card">
+                <h3>🔙 Backtracking Checklist</h3>
+                <ul class="cheatsheet-checklist">
+                    <li>Use for: generating all valid combinations, permutations, subsets</li>
+                    <li>Structure: choose → explore → unchoose (backtrack)</li>
+                    <li>Prune early: skip invalid branches before recursing</li>
+                    <li>For subsets: at each element, choose to include or exclude</li>
+                    <li>For permutations: try each unused element at current position</li>
+                    <li>For combinations: use start index to avoid duplicates</li>
+                    <li>Sort input first to skip duplicates easily</li>
+                    <li>Time: usually O(2ⁿ) or O(n!) | Space: O(n) for recursion depth</li>
+                </ul>
+            </div>
+
+            <!-- Graph -->
+            <div class="cheatsheet-card">
+                <h3>🕸️ Graph Checklist</h3>
+                <ul class="cheatsheet-checklist">
+                    <li><strong>Representation:</strong> Adjacency list (sparse), Adjacency matrix (dense)</li>
+                    <li><strong>Traversal:</strong> DFS (stack/recursion), BFS (queue)</li>
+                    <li><strong>Shortest path:</strong> BFS (unweighted), Dijkstra (weighted, no negative), Bellman-Ford (negative edges)</li>
+                    <li><strong>Cycle detection:</strong> DFS with coloring (white/gray/black)</li>
+                    <li><strong>Topological sort:</strong> Kahn's (BFS) or DFS-based</li>
+                    <li><strong>Connected components:</strong> DFS/BFS or Union-Find</li>
+                    <li><strong>MST:</strong> Kruskal's (sort edges + Union-Find) or Prim's (priority queue)</li>
+                    <li>Always consider: directed vs undirected, weighted vs unweighted, cyclic vs acyclic</li>
+                </ul>
+            </div>
+
+            <!-- Heap -->
+            <div class="cheatsheet-card">
+                <h3>🏔️ Heap Checklist</h3>
+                <ul class="cheatsheet-checklist">
+                    <li>Use for: Top K elements, Kth largest/smallest, merge K sorted, median of stream</li>
+                    <li>Min-heap: root is minimum → use for "K largest" (keep K smallest out)</li>
+                    <li>Max-heap: root is maximum → use for "K smallest"</li>
+                    <li>Two heaps pattern: max-heap for lower half, min-heap for upper half → median</li>
+                    <li>Insert: O(log n) | Extract: O(log n) | Peek: O(1)</li>
+                    <li>Build heap from array: O(n) (not O(n log n)!)</li>
+                    <li>Heap sort: O(n log n) time, O(1) space (in-place)</li>
+                </ul>
+            </div>
+
+            <!-- Stack -->
+            <div class="cheatsheet-card">
+                <h3>📚 Stack Checklist</h3>
+                <ul class="cheatsheet-checklist">
+                    <li>LIFO: Last In, First Out</li>
+                    <li>Use for: matching brackets, expression evaluation, undo operations</li>
+                    <li><strong>Monotonic stack:</strong> maintain increasing/decreasing order for next greater/smaller</li>
+                    <li>For expression evaluation: two stacks (operators + operands)</li>
+                    <li>For parentheses: push opening, pop on closing, check match</li>
+                    <li>All operations O(1): push, pop, peek</li>
+                    <li>Stack overflow: watch for deep recursion</li>
+                </ul>
+            </div>
+
+            <!-- HashMap -->
+            <div class="cheatsheet-card">
+                <h3>🗺️ HashMap Checklist</h3>
+                <ul class="cheatsheet-checklist">
+                    <li>Use for: O(1) lookup, counting frequency, grouping by key</li>
+                    <li><strong>Two Sum pattern:</strong> store complement as you iterate</li>
+                    <li><strong>Frequency count:</strong> count occurrences, check if matches condition</li>
+                    <li><strong>Group by:</strong> map from key → list of values (anagram grouping)</li>
+                    <li><strong>Sliding window + HashMap:</strong> track character frequencies in window</li>
+                    <li>HashSet for "have I seen this before?" queries</li>
+                    <li>Time: O(1) average for get/set | Space: O(n)</li>
+                    <li>Time-space tradeoff: HashMap gives O(1) lookups at the cost of O(n) space</li>
+                </ul>
+            </div>
+
+            <!-- Tree -->
+            <div class="cheatsheet-card">
+                <h3>🌳 Tree Checklist</h3>
+                <ul class="cheatsheet-checklist">
+                    <li><strong>Traversals:</strong> Inorder (left-root-right), Preorder (root-left-right), Postorder (left-right-root), Level-order (BFS)</li>
+                    <li>Inorder of BST gives sorted order</li>
+                    <li><strong>Height/depth:</strong> max(leftHeight, rightHeight) + 1</li>
+                    <li><strong>Balanced check:</strong> |leftHeight - rightHeight| ≤ 1 at every node</li>
+                    <li><strong>LCA:</strong> if p and q on different sides of root → root is LCA</li>
+                    <li><strong>Path problems:</strong> DFS with backtracking, pass accumulated value</li>
+                    <li>Most tree problems are solved with DFS (recursion)</li>
+                    <li>Time: O(n) — visit each node | Space: O(h) — recursion depth = height</li>
+                </ul>
+            </div>
+
+            <!-- Complexity Quick Reference -->
+            <div class="cheatsheet-card">
+                <h3>⏱️ Complexity Quick Reference</h3>
+                <table class="complexity-table">
+                    <thead><tr><th>Data Structure</th><th>Access</th><th>Search</th><th>Insert</th><th>Delete</th></tr></thead>
+                    <tbody>
+                        <tr><td>Array</td><td class="best">O(1)</td><td class="avg">O(n)</td><td class="worst">O(n)</td><td class="worst">O(n)</td></tr>
+                        <tr><td>Linked List</td><td class="avg">O(n)</td><td class="avg">O(n)</td><td class="best">O(1)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Stack/Queue</td><td class="avg">O(n)</td><td class="avg">O(n)</td><td class="best">O(1)</td><td class="best">O(1)</td></tr>
+                        <tr><td>HashMap</td><td>—</td><td class="best">O(1)*</td><td class="best">O(1)*</td><td class="best">O(1)*</td></tr>
+                        <tr><td>BST (balanced)</td><td>—</td><td class="best">O(log n)</td><td class="best">O(log n)</td><td class="best">O(log n)</td></tr>
+                        <tr><td>Heap</td><td>—</td><td class="avg">O(n)</td><td class="best">O(log n)</td><td class="best">O(log n)</td></tr>
+                        <tr><td>Trie</td><td>—</td><td class="best">O(L)</td><td class="best">O(L)</td><td class="best">O(L)</td></tr>
+                    </tbody>
+                </table>
+                <p class="text-muted" style="font-size:0.8rem;">* Average case. Worst case O(n) with bad hash function. L = length of key/word.</p>
+
+                <h4 style="margin-top:16px;">Sorting Algorithms</h4>
+                <table class="complexity-table">
+                    <thead><tr><th>Algorithm</th><th>Best</th><th>Average</th><th>Worst</th><th>Space</th><th>Stable?</th></tr></thead>
+                    <tbody>
+                        <tr><td>Bubble Sort</td><td class="best">O(n)</td><td class="worst">O(n²)</td><td class="worst">O(n²)</td><td class="best">O(1)</td><td>Yes</td></tr>
+                        <tr><td>Selection Sort</td><td class="worst">O(n²)</td><td class="worst">O(n²)</td><td class="worst">O(n²)</td><td class="best">O(1)</td><td>No</td></tr>
+                        <tr><td>Insertion Sort</td><td class="best">O(n)</td><td class="worst">O(n²)</td><td class="worst">O(n²)</td><td class="best">O(1)</td><td>Yes</td></tr>
+                        <tr><td>Merge Sort</td><td class="avg">O(n log n)</td><td class="avg">O(n log n)</td><td class="avg">O(n log n)</td><td class="avg">O(n)</td><td>Yes</td></tr>
+                        <tr><td>Quick Sort</td><td class="avg">O(n log n)</td><td class="avg">O(n log n)</td><td class="worst">O(n²)</td><td class="best">O(log n)</td><td>No</td></tr>
+                        <tr><td>Heap Sort</td><td class="avg">O(n log n)</td><td class="avg">O(n log n)</td><td class="avg">O(n log n)</td><td class="best">O(1)</td><td>No</td></tr>
+                        <tr><td>Counting Sort</td><td class="best">O(n+k)</td><td class="best">O(n+k)</td><td class="best">O(n+k)</td><td class="avg">O(k)</td><td>Yes</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tips &amp; Tricks - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><span class="current">Tips &amp; Tricks</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>💡 Tips &amp; Tricks</h1>
+                <p style="font-size:1.1rem; color:var(--text-secondary);">Proven strategies to solve problems faster, optimize solutions, and ace interviews.</p>
+            </div>
+
+            <!-- How to Think During Interviews -->
+            <div class="section-card">
+                <h2><span class="section-icon">🧠</span> How to Think During an Interview</h2>
+                <ol>
+                    <li><strong>Understand the problem (2-3 min):</strong> Repeat it back. Ask clarifying questions. Identify input/output format, constraints, edge cases.</li>
+                    <li><strong>Work through examples (2-3 min):</strong> Trace through 2-3 examples by hand. Include edge cases.</li>
+                    <li><strong>Brute force first (1-2 min):</strong> State the obvious O(n²) or O(2ⁿ) solution. This shows you understand the problem.</li>
+                    <li><strong>Optimize (5-10 min):</strong> Apply pattern recognition. "Can I use a HashMap? Two Pointers? Sorting?" State the improved complexity.</li>
+                    <li><strong>Code it (10-15 min):</strong> Write clean, modular code. Use meaningful variable names.</li>
+                    <li><strong>Test it (3-5 min):</strong> Walk through your code with the examples. Check edge cases.</li>
+                </ol>
+
+                <div class="callout tip">
+                    <div class="callout-title">🎯 The #1 Mistake</div>
+                    <p>Jumping straight into coding without understanding the problem. Spend 5 minutes thinking BEFORE writing any code. The interviewer wants to see your thought process, not just code.</p>
+                </div>
+            </div>
+
+            <!-- Optimization Strategies -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚡</span> How to Reduce O(n²) to O(n)</h2>
+                
+                <h3>Strategy 1: HashMap for Lookup</h3>
+                <p>If you're using a nested loop to find a match, use a HashMap instead.</p>
+                <pre><code>// ❌ O(n²) - nested loop
+for (let i = 0; i &lt; n; i++)
+    for (let j = i+1; j &lt; n; j++)
+        if (arr[i] + arr[j] === target) return [i, j];
+
+// ✅ O(n) - HashMap
+const map = {};
+for (let i = 0; i &lt; n; i++) {
+    if (map[target - arr[i]] !== undefined) return [map[target - arr[i]], i];
+    map[arr[i]] = i;
+}</code></pre>
+
+                <h3>Strategy 2: Sorting + Two Pointers</h3>
+                <p>Sort first (O(n log n)), then use two pointers (O(n)). Total: O(n log n).</p>
+
+                <h3>Strategy 3: Prefix Sum for Range Queries</h3>
+                <p>Precompute prefix sums to answer any range sum query in O(1).</p>
+                <pre><code>// Instead of summing arr[l..r] each time: O(n)
+// Precompute: prefix[i] = arr[0] + arr[1] + ... + arr[i-1]
+// Then: sum(l, r) = prefix[r+1] - prefix[l]  → O(1)!</code></pre>
+
+                <h3>Strategy 4: Sliding Window</h3>
+                <p>Instead of checking all subarrays (O(n²)), maintain a window that slides (O(n)).</p>
+
+                <h3>Strategy 5: Monotonic Stack</h3>
+                <p>For "next greater element" patterns, stack processes each element at most twice → O(n).</p>
+            </div>
+
+            <!-- When to Use What -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔧</span> When Each Technique Helps</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Technique</th><th>When It Helps</th><th>Improvement</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>HashMap</strong></td><td>Need O(1) lookup for complement, frequency, or existence</td><td>O(n²) → O(n)</td></tr>
+                        <tr><td><strong>Sorting</strong></td><td>Need to group similar items, find pairs, remove duplicates</td><td>O(n²) → O(n log n)</td></tr>
+                        <tr><td><strong>Two Pointers</strong></td><td>Sorted array + find pairs, partition, remove duplicates</td><td>O(n²) → O(n)</td></tr>
+                        <tr><td><strong>Sliding Window</strong></td><td>Contiguous subarray/substring with condition</td><td>O(n²) → O(n)</td></tr>
+                        <tr><td><strong>Prefix Sum</strong></td><td>Multiple range sum queries</td><td>O(n*q) → O(n + q)</td></tr>
+                        <tr><td><strong>Binary Search</strong></td><td>Sorted data, monotonic condition, search on answer</td><td>O(n) → O(log n)</td></tr>
+                        <tr><td><strong>Heap</strong></td><td>Dynamic min/max, top K elements</td><td>O(n log n) → O(n log k)</td></tr>
+                        <tr><td><strong>Memoization</strong></td><td>Overlapping subproblems in recursion</td><td>O(2ⁿ) → O(n·k)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Interview Tricks -->
+            <div class="section-card">
+                <h2><span class="section-icon">🎩</span> Common Interview Tricks</h2>
+
+                <div class="collapsible">
+                    <div class="collapsible-header">XOR to find the single unique number <span class="arrow">▼</span></div>
+                    <div class="collapsible-body">
+                        <p>XOR of a number with itself = 0. XOR of any number with 0 = itself. So XOR all numbers and duplicates cancel out!</p>
+                        <pre><code>// Find the one number that appears once (all others appear twice)
+let result = 0;
+for (let num of arr) result ^= num;
+// result = the unique number</code></pre>
+                    </div>
+                </div>
+
+                <div class="collapsible">
+                    <div class="collapsible-header">Use sorting to simplify problems <span class="arrow">▼</span></div>
+                    <div class="collapsible-body">
+                        <p>Many problems become dramatically easier after sorting: finding duplicates, merging intervals, 3Sum, closest pair. Always ask: "Would sorting help?"</p>
+                    </div>
+                </div>
+
+                <div class="collapsible">
+                    <div class="collapsible-header">Reverse an array in-place with swaps <span class="arrow">▼</span></div>
+                    <div class="collapsible-body">
+                        <pre><code>function reverse(arr, l, r) {
+    while (l &lt; r) {
+        [arr[l], arr[r]] = [arr[r], arr[l]];
+        l++; r--;
+    }
+}
+// Used in: rotate array, reverse words, palindrome checks</code></pre>
+                    </div>
+                </div>
+
+                <div class="collapsible">
+                    <div class="collapsible-header">Dummy node for linked list operations <span class="arrow">▼</span></div>
+                    <div class="collapsible-body">
+                        <p>Create a dummy node before the head. This eliminates edge cases for operations at the beginning of the list.</p>
+                        <pre><code>let dummy = { next: head };
+// ... do operations ...
+return dummy.next; // new head</code></pre>
+                    </div>
+                </div>
+
+                <div class="collapsible">
+                    <div class="collapsible-header">Fast power: O(log n) exponentiation <span class="arrow">▼</span></div>
+                    <div class="collapsible-body">
+                        <pre><code>function power(base, exp, mod) {
+    let result = 1;
+    base %= mod;
+    while (exp > 0) {
+        if (exp % 2 === 1) result = (result * base) % mod;
+        exp = Math.floor(exp / 2);
+        base = (base * base) % mod;
+    }
+    return result;
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="collapsible">
+                    <div class="collapsible-header">Check if number is power of 2 <span class="arrow">▼</span></div>
+                    <div class="collapsible-body">
+                        <pre><code>// n & (n-1) === 0 means only one bit is set = power of 2
+function isPowerOf2(n) {
+    return n > 0 && (n & (n - 1)) === 0;
+}
+// 8 = 1000, 7 = 0111 → 1000 & 0111 = 0000 ✓</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edge Case Checklist -->
+            <div class="section-card">
+                <h2><span class="section-icon">✅</span> Edge Case Checklist</h2>
+                <p>Always test your solution against these edge cases:</p>
+                <table class="complexity-table">
+                    <thead><tr><th>Input Type</th><th>Edge Cases to Check</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>Array</strong></td><td>Empty [], single element [x], two elements, all same values, already sorted, reverse sorted</td></tr>
+                        <tr><td><strong>String</strong></td><td>Empty "", single char, all same chars, palindrome, spaces</td></tr>
+                        <tr><td><strong>Number</strong></td><td>0, 1, -1, negative, MAX_INT, MIN_INT, overflow</td></tr>
+                        <tr><td><strong>Linked List</strong></td><td>null, single node, two nodes, cycle, already sorted</td></tr>
+                        <tr><td><strong>Tree</strong></td><td>null, single node, skewed (linked list shape), complete, balanced</td></tr>
+                        <tr><td><strong>Graph</strong></td><td>Empty, single node, disconnected, cycle, self-loop, directed vs undirected</td></tr>
+                        <tr><td><strong>Matrix</strong></td><td>1×1, single row, single column, all same values</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Whiteboard Strategy -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Whiteboard Solving Strategy</h2>
+                <div class="ascii-diagram">
+Step 1: UNDERSTAND        → Read. Repeat. Ask questions. Clarify constraints.
+                           ↓
+Step 2: EXAMPLES           → 2-3 examples including edge cases.
+                           ↓
+Step 3: BRUTE FORCE        → State the obvious solution + complexity.
+                           ↓
+Step 4: OPTIMIZE           → Apply patterns. HashMap? Sort? Two Pointers? DP?
+                           ↓
+Step 5: WALK THROUGH       → Trace your optimized approach on an example.
+                           ↓
+Step 6: CODE               → Clean, modular code with meaningful names.
+                           ↓
+Step 7: TEST               → Trace code with examples. Check edge cases.
+                           ↓
+Step 8: COMPLEXITY         → State time and space complexity. Explain why.
+                </div>
+            </div>
+
+            <!-- Recognizing Hidden Patterns -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔎</span> Recognizing Hidden Patterns</h2>
+                <ul>
+                    <li><strong>"Maximum/Minimum subarray"</strong> → Kadane's Algorithm or Sliding Window</li>
+                    <li><strong>"K-th element"</strong> → Heap or QuickSelect</li>
+                    <li><strong>"Number of ways"</strong> → Dynamic Programming or Backtracking</li>
+                    <li><strong>"Can you partition"</strong> → DP (subset sum variant)</li>
+                    <li><strong>"Schedule meetings/tasks"</strong> → Greedy (sort by end time)</li>
+                    <li><strong>"Matrix traversal"</strong> → BFS/DFS (treat as graph)</li>
+                    <li><strong>"Parentheses matching"</strong> → Stack</li>
+                    <li><strong>"Detect cycle"</strong> → Fast-Slow Pointer (linked list) or DFS coloring (graph)</li>
+                    <li><strong>"Merge K sorted"</strong> → Min Heap</li>
+                    <li><strong>"String search/match"</strong> → Trie, KMP, or Rolling Hash</li>
+                </ul>
+            </div>
+
+            <!-- Debugging Techniques -->
+            <div class="section-card">
+                <h2><span class="section-icon">🐛</span> Debugging Techniques</h2>
+                <ol>
+                    <li><strong>Print the state:</strong> Add console.log for key variables at each step</li>
+                    <li><strong>Trace by hand:</strong> Walk through your code line-by-line with a simple input</li>
+                    <li><strong>Check boundaries:</strong> Off-by-one errors are the #1 bug. Check loop bounds carefully</li>
+                    <li><strong>Simplify the input:</strong> If failing on large input, try the smallest failing case</li>
+                    <li><strong>Check your base case:</strong> For recursion/DP, verify base cases handle all terminal conditions</li>
+                    <li><strong>Rubber duck debugging:</strong> Explain your code out loud — you'll often spot the bug while explaining</li>
+                </ol>
+            </div>
+
+            <!-- How to Derive Optimal Solution -->
+            <div class="section-card">
+                <h2><span class="section-icon">💎</span> How to Derive the Optimal Solution</h2>
+                <p>Follow this mental framework:</p>
+                <ol>
+                    <li><strong>What work am I repeating?</strong> → Can I cache it? (HashMap, Memoization)</li>
+                    <li><strong>Am I looking at all pairs?</strong> → Can I use Two Pointers or HashMap to avoid nested loops?</li>
+                    <li><strong>Am I recomputing sums?</strong> → Prefix Sum</li>
+                    <li><strong>Am I checking all subarrays?</strong> → Sliding Window</li>
+                    <li><strong>Am I searching linearly in sorted data?</strong> → Binary Search</li>
+                    <li><strong>Can I make a greedy choice?</strong> → Prove it's always optimal, then use Greedy</li>
+                    <li><strong>Does the problem have optimal substructure + overlapping subproblems?</strong> → DP</li>
+                </ol>
+
+                <div class="callout info">
+                    <div class="callout-title">💡 The Master Question</div>
+                    <p>"What information am I throwing away between iterations that I could keep?" — This question alone can lead you to most optimizations.</p>
+                </div>
+            </div>
+
+            <!-- Quick Formulas -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔢</span> Useful Formulas & Facts</h2>
+                <ul>
+                    <li>Sum of 1 to n: <code>n * (n + 1) / 2</code></li>
+                    <li>Number of subsets of n elements: <code>2ⁿ</code></li>
+                    <li>Number of subarrays of length n: <code>n * (n + 1) / 2</code></li>
+                    <li>Height of balanced binary tree with n nodes: <code>log₂(n)</code></li>
+                    <li>Nodes in complete binary tree of height h: <code>2^(h+1) - 1</code></li>
+                    <li>Max nodes at level k: <code>2^k</code></li>
+                    <li>For HashMap: load factor > 0.75 → rehash (double size)</li>
+                    <li>Master theorem for divide & conquer: T(n) = aT(n/b) + O(nᵈ)</li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

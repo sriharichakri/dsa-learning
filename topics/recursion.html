@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recursion - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 1</a><span class="separator">›</span><span class="current">Recursion</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Recursion</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 1</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="recursion">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Recursion?</h2>
+                <p>Recursion is when a <strong>function calls itself</strong> to solve a smaller version of the same problem.</p>
+                <p>Think of it like <strong>Russian nesting dolls (Matryoshka)</strong>: you open a doll, and inside there's a smaller doll. You keep opening until you reach the tiniest doll that can't be opened — that's your <strong>base case</strong>.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Two Essential Parts</div>
+                    <p><strong>1. Base Case:</strong> The condition where recursion stops. Without it → infinite loop → stack overflow!<br>
+                    <strong>2. Recursive Case:</strong> The function calls itself with a smaller/simpler input, moving toward the base case.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogies</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🪞 Mirror Facing a Mirror</div>
+                    <p>Stand between two mirrors. You see yourself reflected infinitely. Each reflection is a "recursive call." In programming, we need a base case to stop — otherwise, it's infinite reflections (stack overflow)!</p>
+                </div>
+                <ul>
+                    <li><strong>Finding your way out of a maze:</strong> Try a path. Dead end? Go back and try the next path. This "try, backtrack, try again" IS recursion.</li>
+                    <li><strong>Counting people in a line:</strong> You ask the person in front: "How many people are in front of you?" They ask the next person. The person at the front says "0" (base case). Then answers bubble back: 0 → 1 → 2 → 3.</li>
+                    <li><strong>Google search "recursion":</strong> Google actually shows "Did you mean: recursion?" — a fun recursive joke!</li>
+                </ul>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How Recursion Works: The Call Stack</h2>
+                <p>Every time a function calls itself, a new <strong>frame</strong> is pushed onto the <strong>call stack</strong>. When the base case is reached, frames start <strong>popping off</strong> and returning values.</p>
+
+                <h3>Example: Factorial (n!)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function factorial(n) {
+    if (n <= 1) return 1;       // Base case
+    return n * factorial(n - 1); // Recursive case
+}
+
+factorial(4); // → 24</code></pre>
+
+                <div class="viz-container">
+                    <div class="viz-title">Call Stack Visualization: factorial(4)</div>
+                    <div class="ascii-diagram">
+CALL PHASE (pushing frames):        RETURN PHASE (popping frames):
+
+factorial(4)                         factorial(4) = 4 * 6 = 24  ← answer!
+  └─ factorial(3)                      └─ factorial(3) = 3 * 2 = 6
+      └─ factorial(2)                      └─ factorial(2) = 2 * 1 = 2
+          └─ factorial(1)                      └─ factorial(1) = 1  ← base case
+              return 1                             return 1
+                    </div>
+                </div>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Call <code>factorial(4)</code> → needs <code>4 * factorial(3)</code></div><div class="step-state">Stack: [f(4)]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Call <code>factorial(3)</code> → needs <code>3 * factorial(2)</code></div><div class="step-state">Stack: [f(4), f(3)]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Call <code>factorial(2)</code> → needs <code>2 * factorial(1)</code></div><div class="step-state">Stack: [f(4), f(3), f(2)]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Call <code>factorial(1)</code> → <strong>Base case!</strong> Returns 1</div><div class="step-state">Stack: [f(4), f(3), f(2), f(1)] → pop!</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">Return: f(2) = 2 × 1 = 2, f(3) = 3 × 2 = 6, f(4) = 4 × 6 = <strong>24</strong></div><div class="step-state">Answer: 24 ✅</div></div></div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🎯</span> Classic Recursion Problems</h2>
+                
+                <h3>1. Fibonacci Numbers</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Naive recursive — O(2ⁿ) time, O(n) space
+function fib(n) {
+    if (n <= 1) return n;         // Base cases: fib(0)=0, fib(1)=1
+    return fib(n-1) + fib(n-2);   // Recursive case
+}
+
+// Optimized with memoization — O(n) time, O(n) space
+function fibMemo(n, memo = {}) {
+    if (n <= 1) return n;
+    if (memo[n]) return memo[n];
+    memo[n] = fibMemo(n-1, memo) + fibMemo(n-2, memo);
+    return memo[n];
+}</code></pre>
+                <div class="callout warning">
+                    <div class="callout-title">⚡ Why naive Fibonacci is O(2ⁿ)</div>
+                    <p>Each call branches into TWO more calls. fib(5) makes 15 calls, fib(10) makes 177, fib(30) makes over 2.6 million! The tree of calls doubles at every level.</p>
+                </div>
+
+                <h3>2. Sum of Array (Recursive Thinking)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function sumArray(arr, i = 0) {
+    if (i >= arr.length) return 0;      // Base: no elements left
+    return arr[i] + sumArray(arr, i+1);  // Current + rest
+}
+// sumArray([3, 7, 2]) → 3 + 7 + 2 + 0 = 12</code></pre>
+
+                <h3>3. Power Function</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// O(n) version
+function power(base, exp) {
+    if (exp === 0) return 1;
+    return base * power(base, exp - 1);
+}
+
+// O(log n) version — fast exponentiation!
+function fastPower(base, exp) {
+    if (exp === 0) return 1;
+    if (exp % 2 === 0) {
+        let half = fastPower(base, exp / 2);
+        return half * half;
+    }
+    return base * fastPower(base, exp - 1);
+}</code></pre>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Problem</th><th>Time</th><th>Space (Stack)</th></tr></thead>
+                    <tbody>
+                        <tr><td>Factorial</td><td class="avg">O(n)</td><td class="avg">O(n)</td></tr>
+                        <tr><td>Fibonacci (naive)</td><td class="worst">O(2ⁿ)</td><td class="avg">O(n)</td></tr>
+                        <tr><td>Fibonacci (memoized)</td><td class="best">O(n)</td><td class="avg">O(n)</td></tr>
+                        <tr><td>Binary Search (recursive)</td><td class="best">O(log n)</td><td class="best">O(log n)</td></tr>
+                        <tr><td>Tower of Hanoi</td><td class="worst">O(2ⁿ)</td><td class="avg">O(n)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Missing or Wrong Base Case</div>
+                    <pre><code>// ❌ No base case → infinite recursion → CRASH!
+function bad(n) { return n + bad(n - 1); }
+
+// ✅ Always have a base case
+function good(n) {
+    if (n <= 0) return 0; // BASE CASE
+    return n + good(n - 1);
+}</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not moving toward the base case</div>
+                    <pre><code>// ❌ n never decreases!
+function broken(n) {
+    if (n === 0) return 0;
+    return broken(n); // should be broken(n-1)
+}</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting that recursion uses stack space</div>
+                    <p>A recursion going 100,000 levels deep will likely cause a <strong>stack overflow</strong>. For large inputs, consider converting to an <strong>iterative</strong> solution.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Recursion is the foundation for <strong>Trees, Graphs, Backtracking, and DP</strong></li>
+                    <li>Interviewers love asking: "Can you convert this recursive solution to iterative?"</li>
+                    <li>Always mention the <strong>space complexity of the call stack</strong></li>
+                    <li>Know when recursion is better (trees, backtracking) vs when iteration is better (simple loops)</li>
+                    <li>Memoization turns O(2ⁿ) recursion into O(n) — this is the bridge to Dynamic Programming</li>
+                </ul>
+            </div>
+
+            <div class="quick-notes">
+                <h3>📝 Quick Revision</h3>
+                <ul>
+                    <li>Recursion = function calling itself. Needs base case + recursive case.</li>
+                    <li>Call stack grows with each call. Space = O(depth).</li>
+                    <li>Memoization = cache results to avoid repeated work.</li>
+                    <li>Converting recursion to iteration usually uses an explicit stack.</li>
+                    <li>Recursion is essential for trees, graphs, backtracking, DP.</li>
+                </ul>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">509</span><span class="lc-name"><a href="https://leetcode.com/problems/fibonacci-number/" target="_blank">Fibonacci Number</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Basic</span></li>
+                    <li class="leetcode-item"><span class="lc-number">50</span><span class="lc-name"><a href="https://leetcode.com/problems/powx-n/" target="_blank">Pow(x, n)</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Divide & Conquer</span></li>
+                    <li class="leetcode-item"><span class="lc-number">206</span><span class="lc-name"><a href="https://leetcode.com/problems/reverse-linked-list/" target="_blank">Reverse Linked List</a> (recursive)</span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Linked List</span></li>
+                    <li class="leetcode-item"><span class="lc-number">21</span><span class="lc-name"><a href="https://leetcode.com/problems/merge-two-sorted-lists/" target="_blank">Merge Two Sorted Lists</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Linked List</span></li>
+                    <li class="leetcode-item"><span class="lc-number">344</span><span class="lc-name"><a href="https://leetcode.com/problems/reverse-string/" target="_blank">Reverse String</a> (recursive)</span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Two Pointers</span></li>
+                    <li class="leetcode-item"><span class="lc-number">779</span><span class="lc-name"><a href="https://leetcode.com/problems/k-th-symbol-in-grammar/" target="_blank">K-th Symbol in Grammar</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Recursion</span></li>
+                    <li class="leetcode-item"><span class="lc-number">894</span><span class="lc-name"><a href="https://leetcode.com/problems/all-possible-full-binary-trees/" target="_blank">All Possible Full Binary Trees</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Recursion + Memo</span></li>
+                    <li class="leetcode-item"><span class="lc-number">241</span><span class="lc-name"><a href="https://leetcode.com/problems/different-ways-to-add-parentheses/" target="_blank">Different Ways to Add Parentheses</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Divide & Conquer</span></li>
+                </ul>
+            </div>
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

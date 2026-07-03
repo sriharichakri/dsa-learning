@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Programming Introduction - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 12</a><span class="separator">›</span><span class="current">DP Introduction</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Dynamic Programming Introduction</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 12</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="dp-intro">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Dynamic Programming?</h2>
+                <p><strong>Dynamic Programming (DP)</strong> is an optimization technique that solves complex problems by breaking them into <strong>overlapping subproblems</strong>, solving each subproblem <strong>only once</strong>, and storing the results to avoid redundant computation.</p>
+                <p>It's essentially: <strong>recursion + memoization</strong> = DP. Or alternatively: <strong>smart brute force</strong> that remembers what it already computed.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>DP works when a problem has two properties: (1) <strong>Overlapping Subproblems</strong> — the same subproblems are solved multiple times, and (2) <strong>Optimal Substructure</strong> — the optimal solution can be built from optimal solutions of subproblems. If both are present, DP can transform exponential time into polynomial time.</p>
+                </div>
+            </div>
+
+            <!-- Real-Life Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">📱 Remembering Phone Numbers</div>
+                    <p>Imagine looking up a friend's phone number in a phone book. The first time, you flip through pages to find it. But instead of doing that <strong>every time</strong>, you <strong>memorize it</strong> (or save it in contacts). Next time you need it, you recall instantly. That's memoization! You solve the "find number" problem once and cache the result.</p>
+                </div>
+                <ul>
+                    <li><strong>GPS navigation:</strong> If you've already computed the shortest route from A to B, and now need the route from A to C that passes through B, reuse the A→B result.</li>
+                    <li><strong>Studying for exams:</strong> You don't re-derive every formula from scratch. You learn it once and recall it — that's building on previously solved subproblems.</li>
+                    <li><strong>Fibonacci in nature:</strong> A sunflower's spiral follows Fibonacci numbers. Each number depends on the previous two — classic DP.</li>
+                </ul>
+            </div>
+
+            <!-- The Fibonacci Example -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> The Fibonacci Example: Why DP Matters</h2>
+
+                <h3>Naive Recursion — O(2ⁿ) 💀</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function fib(n) {
+    if (n <= 1) return n;
+    return fib(n - 1) + fib(n - 2);
+}</code></pre>
+
+                <div class="viz-container">
+                    <div class="viz-title">Call tree for fib(5) — notice the REPEATED work!</div>
+                    <div class="ascii-diagram">
+                        fib(5)
+                       /      \
+                   fib(4)     fib(3)      ← fib(3) computed TWICE
+                  /    \      /    \
+              fib(3)  fib(2) fib(2) fib(1)  ← fib(2) computed THREE times!
+              /   \    / \    / \
+          fib(2) fib(1) ...  ...
+
+Total calls for fib(5):  15
+Total calls for fib(30): 2,692,537
+Total calls for fib(50): 40,730,022,147 💀
+                    </div>
+                </div>
+
+                <h3>Top-Down DP (Memoization) — O(n)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function fibMemo(n, memo = {}) {
+    if (n <= 1) return n;
+    if (memo[n] !== undefined) return memo[n]; // Already computed!
+    
+    memo[n] = fibMemo(n - 1, memo) + fibMemo(n - 2, memo);
+    return memo[n];
+}
+// fibMemo(50) → instant! Only 50 unique subproblems.</code></pre>
+
+                <h3>Bottom-Up DP (Tabulation) — O(n)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function fibTab(n) {
+    if (n <= 1) return n;
+    const dp = [0, 1];
+    
+    for (let i = 2; i <= n; i++) {
+        dp[i] = dp[i - 1] + dp[i - 2];
+    }
+    return dp[n];
+}
+
+// Space-optimized — O(1) space!
+function fibOptimized(n) {
+    if (n <= 1) return n;
+    let prev2 = 0, prev1 = 1;
+    
+    for (let i = 2; i <= n; i++) {
+        let curr = prev1 + prev2;
+        prev2 = prev1;
+        prev1 = curr;
+    }
+    return prev1;
+}</code></pre>
+            </div>
+
+            <!-- Memoization vs Tabulation -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔄</span> Top-Down vs Bottom-Up</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Feature</th><th>Top-Down (Memoization)</th><th>Bottom-Up (Tabulation)</th></tr></thead>
+                    <tbody>
+                        <tr><td>Approach</td><td>Recursive + cache</td><td>Iterative + table</td></tr>
+                        <tr><td>Direction</td><td>Starts with big problem, breaks down</td><td>Starts with small subproblems, builds up</td></tr>
+                        <tr><td>Implementation</td><td class="best">Easier — add memo to recursion</td><td>Requires understanding the order</td></tr>
+                        <tr><td>Stack overflow risk</td><td class="worst">Yes (deep recursion)</td><td class="best">No (iterative)</td></tr>
+                        <tr><td>Computes</td><td class="best">Only needed subproblems</td><td>All subproblems</td></tr>
+                        <tr><td>Space optimization</td><td>Harder</td><td class="best">Easier to optimize</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="callout tip">
+                    <div class="callout-title">🎯 Interview Strategy</div>
+                    <p>Start with <strong>top-down (memoization)</strong> — it's easier to write. If the interviewer asks for optimization, convert to <strong>bottom-up (tabulation)</strong>. If they want even less space, optimize the DP array to only keep the values you need.</p>
+                </div>
+            </div>
+
+            <!-- Climbing Stairs -->
+            <div class="section-card">
+                <h2><span class="section-icon">⭐</span> Classic: Climbing Stairs</h2>
+                <p>You can climb 1 or 2 steps at a time. How many distinct ways can you climb n stairs?</p>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// This IS Fibonacci! dp[i] = dp[i-1] + dp[i-2]
+function climbStairs(n) {
+    if (n <= 2) return n;
+    let prev2 = 1, prev1 = 2;
+    
+    for (let i = 3; i <= n; i++) {
+        let curr = prev1 + prev2;
+        prev2 = prev1;
+        prev1 = curr;
+    }
+    return prev1;
+}
+// climbStairs(5) → 8 ways</code></pre>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">n=5. Base cases: dp[1]=1 way, dp[2]=2 ways</div><div class="step-state">prev2=1, prev1=2</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">i=3: dp[3] = dp[2]+dp[1] = 2+1 = 3</div><div class="step-state">prev2=2, prev1=3</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">i=4: dp[4] = dp[3]+dp[2] = 3+2 = 5</div><div class="step-state">prev2=3, prev1=5</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">i=5: dp[5] = dp[4]+dp[3] = 5+3 = <strong>8</strong></div><div class="step-state">Answer: 8 ways ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- House Robber -->
+            <div class="section-card">
+                <h2><span class="section-icon">🏠</span> Classic: House Robber</h2>
+                <p>Rob houses along a street. Can't rob two adjacent houses. Maximize total loot.</p>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function rob(nums) {
+    if (nums.length === 0) return 0;
+    if (nums.length === 1) return nums[0];
+    
+    let prev2 = 0;          // dp[i-2]
+    let prev1 = 0;          // dp[i-1]
+    
+    for (let num of nums) {
+        let curr = Math.max(
+            prev1,           // Skip this house
+            prev2 + num      // Rob this house + best from 2 ago
+        );
+        prev2 = prev1;
+        prev1 = curr;
+    }
+    return prev1;
+}
+
+// [2, 7, 9, 3, 1] → Rob houses with 2, 9, 1 = 12? 
+// Or 7, 3 = 10? Answer: 12 (rob index 0, 2, 4)</code></pre>
+            </div>
+
+            <!-- DP Framework -->
+            <div class="section-card">
+                <h2><span class="section-icon">📋</span> DP Problem-Solving Framework</h2>
+                <ol>
+                    <li><strong>Define the state:</strong> What does dp[i] represent?</li>
+                    <li><strong>Find the recurrence:</strong> How does dp[i] relate to smaller subproblems?</li>
+                    <li><strong>Identify base cases:</strong> What are dp[0], dp[1]?</li>
+                    <li><strong>Determine the order:</strong> Fill the table in the right order (usually left to right).</li>
+                    <li><strong>Optimize space:</strong> Do you really need the entire DP array, or just the last few values?</li>
+                </ol>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Problem</th><th>Naive</th><th>DP</th><th>DP Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Fibonacci</td><td class="worst">O(2ⁿ)</td><td class="best">O(n)</td><td class="best">O(1)*</td></tr>
+                        <tr><td>Climbing Stairs</td><td class="worst">O(2ⁿ)</td><td class="best">O(n)</td><td class="best">O(1)*</td></tr>
+                        <tr><td>House Robber</td><td class="worst">O(2ⁿ)</td><td class="best">O(n)</td><td class="best">O(1)*</td></tr>
+                        <tr><td>Coin Change</td><td class="worst">O(S^n)</td><td class="avg">O(n × S)</td><td class="avg">O(n)</td></tr>
+                    </tbody>
+                </table>
+                <p class="text-muted">* With space optimization (only keeping last 2 values).</p>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not identifying overlapping subproblems</div>
+                    <p>DP only helps when the same subproblem is solved multiple times. If each subproblem is unique (like merge sort), DP won't help — that's just divide and conquer.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Wrong state definition</div>
+                    <p>If dp[i] doesn't clearly represent a complete subproblem, your recurrence will be wrong. Take time to define what dp[i] means <strong>precisely</strong>.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting base cases</div>
+                    <pre><code>// ❌ dp[0] and dp[1] undefined → NaN propagates!
+for (let i = 2; i <= n; i++) {
+    dp[i] = dp[i-1] + dp[i-2]; // dp[0] = undefined!
+}
+
+// ✅ Always set base cases first
+dp[0] = 0;
+dp[1] = 1;</code></pre>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Start with <strong>brute force recursion</strong>. Draw the recursion tree. Identify overlapping subproblems. Add memoization.</li>
+                    <li>State the <strong>recurrence relation</strong> clearly before coding.</li>
+                    <li>DP problems follow patterns: <strong>1D DP</strong> (Fibonacci, stairs), <strong>2D DP</strong> (grid paths, LCS), <strong>knapsack</strong> (subset sum).</li>
+                    <li>If they ask to optimize space, replace the array with a few variables (prev1, prev2).</li>
+                    <li>DP is the <strong>hardest interview topic</strong>. Practice recognizing the pattern rather than memorizing solutions.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>DP = recursion + memoization. Needs overlapping subproblems + optimal substructure.</li>
+                    <li>Top-down (memoization): recursive + cache. Bottom-up (tabulation): iterative + table.</li>
+                    <li>Framework: define state → find recurrence → base cases → fill order → optimize space.</li>
+                    <li>Climbing Stairs = Fibonacci. House Robber = max(skip, take + prev2).</li>
+                    <li>DP transforms exponential time (2ⁿ) into polynomial time (n, n²).</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What two properties must a problem have for DP to work?</div>
+                            <div class="flashcard-back">1. <strong>Overlapping Subproblems:</strong> Same subproblems are solved multiple times. 2. <strong>Optimal Substructure:</strong> Optimal solution can be built from optimal solutions of subproblems.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the difference between memoization and tabulation?</div>
+                            <div class="flashcard-back">Memoization (top-down): recursive, caches results as they're computed, solves only needed subproblems. Tabulation (bottom-up): iterative, fills a table from smallest subproblems up, solves all subproblems.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How does memoization turn O(2ⁿ) Fibonacci into O(n)?</div>
+                            <div class="flashcard-back">Without memo, fib(n) recomputes the same values exponentially. With memo, each fib(k) is computed only ONCE and cached. There are n unique subproblems, each taking O(1) work → O(n) total.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the recurrence for the House Robber problem?</div>
+                            <div class="flashcard-back"><code>dp[i] = max(dp[i-1], dp[i-2] + nums[i])</code>. At each house, choose the better option: skip it (dp[i-1]) or rob it and add the best from 2 houses back (dp[i-2] + nums[i]).</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">70</span><span class="lc-name"><a href="https://leetcode.com/problems/climbing-stairs/" target="_blank" rel="noopener">Climbing Stairs</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">1D DP (Fibonacci)</span></li>
+                    <li class="leetcode-item"><span class="lc-number">746</span><span class="lc-name"><a href="https://leetcode.com/problems/min-cost-climbing-stairs/" target="_blank" rel="noopener">Min Cost Climbing Stairs</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">1D DP</span></li>
+                    <li class="leetcode-item"><span class="lc-number">198</span><span class="lc-name"><a href="https://leetcode.com/problems/house-robber/" target="_blank" rel="noopener">House Robber</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">1D DP (Take/Skip)</span></li>
+                    <li class="leetcode-item"><span class="lc-number">213</span><span class="lc-name"><a href="https://leetcode.com/problems/house-robber-ii/" target="_blank" rel="noopener">House Robber II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Circular DP</span></li>
+                    <li class="leetcode-item"><span class="lc-number">322</span><span class="lc-name"><a href="https://leetcode.com/problems/coin-change/" target="_blank" rel="noopener">Coin Change</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Unbounded Knapsack</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

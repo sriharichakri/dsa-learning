@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subsets - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 13</a><span class="separator">›</span><span class="current">Subsets</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Subsets (Power Set)</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 13</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="subsets">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What are Subsets?</h2>
+                <p>The <strong>power set</strong> of an array is the collection of ALL possible subsets, including the empty set and the full set. For n elements, there are <strong>2ⁿ</strong> subsets.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>At each element, you make a binary choice: <strong>include or exclude</strong>. This gives 2 choices per element → 2ⁿ total subsets. In backtracking, every node in the recursion tree (not just leaves) is a valid subset.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🍕 Pizza Toppings</div>
+                    <p>With 3 toppings (cheese, pepperoni, mushroom), you can order: no toppings, cheese only, pepperoni only, mushroom only, cheese+pepperoni, cheese+mushroom, pepperoni+mushroom, or all three. That's 2³ = 8 possible pizzas — exactly the power set!</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Subset Generation</h2>
+
+                <h3>Subsets (Distinct Elements)</h3>
+                <div class="code-header"><span>JavaScript — Subsets (LC 78)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function subsets(nums) {
+    const result = [];
+
+    function backtrack(start, path) {
+        result.push([...path]); // Every path is a valid subset
+
+        for (let i = start; i < nums.length; i++) {
+            path.push(nums[i]);
+            backtrack(i + 1, path);
+            path.pop();
+        }
+    }
+
+    backtrack(0, []);
+    return result;
+}
+// subsets([1,2,3]) → [[],[1],[1,2],[1,2,3],[1,3],[2],[2,3],[3]]</code></pre>
+
+                <h3>Subsets II (With Duplicates)</h3>
+                <div class="code-header"><span>JavaScript — Subsets II (LC 90)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function subsetsWithDup(nums) {
+    const result = [];
+    nums.sort((a, b) => a - b); // Sort to group duplicates
+
+    function backtrack(start, path) {
+        result.push([...path]);
+
+        for (let i = start; i < nums.length; i++) {
+            if (i > start && nums[i] === nums[i - 1]) continue; // Skip duplicates
+            path.push(nums[i]);
+            backtrack(i + 1, path);
+            path.pop();
+        }
+    }
+
+    backtrack(0, []);
+    return result;
+}</code></pre>
+
+                <h3>Iterative Approach</h3>
+                <div class="code-header"><span>JavaScript — Iterative Subsets</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function subsetsIterative(nums) {
+    let result = [[]]; // Start with empty set
+
+    for (const num of nums) {
+        // Add current number to all existing subsets
+        const newSubsets = result.map(subset => [...subset, num]);
+        result = [...result, ...newSubsets];
+    }
+    return result;
+}
+// [1,2,3]: [[]] → [[],[1]] → [[],[1],[2],[1,2]] → [[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]</code></pre>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: subsets([1, 2])</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Start: path=[]. Add [] to result. Try i=0 (num=1).</div><div class="step-state">result = [[]]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">path=[1]. Add [1]. Try i=1 (num=2). path=[1,2]. Add [1,2]. No more → backtrack.</div><div class="step-state">result = [[], [1], [1,2]]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Backtrack to path=[]. Try i=1 (num=2). path=[2]. Add [2]. No more → done.</div><div class="step-state">result = [[], [1], [1,2], [2]] ✅ (2²=4 subsets)</div></div></div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Problem</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Subsets</td><td>O(n × 2ⁿ)</td><td>O(n × 2ⁿ) output</td></tr>
+                        <tr><td>Subsets II</td><td>O(n × 2ⁿ)</td><td>O(n × 2ⁿ) output</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Only collecting at leaf nodes</div>
+                    <p>Unlike permutations/combinations that collect when path.length equals target, subsets collect at EVERY node. Add to result BEFORE the loop.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not sorting before deduplication</div>
+                    <p>For Subsets II, you MUST sort first. The skip condition <code>nums[i] === nums[i-1]</code> only works on adjacent elements.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Subsets is the simplest backtracking problem — great warm-up in interviews.</li>
+                    <li>Subsets = combinations of all sizes (k=0,1,...,n combined).</li>
+                    <li>Three approaches: backtracking, iterative (cascading), and bitmask. Know at least two.</li>
+                    <li>Bitmask approach: iterate 0 to 2ⁿ-1, each bit determines include/exclude.</li>
+                </ul>
+            </div>
+
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Power set: 2ⁿ subsets for n elements.</li>
+                    <li>Backtracking: add to result at every node, not just leaves.</li>
+                    <li>Duplicates: sort + skip if nums[i] === nums[i-1] && i > start.</li>
+                    <li>Iterative: for each num, add it to all existing subsets.</li>
+                </ul>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How does subsets differ from combinations in backtracking?</div>
+                            <div class="flashcard-back"><strong>Subsets:</strong> add the current path to results at EVERY recursion level (every node is a valid subset). No target size.<br><strong>Combinations:</strong> only add when path reaches exactly k elements (only leaves are valid).</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How does the iterative (cascading) approach generate subsets?</div>
+                            <div class="flashcard-back">Start with [[]] (empty set). For each number, create new subsets by adding that number to all existing subsets. Merge new subsets with existing ones. After processing all numbers, you have all 2ⁿ subsets.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">78</span><span class="lc-name"><a href="https://leetcode.com/problems/subsets/" target="_blank" rel="noopener">Subsets</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Power set</span></li>
+                    <li class="leetcode-item"><span class="lc-number">90</span><span class="lc-name"><a href="https://leetcode.com/problems/subsets-ii/" target="_blank" rel="noopener">Subsets II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Duplicates</span></li>
+                    <li class="leetcode-item"><span class="lc-number">784</span><span class="lc-name"><a href="https://leetcode.com/problems/letter-case-permutation/" target="_blank" rel="noopener">Letter Case Permutation</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Binary choice per char</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1239</span><span class="lc-name"><a href="https://leetcode.com/problems/maximum-length-of-a-concatenated-string-with-unique-characters/" target="_blank" rel="noopener">Max Concatenated String With Unique Chars</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Subset + constraint</span></li>
+                    <li class="leetcode-item"><span class="lc-number">416</span><span class="lc-name"><a href="https://leetcode.com/problems/partition-equal-subset-sum/" target="_blank" rel="noopener">Partition Equal Subset Sum</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Subset sum DP</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

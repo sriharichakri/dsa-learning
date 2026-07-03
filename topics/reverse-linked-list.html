@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reverse Linked List - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 6</a><span class="separator">›</span><span class="current">Reverse Linked List</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Reverse Linked List</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 6</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="reverse-linked-list">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Reversing a Linked List?</h2>
+                <p><strong>Reversing a linked list</strong> means making every node point to its <strong>previous</strong> node instead of its next, effectively flipping the direction of all pointers. The old tail becomes the new head.</p>
+                <div class="callout tip">
+                    <div class="callout-title">🌍 Real-Life Analogy</div>
+                    <p>Imagine a conga line where each person has their hands on the shoulders of the person <strong>in front</strong>. To reverse it, each person turns around and puts their hands on the person who was <strong>behind</strong> them. The last person in the old line becomes the leader of the new line!</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How It Works</h2>
+
+                <h3>Iterative Approach (3 pointers)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function reverseList(head) {
+    let prev = null;
+    let curr = head;
+    
+    while (curr) {
+        let next = curr.next;  // Save next
+        curr.next = prev;      // Reverse pointer
+        prev = curr;           // Advance prev
+        curr = next;           // Advance curr
+    }
+    return prev;  // New head
+}
+
+// 1→2→3→4→5 becomes 5→4→3→2→1</code></pre>
+
+                <h3>Recursive Approach</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function reverseListRecursive(head) {
+    if (!head || !head.next) return head;
+    
+    const newHead = reverseListRecursive(head.next);
+    head.next.next = head;  // Make next node point back to us
+    head.next = null;       // Remove old forward pointer
+    return newHead;
+}</code></pre>
+
+                <h3>Reverse a Sublist (between positions left and right)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function reverseBetween(head, left, right) {
+    const dummy = { val: 0, next: head };
+    let prev = dummy;
+    
+    // Move to node before left
+    for (let i = 1; i < left; i++) prev = prev.next;
+    
+    // Reverse from left to right
+    let curr = prev.next;
+    for (let i = 0; i < right - left; i++) {
+        let next = curr.next;
+        curr.next = next.next;
+        next.next = prev.next;
+        prev.next = next;
+    }
+    return dummy.next;
+}</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run</h2>
+                <p>Reverse <code>1→2→3→4→5</code></p>
+
+                <div class="viz-container">
+                    <div class="viz-title">Iterative reversal with 3 pointers</div>
+                    <div class="ascii-diagram">
+Step 1: prev=null  curr=1→2→3→4→5
+        1.next = null (reverse!)
+        null ← 1    2→3→4→5
+        prev=1  curr=2
+
+Step 2: prev=1    curr=2→3→4→5
+        2.next = 1 (reverse!)
+        null ← 1 ← 2    3→4→5
+        prev=2  curr=3
+
+Step 3: prev=2    curr=3→4→5
+        3.next = 2 (reverse!)
+        null ← 1 ← 2 ← 3    4→5
+        prev=3  curr=4
+
+Step 4: prev=3    curr=4→5
+        4.next = 3 (reverse!)
+        null ← 1 ← 2 ← 3 ← 4    5
+        prev=4  curr=5
+
+Step 5: prev=4    curr=5
+        5.next = 4 (reverse!)
+        null ← 1 ← 2 ← 3 ← 4 ← 5
+        prev=5  curr=null → DONE!
+
+Return prev = 5 (new head) ✅
+                    </div>
+                </div>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Save next=2. Point 1→null. Move prev=1, curr=2</div><div class="step-state">null←1  2→3→4→5</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Save next=3. Point 2→1. Move prev=2, curr=3</div><div class="step-state">null←1←2  3→4→5</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Save next=4. Point 3→2. Move prev=3, curr=4</div><div class="step-state">null←1←2←3  4→5</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Save next=5. Point 4→3. Move prev=4, curr=5</div><div class="step-state">null←1←2←3←4  5</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">Save next=null. Point 5→4. prev=5, curr=null. Done!</div><div class="step-state">5→4→3→2→1→null ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Approach</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Iterative</td><td class="best">O(n)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Recursive</td><td class="best">O(n)</td><td class="avg">O(n) stack</td></tr>
+                        <tr><td>Reverse sublist</td><td class="best">O(n)</td><td class="best">O(1)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not saving the next pointer before reversing</div>
+                    <pre><code>// ❌ Loses the rest of the list!
+curr.next = prev;    // Now curr.next points backward
+curr = curr.next;    // Goes backward, not forward!
+
+// ✅ Save next BEFORE reversing
+let next = curr.next;  // Save forward reference
+curr.next = prev;       // Reverse
+curr = next;            // Move forward using saved reference</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Returning head instead of prev</div>
+                    <p>After reversal, head is now the <strong>last</strong> node (pointing to null). The new head is <strong>prev</strong>, which is the old tail. Return prev!</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>This is arguably the <strong>most frequently asked</strong> linked list question.</li>
+                    <li>Master the iterative version — O(1) space, no stack overflow risk.</li>
+                    <li>The pattern: save next → reverse pointer → advance prev → advance curr.</li>
+                    <li>Reverse sublist (LC 92) is a common follow-up — uses the same core logic.</li>
+                    <li>"Reverse in groups of K" (LC 25) is the hard variant — reverses K nodes at a time.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>3 pointers: prev, curr, next. Pattern: save → reverse → advance × 2.</li>
+                    <li>Iterative: O(n) time, O(1) space. Recursive: O(n) time, O(n) space.</li>
+                    <li>Return prev (not head!) — prev becomes the new head.</li>
+                    <li>Always save curr.next BEFORE reversing curr.next = prev.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What are the 4 steps in each iteration of iterative linked list reversal?</div>
+                            <div class="flashcard-back">1. <code>next = curr.next</code> (save next node)<br>2. <code>curr.next = prev</code> (reverse the pointer)<br>3. <code>prev = curr</code> (advance prev)<br>4. <code>curr = next</code> (advance curr)</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why return prev instead of head after reversal?</div>
+                            <div class="flashcard-back">After reversal, the original head is now the <strong>tail</strong> (its next is null). The variable <strong>prev</strong> points to the last node processed, which is the old tail — now the new head of the reversed list.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">206</span><span class="lc-name"><a href="https://leetcode.com/problems/reverse-linked-list/" target="_blank" rel="noopener">Reverse Linked List</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Basic reversal</span></li>
+                    <li class="leetcode-item"><span class="lc-number">92</span><span class="lc-name"><a href="https://leetcode.com/problems/reverse-linked-list-ii/" target="_blank" rel="noopener">Reverse Linked List II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Reverse sublist</span></li>
+                    <li class="leetcode-item"><span class="lc-number">25</span><span class="lc-name"><a href="https://leetcode.com/problems/reverse-nodes-in-k-group/" target="_blank" rel="noopener">Reverse Nodes in k-Group</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Reverse in groups</span></li>
+                    <li class="leetcode-item"><span class="lc-number">234</span><span class="lc-name"><a href="https://leetcode.com/problems/palindrome-linked-list/" target="_blank" rel="noopener">Palindrome Linked List</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Reverse second half + compare</span></li>
+                    <li class="leetcode-item"><span class="lc-number">24</span><span class="lc-name"><a href="https://leetcode.com/problems/swap-nodes-in-pairs/" target="_blank" rel="noopener">Swap Nodes in Pairs</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Reverse in groups of 2</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

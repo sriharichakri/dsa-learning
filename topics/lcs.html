@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Longest Common Subsequence - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 12</a><span class="separator">›</span><span class="current">Longest Common Subsequence</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Longest Common Subsequence (LCS)</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 12</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="lcs">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is LCS?</h2>
+                <p>The <strong>Longest Common Subsequence</strong> problem finds the longest sequence of characters that appears in both strings, in the same relative order, but not necessarily contiguous.</p>
+                <p>For strings "ABCDE" and "ACE", the LCS is "ACE" (length 3). Note: subsequence ≠ substring. A subsequence doesn't need to be contiguous.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>LCS is the classic <strong>2D DP</strong> problem. Compare characters: if they match, extend the LCS by 1. If not, take the best of skipping either character. The recurrence: <code>dp[i][j] = text1[i-1] === text2[j-1] ? dp[i-1][j-1]+1 : max(dp[i-1][j], dp[i][j-1])</code>.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🧬 DNA Sequence Matching</div>
+                    <p>Scientists compare DNA sequences to find common patterns. Two DNA strands might not be identical, but they share a long common subsequence indicating evolutionary relationship. LCS finds the longest such shared pattern — crucial in bioinformatics.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> LCS Implementation</h2>
+                <div class="viz-container">
+                    <div class="viz-title">DP Table for LCS("ABCDE", "ACE")</div>
+                    <div class="ascii-diagram">
+        ""  A  C  E
+  ""  [  0  0  0  0 ]
+   A  [  0  1  1  1 ]   ← A matches A → dp[1][1]=1
+   B  [  0  1  1  1 ]   ← B doesn't match → take max
+   C  [  0  1  2  2 ]   ← C matches C → dp[3][2]=2
+   D  [  0  1  2  2 ]   ← D doesn't match → take max
+   E  [  0  1  2  3 ]   ← E matches E → dp[5][3]=3
+
+LCS length = dp[5][3] = 3  ("ACE")
+                    </div>
+                </div>
+
+                <div class="code-header"><span>JavaScript — LCS</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function longestCommonSubsequence(text1, text2) {
+    const m = text1.length, n = text2.length;
+    const dp = Array.from({length: m + 1}, () => new Array(n + 1).fill(0));
+
+    for (let i = 1; i <= m; i++) {
+        for (let j = 1; j <= n; j++) {
+            if (text1[i - 1] === text2[j - 1]) {
+                dp[i][j] = dp[i - 1][j - 1] + 1; // Characters match
+            } else {
+                dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]); // Take best
+            }
+        }
+    }
+    return dp[m][n];
+}
+
+// Space-optimized: O(n) space
+function lcsOptimized(text1, text2) {
+    const n = text2.length;
+    let prev = new Array(n + 1).fill(0);
+
+    for (let i = 1; i <= text1.length; i++) {
+        const curr = new Array(n + 1).fill(0);
+        for (let j = 1; j <= n; j++) {
+            if (text1[i - 1] === text2[j - 1]) {
+                curr[j] = prev[j - 1] + 1;
+            } else {
+                curr[j] = Math.max(prev[j], curr[j - 1]);
+            }
+        }
+        prev = curr;
+    }
+    return prev[n];
+}
+
+// Reconstruct the actual LCS string
+function getLCS(text1, text2) {
+    const m = text1.length, n = text2.length;
+    const dp = Array.from({length: m + 1}, () => new Array(n + 1).fill(0));
+    for (let i = 1; i <= m; i++)
+        for (let j = 1; j <= n; j++)
+            dp[i][j] = text1[i-1] === text2[j-1] ? dp[i-1][j-1]+1 : Math.max(dp[i-1][j], dp[i][j-1]);
+
+    // Backtrack to find the LCS string
+    let i = m, j = n, lcs = '';
+    while (i > 0 && j > 0) {
+        if (text1[i-1] === text2[j-1]) { lcs = text1[i-1] + lcs; i--; j--; }
+        else if (dp[i-1][j] > dp[i][j-1]) i--;
+        else j--;
+    }
+    return lcs;
+}</code></pre>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: LCS("ACE", "ABCDE")</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">i=1(A), j=1(A): match → dp[1][1] = dp[0][0]+1 = 1.</div><div class="step-state">dp[1][1] = 1</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">i=1(A), j=2(B): no match → dp[1][2] = max(dp[0][2], dp[1][1]) = 1.</div><div class="step-state">dp[1][2] = 1</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">i=2(C), j=3(C): match → dp[2][3] = dp[1][2]+1 = 2.</div><div class="step-state">dp[2][3] = 2</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">i=3(E), j=5(E): match → dp[3][5] = dp[2][4]+1 = 3.</div><div class="step-state">LCS = "ACE", length = 3 ✅</div></div></div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Approach</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>2D DP</td><td>O(m × n)</td><td>O(m × n)</td></tr>
+                        <tr><td>Space-optimized</td><td>O(m × n)</td><td class="best">O(min(m, n))</td></tr>
+                        <tr><td>Brute force</td><td class="worst">O(2^(m+n))</td><td>O(m + n)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing LCS with Longest Common Substring</div>
+                    <p>LCS allows gaps (subsequence). Longest Common Substring requires contiguous characters. For substring, reset to 0 when characters don't match.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Off-by-one with 1-indexed DP table</div>
+                    <p>dp is (m+1)×(n+1) with dp[0][*] and dp[*][0] as 0 (empty string). Access characters with text1[i-1] and text2[j-1].</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>LCS is the foundation for <strong>Edit Distance</strong>, <strong>Shortest Common Supersequence</strong>, and <strong>Diff algorithms</strong>.</li>
+                    <li>Edit Distance is LCS's cousin: same 2D DP table, different recurrence for non-matching characters.</li>
+                    <li>Know how to <strong>reconstruct the actual LCS string</strong> by backtracking through the DP table.</li>
+                    <li>Space optimization: use two 1D arrays or even one array with a temp variable.</li>
+                </ul>
+            </div>
+
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>LCS: longest sequence present in both strings (not necessarily contiguous).</li>
+                    <li>Recurrence: match → dp[i-1][j-1]+1, no match → max(dp[i-1][j], dp[i][j-1]).</li>
+                    <li>Time O(mn), Space O(mn) or O(n) optimized.</li>
+                    <li>Backtrack DP table to reconstruct actual LCS string.</li>
+                    <li>Related: Edit Distance, Shortest Common Supersequence, diff tools.</li>
+                </ul>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the LCS recurrence relation?</div>
+                            <div class="flashcard-back">If <code>text1[i-1] === text2[j-1]</code>: <code>dp[i][j] = dp[i-1][j-1] + 1</code> (extend LCS).<br>Else: <code>dp[i][j] = max(dp[i-1][j], dp[i][j-1])</code> (skip one character from either string).</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How is Edit Distance related to LCS?</div>
+                            <div class="flashcard-back">Both use 2D DP on two strings. LCS finds the longest matching subsequence. Edit Distance finds the minimum operations (insert, delete, replace) to transform one string into another. <code>editDistance = m + n - 2 * LCS</code> (when only insert/delete allowed).</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">1143</span><span class="lc-name"><a href="https://leetcode.com/problems/longest-common-subsequence/" target="_blank" rel="noopener">Longest Common Subsequence</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Classic 2D DP</span></li>
+                    <li class="leetcode-item"><span class="lc-number">72</span><span class="lc-name"><a href="https://leetcode.com/problems/edit-distance/" target="_blank" rel="noopener">Edit Distance</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">LCS variant</span></li>
+                    <li class="leetcode-item"><span class="lc-number">583</span><span class="lc-name"><a href="https://leetcode.com/problems/delete-operation-for-two-strings/" target="_blank" rel="noopener">Delete Operation for Two Strings</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">m+n-2*LCS</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1035</span><span class="lc-name"><a href="https://leetcode.com/problems/uncrossed-lines/" target="_blank" rel="noopener">Uncrossed Lines</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">LCS in disguise</span></li>
+                    <li class="leetcode-item"><span class="lc-number">712</span><span class="lc-name"><a href="https://leetcode.com/problems/minimum-ascii-delete-sum-for-two-strings/" target="_blank" rel="noopener">Minimum ASCII Delete Sum</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Weighted LCS</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

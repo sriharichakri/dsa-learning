@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Union Find / Disjoint Set - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 10</a><span class="separator">›</span><span class="current">Union Find</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Union Find / Disjoint Set</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 10</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="union-find">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Union Find?</h2>
+                <p><strong>Union Find</strong> (also called <strong>Disjoint Set Union</strong> or DSU) is a data structure that tracks a set of elements partitioned into <strong>non-overlapping groups</strong>. It supports two key operations:</p>
+                <ul>
+                    <li><strong>Find(x):</strong> Which group does element x belong to? (Returns the group representative/root)</li>
+                    <li><strong>Union(x, y):</strong> Merge the groups containing x and y into one group</li>
+                </ul>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>With <strong>path compression</strong> and <strong>union by rank</strong>, both operations run in nearly O(1) time — technically O(α(n)) where α is the inverse Ackermann function, which is ≤ 4 for any practical input size.</p>
+                </div>
+            </div>
+
+            <!-- Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">👫 Friend Groups Merging</div>
+                    <p>Imagine a classroom where students form friend groups. Initially, everyone is their own group. When Alice becomes friends with Bob, their groups merge. When Bob becomes friends with Charlie, Alice, Bob, and Charlie are now all in the same group. To check if two people are in the same group, you find the "group leader" of each — if they share a leader, they're in the same group!</p>
+                </div>
+                <ul>
+                    <li><strong>Social networks:</strong> Merging friend circles when two people connect</li>
+                    <li><strong>Network connectivity:</strong> Are two computers on the same network?</li>
+                    <li><strong>Country alliances:</strong> When two countries form an alliance, their entire alliance groups merge</li>
+                </ul>
+            </div>
+
+            <!-- Visualization -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How Union Find Works</h2>
+                <div class="viz-container">
+                    <div class="viz-title">Union Find Operations</div>
+                    <div class="ascii-diagram">
+Initial: Each element is its own parent
+  parent: [0, 1, 2, 3, 4]   (parent[i] = i)
+  
+  0   1   2   3   4     ← 5 separate groups
+
+union(0, 1):  parent[1] = 0
+  0   2   3   4
+  |
+  1                      ← 4 groups
+
+union(2, 3):  parent[3] = 2
+  0   2   4
+  |   |
+  1   3                  ← 3 groups
+
+union(0, 2):  parent[2] = 0
+    0     4
+   / \
+  1   2                  ← 2 groups
+      |
+      3
+
+find(3): 3→2→0  → root is 0
+find(1): 1→0    → root is 0
+find(3) === find(1)?  YES → same group! ✅
+
+After PATH COMPRESSION on find(3):
+    0     4
+  / | \
+ 1  2  3                 ← 3 now points directly to 0!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Implementation -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔧</span> Implementation</h2>
+                <div class="code-header"><span>JavaScript — Union Find with Path Compression + Union by Rank</span><button class="copy-btn">Copy</button></div>
+                <pre><code>class UnionFind {
+    constructor(n) {
+        this.parent = Array.from({ length: n }, (_, i) => i); // Each is its own parent
+        this.rank = new Array(n).fill(0);                     // Rank (tree height)
+        this.count = n;                                        // Number of groups
+    }
+    
+    // Find root with PATH COMPRESSION
+    find(x) {
+        if (this.parent[x] !== x) {
+            this.parent[x] = this.find(this.parent[x]); // Point directly to root
+        }
+        return this.parent[x];
+    }
+    
+    // Union by RANK (attach shorter tree under taller)
+    union(x, y) {
+        const rootX = this.find(x);
+        const rootY = this.find(y);
+        
+        if (rootX === rootY) return false; // Already in same group
+        
+        if (this.rank[rootX] < this.rank[rootY]) {
+            this.parent[rootX] = rootY;
+        } else if (this.rank[rootX] > this.rank[rootY]) {
+            this.parent[rootY] = rootX;
+        } else {
+            this.parent[rootY] = rootX;
+            this.rank[rootX]++;
+        }
+        
+        this.count--;  // One fewer group
+        return true;
+    }
+    
+    // Check if two elements are in the same group
+    connected(x, y) {
+        return this.find(x) === this.find(y);
+    }
+    
+    // Get number of distinct groups
+    getCount() {
+        return this.count;
+    }
+}
+
+// Usage
+const uf = new UnionFind(5);
+uf.union(0, 1);
+uf.union(2, 3);
+uf.connected(0, 1);  // true
+uf.connected(0, 2);  // false
+uf.union(1, 3);
+uf.connected(0, 2);  // true (0-1-3-2 all connected)
+uf.getCount();        // 2 (one group of 4, one group of 1)</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Number of Provinces</h2>
+                <p>Given connections: [[1,2], [3,4]], n=5 cities. Find number of provinces (connected components).</p>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Init: parent=[0,1,2,3,4], rank=[0,0,0,0,0], count=5</div><div class="step-state">Groups: {0} {1} {2} {3} {4}</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">union(1, 2): find(1)=1, find(2)=2. Merge. parent[2]=1, count--</div><div class="step-state">Groups: {0} {1,2} {3} {4} | count=4</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">union(3, 4): find(3)=3, find(4)=4. Merge. parent[4]=3, count--</div><div class="step-state">Groups: {0} {1,2} {3,4} | count=3</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">No more edges. Answer = count = 3 provinces</div><div class="step-state">3 provinces ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Time & Space Complexity</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Time (with optimizations)</th><th>Why?</th></tr></thead>
+                    <tbody>
+                        <tr><td>Find</td><td class="best">O(α(n)) ≈ O(1)</td><td>Path compression flattens tree</td></tr>
+                        <tr><td>Union</td><td class="best">O(α(n)) ≈ O(1)</td><td>Two finds + constant work</td></tr>
+                        <tr><td>Connected</td><td class="best">O(α(n)) ≈ O(1)</td><td>Two finds + comparison</td></tr>
+                        <tr><td>Constructor</td><td class="best">O(n)</td><td>Initialize n elements</td></tr>
+                        <tr><td>Space</td><td class="best">O(n)</td><td>parent + rank arrays</td></tr>
+                    </tbody>
+                </table>
+                <div class="callout info">
+                    <div class="callout-title">💡 What is α(n)?</div>
+                    <p>The inverse Ackermann function α(n) grows incredibly slowly — α(n) ≤ 4 for n up to 10^(10^(10^(10^(10^10)))). For all practical purposes, Union Find operations are <strong>constant time</strong>.</p>
+                </div>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting Path Compression</div>
+                    <p>Without path compression, find can degrade to O(n) for a long chain. Always set <code>parent[x] = find(parent[x])</code> to point directly to root.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Comparing Elements Instead of Roots</div>
+                    <pre><code>// ❌ WRONG: Comparing elements directly
+if (x === y) return true;
+
+// ✅ RIGHT: Compare their roots
+if (find(x) === find(y)) return true;</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not Handling 0-indexed vs 1-indexed</div>
+                    <p>Many problems use 1-indexed nodes. Make sure your parent array has size n+1 if nodes go from 1 to n.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Tips</h2>
+                <ul>
+                    <li><strong>Pattern triggers:</strong> "connected components", "grouping", "merging", "connected/same group" → Union Find</li>
+                    <li><strong>Union Find vs DFS:</strong> Both can find connected components. Union Find is better for dynamic connectivity (edges added over time)</li>
+                    <li><strong>Kruskal's MST:</strong> Union Find is used to check if adding an edge creates a cycle</li>
+                    <li><strong>Accounts Merge:</strong> Classic interview problem combining Union Find with HashMaps</li>
+                    <li><strong>Template:</strong> Always implement with both path compression AND union by rank for maximum efficiency</li>
+                </ul>
+            </div>
+
+            <!-- Real-world -->
+            <div class="section-card">
+                <h2><span class="section-icon">🏗️</span> Where Union Find Is Used</h2>
+                <ul>
+                    <li><strong>Social networks:</strong> Determining if two users are in the same connected community</li>
+                    <li><strong>Network connectivity:</strong> Checking if two nodes in a network can communicate</li>
+                    <li><strong>Image processing:</strong> Connected component labeling in binary images</li>
+                    <li><strong>Kruskal's MST:</strong> Minimum spanning tree algorithm uses Union Find for cycle detection</li>
+                    <li><strong>Percolation theory:</strong> Physics simulations of material permeability</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Union Find = track disjoint groups. Two operations: find(x) and union(x, y)</li>
+                    <li>Path compression: point every node directly to root during find</li>
+                    <li>Union by rank: attach shorter tree under taller tree</li>
+                    <li>Both optimizations → nearly O(1) per operation</li>
+                    <li>Use for connected components, cycle detection, dynamic connectivity</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What are the two optimizations in Union Find and what do they achieve?</div>
+                            <div class="flashcard-back">1) Path Compression: During find, point every node directly to the root → flattens the tree. 2) Union by Rank: Attach shorter tree under taller → prevents the tree from growing tall. Together: O(α(n)) ≈ O(1).</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">When should you use Union Find instead of DFS/BFS?</div>
+                            <div class="flashcard-back">Use Union Find when edges are added incrementally (dynamic connectivity). DFS/BFS requires the full graph upfront. Union Find also has simpler code for "are X and Y connected?" queries.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How does Union Find detect cycles in an undirected graph?</div>
+                            <div class="flashcard-back">For each edge (u, v): if find(u) === find(v) before union, adding this edge creates a cycle (they're already connected). If find(u) !== find(v), union them. This is the basis of Kruskal's MST.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode Problems -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">547</span><span class="lc-name"><a href="https://leetcode.com/problems/number-of-provinces/" target="_blank" rel="noopener">Number of Provinces</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Basic Union Find</span></li>
+                    <li class="leetcode-item"><span class="lc-number">684</span><span class="lc-name"><a href="https://leetcode.com/problems/redundant-connection/" target="_blank" rel="noopener">Redundant Connection</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Cycle Detection</span></li>
+                    <li class="leetcode-item"><span class="lc-number">721</span><span class="lc-name"><a href="https://leetcode.com/problems/accounts-merge/" target="_blank" rel="noopener">Accounts Merge</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Union Find + Map</span></li>
+                    <li class="leetcode-item"><span class="lc-number">200</span><span class="lc-name"><a href="https://leetcode.com/problems/number-of-islands/" target="_blank" rel="noopener">Number of Islands</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Union Find / DFS</span></li>
+                    <li class="leetcode-item"><span class="lc-number">128</span><span class="lc-name"><a href="https://leetcode.com/problems/longest-consecutive-sequence/" target="_blank" rel="noopener">Longest Consecutive Sequence</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Union Find / Set</span></li>
+                    <li class="leetcode-item"><span class="lc-number">130</span><span class="lc-name"><a href="https://leetcode.com/problems/surrounded-regions/" target="_blank" rel="noopener">Surrounded Regions</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Union Find</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1202</span><span class="lc-name"><a href="https://leetcode.com/problems/smallest-string-with-swaps/" target="_blank" rel="noopener">Smallest String With Swaps</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Union Find + Sort</span></li>
+                    <li class="leetcode-item"><span class="lc-number">399</span><span class="lc-name"><a href="https://leetcode.com/problems/evaluate-division/" target="_blank" rel="noopener">Evaluate Division</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Weighted Union Find</span></li>
+                    <li class="leetcode-item"><span class="lc-number">685</span><span class="lc-name"><a href="https://leetcode.com/problems/redundant-connection-ii/" target="_blank" rel="noopener">Redundant Connection II</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Directed Union Find</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1489</span><span class="lc-name"><a href="https://leetcode.com/problems/find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree/" target="_blank" rel="noopener">Critical Edges in MST</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Union Find + Kruskal</span></li>
+                </ul>
+            </div>
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

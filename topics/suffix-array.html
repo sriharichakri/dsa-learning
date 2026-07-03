@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suffix Array - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 15</a><span class="separator">›</span><span class="current">Suffix Array</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Suffix Array</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 15</span>
+                    <span class="topic-badge difficulty-hard">Hard</span>
+                    <button class="topic-complete-btn" data-topic-id="suffix-array">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is a Suffix Array?</h2>
+                <p>A <strong>Suffix Array</strong> is a sorted array of all suffixes of a string. More precisely, it stores the <strong>starting indices</strong> of all suffixes, sorted in lexicographic order. It's a space-efficient alternative to a Suffix Tree, used for pattern matching, finding longest repeated substrings, and many other string problems.</p>
+                <p>Building a suffix array naively takes O(n² log n), but efficient algorithms construct it in <strong>O(n log n)</strong> or even O(n) time.</p>
+                <div class="callout tip">
+                    <div class="callout-title">📚 Real-Life Analogy: Book Index</div>
+                    <p>Imagine creating an index for a book by listing every possible "reading start point" — every position from which you could begin reading until the end. Now sort all these alphabetically. That sorted list is like a suffix array. To find where a phrase appears, you binary search the index, just like flipping to the right section in a dictionary. It turns O(n) scanning into O(m log n) lookup.</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How Suffix Arrays Work</h2>
+                <div class="viz-container">
+                    <div class="viz-title">Suffix Array for "banana"</div>
+                    <div class="ascii-diagram">
+String: "banana" (indices 0-5)
+
+All suffixes:
+  0: "banana"
+  1: "anana"
+  2: "nana"
+  3: "ana"
+  4: "na"
+  5: "a"
+
+Sorted lexicographically:
+  5: "a"
+  3: "ana"
+  1: "anana"
+  0: "banana"
+  4: "na"
+  2: "nana"
+
+Suffix Array: [5, 3, 1, 0, 4, 2]
+
+Pattern search for "ana":
+  Binary search in sorted suffixes:
+  mid=2 → suffix[1]="anana" starts with "ana" ✓
+  Found at index 1! Also check neighbors → index 3.
+  Pattern "ana" appears at positions 1 and 3.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Implementation -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔧</span> Implementation</h2>
+                <div class="code-header"><span>JavaScript — Suffix Array Construction (O(n log² n))</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function buildSuffixArray(s) {
+    const n = s.length;
+    // Initial ranking based on single characters
+    let sa = Array.from({ length: n }, (_, i) => i);
+    let rank = Array.from(s, ch => ch.charCodeAt(0));
+    let tmp = new Array(n);
+
+    for (let gap = 1; gap < n; gap *= 2) {
+        // Comparator: sort by (rank[i], rank[i + gap])
+        const cmp = (a, b) => {
+            if (rank[a] !== rank[b]) return rank[a] - rank[b];
+            const ra = a + gap < n ? rank[a + gap] : -1;
+            const rb = b + gap < n ? rank[b + gap] : -1;
+            return ra - rb;
+        };
+        sa.sort(cmp);
+
+        // Recompute ranks
+        tmp[sa[0]] = 0;
+        for (let i = 1; i < n; i++) {
+            tmp[sa[i]] = tmp[sa[i - 1]] + (cmp(sa[i - 1], sa[i]) < 0 ? 1 : 0);
+        }
+        rank = [...tmp];
+
+        // Early termination: all ranks are unique
+        if (rank[sa[n - 1]] === n - 1) break;
+    }
+    return sa;
+}
+
+// Pattern search using suffix array — O(m log n)
+function searchPattern(text, pattern, sa) {
+    const n = text.length, m = pattern.length;
+    // Binary search for first occurrence
+    let lo = 0, hi = n - 1, first = -1;
+    while (lo <= hi) {
+        const mid = (lo + hi) >> 1;
+        const suffix = text.substring(sa[mid], sa[mid] + m);
+        if (suffix >= pattern) { first = mid; hi = mid - 1; }
+        else lo = mid + 1;
+    }
+    if (first === -1 || text.substring(sa[first], sa[first] + m) !== pattern) return [];
+
+    // Binary search for last occurrence
+    lo = first; hi = n - 1; let last = first;
+    while (lo <= hi) {
+        const mid = (lo + hi) >> 1;
+        const suffix = text.substring(sa[mid], sa[mid] + m);
+        if (suffix <= pattern) { last = mid; lo = mid + 1; }
+        else hi = mid - 1;
+    }
+    return sa.slice(first, last + 1);
+}
+
+// Usage
+const text = "banana";
+const sa = buildSuffixArray(text);
+console.log("Suffix Array:", sa);  // [5, 3, 1, 0, 4, 2]
+console.log(searchPattern(text, "ana", sa)); // [3, 1]</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: buildSuffixArray("banana")</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Initial ranks from char codes: b=98, a=97, n=110, a=97, n=110, a=97.</div><div class="step-state">rank = [98, 97, 110, 97, 110, 97]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Gap=1: Sort by (rank[i], rank[i+1]). Pairs: (98,97),(97,110),(110,97),(97,110),(110,97),(97,-1).</div><div class="step-state">sa = [5, 3, 1, 0, 4, 2], new ranks assigned</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Gap=2: Sort by (rank[i], rank[i+2]). Compares 2-char + 2-char = 4-char substrings.</div><div class="step-state">Ranks become more refined</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Gap=4: Sort by (rank[i], rank[i+4]). Now comparing up to 8 chars (whole string for n=6).</div><div class="step-state">All ranks unique → early termination</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">Final suffix array: [5, 3, 1, 0, 4, 2].</div><div class="step-state">Sorted: "a", "ana", "anana", "banana", "na", "nana" ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Build (this approach)</td><td class="avg">O(n log² n)</td><td>O(n)</td></tr>
+                        <tr><td>Build (radix sort)</td><td class="best">O(n log n)</td><td>O(n)</td></tr>
+                        <tr><td>Build (SA-IS / DC3)</td><td class="best">O(n)</td><td>O(n)</td></tr>
+                        <tr><td>Pattern Search</td><td>O(m log n)</td><td>-</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Off-by-one in gap comparisons</div>
+                    <p>When comparing (rank[i], rank[i+gap]), handle i+gap ≥ n by returning -1 or -∞. Accessing out-of-bounds memory gives wrong results.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing suffix array with suffix tree</div>
+                    <p>A suffix array is just a sorted array of indices. A suffix tree is a compressed trie. Suffix arrays use O(n) space; suffix trees use O(n) but with a larger constant.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not using LCP array for advanced queries</div>
+                    <p>Many problems (longest repeated substring, number of distinct substrings) require the <strong>LCP array</strong> alongside the suffix array. Don't forget to build it when needed.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Suffix arrays are <strong>advanced string structures</strong> — know the concept and when to apply it, even if you can't code the O(n) construction from scratch.</li>
+                    <li>Common applications: pattern matching, longest common substring, number of distinct substrings.</li>
+                    <li>Pair with <strong>LCP array</strong> (Longest Common Prefix between adjacent suffixes) for most applications.</li>
+                    <li>In interviews, simpler approaches (KMP, rolling hash) usually suffice. Suffix arrays are more of a competitive programming tool.</li>
+                    <li>Know trade-offs: Suffix Array (less space, harder to build) vs Suffix Tree (more space, easier queries).</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Suffix Array: sorted array of starting indices of all suffixes of a string.</li>
+                    <li>Build: O(n log² n) with comparison sort, O(n log n) with radix sort, O(n) with SA-IS.</li>
+                    <li>Pattern search: binary search on suffix array → O(m log n).</li>
+                    <li>LCP array: stores longest common prefix between consecutive sorted suffixes. Built in O(n) using Kasai's algorithm.</li>
+                    <li>Space: O(n) — much better than O(n) of suffix tree with large constant.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the suffix array for "banana"?</div>
+                            <div class="flashcard-back">[5, 3, 1, 0, 4, 2] — representing the sorted suffixes: "a" (5), "ana" (3), "anana" (1), "banana" (0), "na" (4), "nana" (2).</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How does the O(n log² n) suffix array construction work?</div>
+                            <div class="flashcard-back">Iteratively sort by longer prefixes: first by 1 character, then by 2, 4, 8... Using the previous iteration's ranks as a key, each sort compares 2^k length prefixes. After O(log n) iterations with O(n log n) sort each → O(n log² n). Use radix sort for O(n log n).</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">1044</span><span class="lc-name"><a href="https://leetcode.com/problems/longest-duplicate-substring/" target="_blank" rel="noopener">Longest Duplicate Substring</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Suffix Array + LCP / Binary Search + Rolling Hash</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1698</span><span class="lc-name"><a href="https://leetcode.com/problems/number-of-distinct-substrings-in-a-string/" target="_blank" rel="noopener">Number of Distinct Substrings</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Suffix Array + LCP</span></li>
+                    <li class="leetcode-item"><span class="lc-number">718</span><span class="lc-name"><a href="https://leetcode.com/problems/maximum-length-of-repeated-subarray/" target="_blank" rel="noopener">Maximum Length of Repeated Subarray</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Suffix Array / DP / Binary Search</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

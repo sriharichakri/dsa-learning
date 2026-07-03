@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Depth-First Search (DFS) - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 10</a><span class="separator">›</span><span class="current">Depth-First Search</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Depth-First Search (DFS)</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 10</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="dfs">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is DFS?</h2>
+                <p><strong>Depth-First Search (DFS)</strong> is a graph/tree traversal algorithm that explores as <strong>far as possible</strong> along each branch before <strong>backtracking</strong>. It uses a <strong>stack</strong> (or recursion, which uses the call stack) to keep track of nodes to visit.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>DFS goes <strong>deep before wide</strong>. Think of it as "fully explore one path before trying another." This makes it ideal for problems like finding connected components, cycle detection, and topological sorting.</p>
+                </div>
+            </div>
+
+            <!-- Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🏰 Exploring a Maze</div>
+                    <p>You're in a maze. At every fork, you always go <strong>as deep as possible</strong> down one path. If you hit a <strong>dead end</strong>, you backtrack to the last fork and try the next path. You keep doing this until you've explored every corridor. That's DFS — depth first, then backtrack!</p>
+                </div>
+                <ul>
+                    <li><strong>Solving a puzzle:</strong> Try one possibility fully, backtrack if it fails, try next</li>
+                    <li><strong>File system search:</strong> Enter a folder, go into its subfolders, then come back and try the next folder</li>
+                    <li><strong>Family tree research:</strong> Follow one ancestor line all the way back, then trace another branch</li>
+                </ul>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How DFS Works</h2>
+                <div class="viz-container">
+                    <div class="viz-title">DFS Traversal Order on a Graph</div>
+                    <div class="ascii-diagram">
+Graph:
+    1 --- 2 --- 5
+    |     |
+    3 --- 4 --- 6
+
+DFS from node 1 (visit order):
+    1 → 2 → 4 → 3 → (backtrack) → 6 → (backtrack) → 5
+
+Stack trace:
+  Push 1 → Visit 1 → Push neighbors [2, 3]
+  Pop 3  → Visit 3 → Push neighbor [4] (1 already visited)
+  Pop 4  → Visit 4 → Push neighbors [6] (2,3 visited)
+  Pop 6  → Visit 6 → No unvisited neighbors
+  Pop 2  → Visit 2 → Push neighbor [5] (1,4 visited)
+  Pop 5  → Visit 5 → Done!
+
+  Visit order: 1, 3, 4, 6, 2, 5 ✅
+  (Order depends on neighbor processing order)
+                    </div>
+                </div>
+
+                <h3>Recursive DFS (Most Common)</h3>
+                <div class="code-header"><span>JavaScript — DFS on Graph</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Graph represented as adjacency list
+function dfs(graph, start) {
+    const visited = new Set();
+    const result = [];
+    
+    function traverse(node) {
+        if (visited.has(node)) return;
+        visited.add(node);
+        result.push(node);
+        
+        for (const neighbor of graph[node]) {
+            traverse(neighbor);
+        }
+    }
+    
+    traverse(start);
+    return result;
+}
+
+// Example: graph = { 1: [2,3], 2: [1,4,5], 3: [1,4], 4: [2,3,6], 5: [2], 6: [4] }
+// dfs(graph, 1) → [1, 2, 4, 3, 6, 5]</code></pre>
+
+                <h3>Iterative DFS (Using Explicit Stack)</h3>
+                <div class="code-header"><span>JavaScript — Iterative DFS</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function dfsIterative(graph, start) {
+    const visited = new Set();
+    const stack = [start];
+    const result = [];
+    
+    while (stack.length > 0) {
+        const node = stack.pop();
+        if (visited.has(node)) continue;
+        
+        visited.add(node);
+        result.push(node);
+        
+        // Push neighbors in reverse for same order as recursive
+        for (let i = graph[node].length - 1; i >= 0; i--) {
+            if (!visited.has(graph[node][i])) {
+                stack.push(graph[node][i]);
+            }
+        }
+    }
+    return result;
+}</code></pre>
+            </div>
+
+            <!-- DFS on Grid -->
+            <div class="section-card">
+                <h2><span class="section-icon">🗺️</span> DFS on a 2D Grid (Number of Islands)</h2>
+                <div class="code-header"><span>JavaScript — Number of Islands</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function numIslands(grid) {
+    let count = 0;
+    const rows = grid.length, cols = grid[0].length;
+    
+    function dfs(r, c) {
+        // Out of bounds or water or already visited
+        if (r < 0 || r >= rows || c < 0 || c >= cols || grid[r][c] === '0') return;
+        
+        grid[r][c] = '0'; // Mark as visited (sink the island)
+        
+        // Explore all 4 directions
+        dfs(r + 1, c);  // down
+        dfs(r - 1, c);  // up
+        dfs(r, c + 1);  // right
+        dfs(r, c - 1);  // left
+    }
+    
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            if (grid[r][c] === '1') {
+                count++;
+                dfs(r, c);  // Sink the entire island
+            }
+        }
+    }
+    return count;
+}</code></pre>
+
+                <div class="viz-container">
+                    <div class="viz-title">DFS Sinking Islands</div>
+                    <div class="ascii-diagram">
+Grid:              After DFS from (0,0):    After DFS from (2,2):
+1 1 0 0 0          0 0 0 0 0               0 0 0 0 0
+1 1 0 0 0    →     0 0 0 0 0          →    0 0 0 0 0
+0 0 1 0 0          0 0 1 0 0               0 0 0 0 0
+0 0 0 1 1          0 0 0 1 1               0 0 0 0 0
+
+Count: 1            Count: 1                Count: 3 ✅
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: DFS on Tree</h2>
+                <div class="ascii-diagram">
+        1
+       / \
+      2   3
+     / \   \
+    4   5   6
+                </div>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Visit 1. Recurse to left child 2.</div><div class="step-state">Visited: [1] | Stack: [1→2]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Visit 2. Recurse to left child 4.</div><div class="step-state">Visited: [1, 2] | Stack: [1→2→4]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Visit 4. No children → backtrack to 2.</div><div class="step-state">Visited: [1, 2, 4] | Backtrack</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">At 2, recurse to right child 5.</div><div class="step-state">Visited: [1, 2, 4, 5] | Stack: [1→2→5]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">Visit 5. No children → backtrack to 2 → backtrack to 1.</div><div class="step-state">Visited: [1, 2, 4, 5] | Backtrack to 1</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">6</div><div class="step-content"><div class="step-desc">At 1, recurse to right child 3. Visit 3. Recurse to child 6.</div><div class="step-state">Visited: [1, 2, 4, 5, 3, 6] ✅ Preorder DFS</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Time & Space Complexity</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Aspect</th><th>Complexity</th><th>Why?</th></tr></thead>
+                    <tbody>
+                        <tr><td>Time (graph)</td><td class="best">O(V + E)</td><td>Visit each vertex once, traverse each edge once</td></tr>
+                        <tr><td>Time (grid)</td><td class="best">O(R × C)</td><td>Visit each cell at most once</td></tr>
+                        <tr><td>Space (recursive)</td><td class="avg">O(V) or O(R×C)</td><td>Recursion stack depth = longest path</td></tr>
+                        <tr><td>Space (iterative)</td><td class="avg">O(V)</td><td>Explicit stack + visited set</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting to Mark Nodes as Visited</div>
+                    <p>Without a visited set, DFS will loop forever in graphs with cycles. Always check and mark before recursing.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Stack Overflow on Large Grids</div>
+                    <p>Recursive DFS on a 1000×1000 grid can overflow the call stack. Use iterative DFS with an explicit stack for large inputs.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not Handling All Connected Components</div>
+                    <p>A single DFS from one node only explores its connected component. For disconnected graphs, loop through all nodes and start DFS from each unvisited node.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Tips</h2>
+                <ul>
+                    <li><strong>DFS vs BFS:</strong> DFS for exploring paths, detecting cycles, topological sort. BFS for shortest path in unweighted graphs.</li>
+                    <li><strong>Grid DFS:</strong> "Number of Islands" pattern is the #1 DFS question. Master it!</li>
+                    <li><strong>Backtracking = DFS + pruning:</strong> Many backtracking problems are DFS with conditions</li>
+                    <li><strong>Pre/Post order:</strong> Preorder processes before children, postorder processes after — useful for different problems</li>
+                    <li><strong>Cycle detection:</strong> Use DFS with 3 states (white/gray/black) for directed graph cycle detection</li>
+                </ul>
+            </div>
+
+            <!-- Real-world -->
+            <div class="section-card">
+                <h2><span class="section-icon">🏗️</span> Where DFS Is Used</h2>
+                <ul>
+                    <li><strong>Web crawlers:</strong> Follow links deeply before backtracking to explore other branches</li>
+                    <li><strong>Maze solvers:</strong> Explore one path fully before trying alternatives</li>
+                    <li><strong>Compilers:</strong> Topological sorting of dependency graphs</li>
+                    <li><strong>Social networks:</strong> Finding connected communities</li>
+                    <li><strong>Game AI:</strong> Exploring game states deeply (minimax with alpha-beta pruning)</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>DFS = go deep first, backtrack when stuck. Uses stack (implicit via recursion or explicit).</li>
+                    <li>Time: O(V + E) for graphs, O(R × C) for grids</li>
+                    <li>Always use a visited set to avoid infinite loops in graphs</li>
+                    <li>Grid DFS: check bounds, mark visited, explore 4 directions</li>
+                    <li>DFS for: connected components, cycle detection, topological sort, path finding</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What data structure does DFS use and why?</div>
+                            <div class="flashcard-back">A Stack (LIFO). Recursion uses the call stack implicitly. LIFO ensures we explore the most recently discovered node first, going deep before wide.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">When should you choose DFS over BFS?</div>
+                            <div class="flashcard-back">Use DFS for: exploring all paths, cycle detection, topological sort, backtracking problems, connected components. BFS is better for shortest path in unweighted graphs.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you detect a cycle in a directed graph using DFS?</div>
+                            <div class="flashcard-back">Use 3 states: White (unvisited), Gray (in current DFS path), Black (fully processed). If you visit a Gray node during DFS, there's a cycle (back edge found).</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode Problems -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">200</span><span class="lc-name"><a href="https://leetcode.com/problems/number-of-islands/" target="_blank" rel="noopener">Number of Islands</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Grid DFS</span></li>
+                    <li class="leetcode-item"><span class="lc-number">695</span><span class="lc-name"><a href="https://leetcode.com/problems/max-area-of-island/" target="_blank" rel="noopener">Max Area of Island</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Grid DFS</span></li>
+                    <li class="leetcode-item"><span class="lc-number">417</span><span class="lc-name"><a href="https://leetcode.com/problems/pacific-atlantic-water-flow/" target="_blank" rel="noopener">Pacific Atlantic Water Flow</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Multi-source DFS</span></li>
+                    <li class="leetcode-item"><span class="lc-number">133</span><span class="lc-name"><a href="https://leetcode.com/problems/clone-graph/" target="_blank" rel="noopener">Clone Graph</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Graph DFS</span></li>
+                    <li class="leetcode-item"><span class="lc-number">130</span><span class="lc-name"><a href="https://leetcode.com/problems/surrounded-regions/" target="_blank" rel="noopener">Surrounded Regions</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Border DFS</span></li>
+                    <li class="leetcode-item"><span class="lc-number">207</span><span class="lc-name"><a href="https://leetcode.com/problems/course-schedule/" target="_blank" rel="noopener">Course Schedule</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Cycle Detection</span></li>
+                    <li class="leetcode-item"><span class="lc-number">210</span><span class="lc-name"><a href="https://leetcode.com/problems/course-schedule-ii/" target="_blank" rel="noopener">Course Schedule II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Topological Sort</span></li>
+                    <li class="leetcode-item"><span class="lc-number">547</span><span class="lc-name"><a href="https://leetcode.com/problems/number-of-provinces/" target="_blank" rel="noopener">Number of Provinces</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Connected Components</span></li>
+                    <li class="leetcode-item"><span class="lc-number">79</span><span class="lc-name"><a href="https://leetcode.com/problems/word-search/" target="_blank" rel="noopener">Word Search</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">DFS + Backtracking</span></li>
+                    <li class="leetcode-item"><span class="lc-number">332</span><span class="lc-name"><a href="https://leetcode.com/problems/reconstruct-itinerary/" target="_blank" rel="noopener">Reconstruct Itinerary</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Eulerian Path DFS</span></li>
+                </ul>
+            </div>
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

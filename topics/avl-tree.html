@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVL Tree - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 9</a><span class="separator">›</span><span class="current">AVL Tree</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>AVL Tree</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 9</span>
+                    <span class="topic-badge difficulty-hard">Hard</span>
+                    <button class="topic-complete-btn" data-topic-id="avl-tree">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is an AVL Tree?</h2>
+                <p>An <strong>AVL Tree</strong> (named after inventors <strong>A</strong>delson-<strong>V</strong>elsky and <strong>L</strong>andis) is a <strong>self-balancing Binary Search Tree</strong> where the difference in heights between the left and right subtrees of any node (called the <strong>balance factor</strong>) is at most <strong>1</strong>.</p>
+                <p>When an insertion or deletion violates this balance, the tree performs <strong>rotations</strong> to restore balance, guaranteeing <strong>O(log n)</strong> time for all operations — even in the worst case.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>A regular BST can degenerate into a linked list (O(n) operations) if elements are inserted in sorted order. AVL trees prevent this by <strong>automatically rebalancing</strong> after every insertion/deletion. The balance factor = height(left) − height(right) must always be in {-1, 0, 1}.</p>
+                </div>
+            </div>
+
+            <!-- Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">📚 Self-Adjusting Bookshelf</div>
+                    <p>Imagine a bookshelf that automatically rearranges itself whenever one side gets too heavy. If you keep stacking books on the left, the shelf detects the imbalance and shifts some books to the right to stay balanced. Each "rotation" is like the shelf sliding a group of books to keep everything evenly distributed — ensuring you can always reach any book quickly.</p>
+                </div>
+                <ul>
+                    <li><strong>Seesaw:</strong> If one side is heavier, move the pivot or shift weight to balance it.</li>
+                    <li><strong>Balanced diet:</strong> Too much of one thing? Adjust by adding variety.</li>
+                    <li><strong>Team management:</strong> If one team grows too large, reorganize by splitting responsibilities.</li>
+                </ul>
+            </div>
+
+            <!-- Balance Factor & Rotations -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Balance Factor & Rotations</h2>
+                <div class="viz-container">
+                    <div class="viz-title">Balance Factor = height(left) − height(right)</div>
+                    <div class="ascii-diagram">
+Balanced (BF ∈ {-1, 0, 1}):       Unbalanced (BF = 2):
+        30 (BF=0)                       30 (BF=2) ← VIOLATION!
+       /  \                            /
+     20    40                        20
+    /  \     \                      /
+  10    25    50                  10
+
+Four types of imbalance → Four rotation fixes:
+
+1. LEFT-LEFT (LL)  → Right Rotation
+2. RIGHT-RIGHT (RR) → Left Rotation
+3. LEFT-RIGHT (LR) → Left Rotation on left child, then Right Rotation
+4. RIGHT-LEFT (RL) → Right Rotation on right child, then Left Rotation
+                    </div>
+                </div>
+
+                <h3>LL Imbalance → Right Rotation</h3>
+                <div class="viz-container">
+                    <div class="ascii-diagram">
+Before (LL):          After Right Rotation:
+      30                     20
+     /                      /  \
+   20                     10    30
+  /
+10
+
+Steps: 30's left child (20) becomes root.
+       30 becomes right child of 20.
+                    </div>
+                </div>
+
+                <h3>RR Imbalance → Left Rotation</h3>
+                <div class="viz-container">
+                    <div class="ascii-diagram">
+Before (RR):          After Left Rotation:
+  10                       20
+    \                     /  \
+     20                 10    30
+      \
+       30
+                    </div>
+                </div>
+
+                <h3>LR Imbalance → Left-Right Rotation</h3>
+                <div class="viz-container">
+                    <div class="ascii-diagram">
+Before (LR):       After Left on 10:     After Right on 30:
+      30                  30                    20
+     /                   /                     /  \
+   10                  20                    10    30
+     \                /
+      20            10
+                    </div>
+                </div>
+
+                <h3>RL Imbalance → Right-Left Rotation</h3>
+                <div class="viz-container">
+                    <div class="ascii-diagram">
+Before (RL):       After Right on 30:    After Left on 10:
+  10                    10                    20
+    \                     \                  /  \
+     30                    20              10    30
+    /                        \
+  20                          30
+                    </div>
+                </div>
+            </div>
+
+            <!-- Implementation -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔧</span> AVL Tree Implementation</h2>
+                <div class="code-header"><span>JavaScript — AVL Tree</span><button class="copy-btn">Copy</button></div>
+                <pre><code>class AVLNode {
+    constructor(val) {
+        this.val = val;
+        this.left = null;
+        this.right = null;
+        this.height = 1; // New node is a leaf
+    }
+}
+
+class AVLTree {
+    constructor() {
+        this.root = null;
+    }
+
+    getHeight(node) {
+        return node ? node.height : 0;
+    }
+
+    getBalanceFactor(node) {
+        return node ? this.getHeight(node.left) - this.getHeight(node.right) : 0;
+    }
+
+    updateHeight(node) {
+        node.height = 1 + Math.max(this.getHeight(node.left), this.getHeight(node.right));
+    }
+
+    // Right Rotation (LL case)
+    rightRotate(y) {
+        const x = y.left;
+        const T2 = x.right;
+
+        x.right = y;
+        y.left = T2;
+
+        this.updateHeight(y);
+        this.updateHeight(x);
+        return x; // New root
+    }
+
+    // Left Rotation (RR case)
+    leftRotate(x) {
+        const y = x.right;
+        const T2 = y.left;
+
+        y.left = x;
+        x.right = T2;
+
+        this.updateHeight(x);
+        this.updateHeight(y);
+        return y; // New root
+    }
+
+    // Balance the node after insertion/deletion
+    balance(node, val) {
+        const bf = this.getBalanceFactor(node);
+
+        // LL Case
+        if (bf > 1 && val < node.left.val) {
+            return this.rightRotate(node);
+        }
+        // RR Case
+        if (bf < -1 && val > node.right.val) {
+            return this.leftRotate(node);
+        }
+        // LR Case
+        if (bf > 1 && val > node.left.val) {
+            node.left = this.leftRotate(node.left);
+            return this.rightRotate(node);
+        }
+        // RL Case
+        if (bf < -1 && val < node.right.val) {
+            node.right = this.rightRotate(node.right);
+            return this.leftRotate(node);
+        }
+        return node; // Already balanced
+    }
+
+    insert(val) {
+        this.root = this._insert(this.root, val);
+    }
+
+    _insert(node, val) {
+        // Standard BST insert
+        if (!node) return new AVLNode(val);
+
+        if (val < node.val) node.left = this._insert(node.left, val);
+        else if (val > node.val) node.right = this._insert(node.right, val);
+        else return node; // No duplicates
+
+        this.updateHeight(node);
+        return this.balance(node, val);
+    }
+}</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Insert [10, 20, 30, 15]</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Insert 10: Tree has one node.</div><div class="step-state">Tree: 10 (h=1, BF=0)</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Insert 20: Goes right of 10.</div><div class="step-state">10→R:20 (BF of 10 = -1, balanced)</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Insert 30: Goes right of 20. Node 10 has BF = -2 (RR case). Left rotate at 10.</div><div class="step-state">Before: 10→R:20→R:30. After rotation: root=20, L:10, R:30</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Insert 15: Goes left of 20, right of 10. All balance factors are within {-1,0,1}.</div><div class="step-state">Final: 20(L:10(R:15), R:30) — balanced ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>BST (Average)</th><th>BST (Worst)</th><th>AVL (All Cases)</th></tr></thead>
+                    <tbody>
+                        <tr><td>Search</td><td class="best">O(log n)</td><td class="worst">O(n)</td><td class="best">O(log n)</td></tr>
+                        <tr><td>Insert</td><td class="best">O(log n)</td><td class="worst">O(n)</td><td class="best">O(log n)</td></tr>
+                        <tr><td>Delete</td><td class="best">O(log n)</td><td class="worst">O(n)</td><td class="best">O(log n)</td></tr>
+                        <tr><td>Space</td><td>O(n)</td><td>O(n)</td><td>O(n)</td></tr>
+                    </tbody>
+                </table>
+                <p>Each rotation is O(1). At most O(log n) rotations per insert/delete (one rotation per ancestor on the path).</p>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting to update heights after rotation</div>
+                    <p>After a rotation, both the old root and new root have changed subtrees. Always update heights of the lower node first, then the higher node.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing rotation direction</div>
+                    <p>LL imbalance → Right rotation (counterintuitive!). Think: "the problem is on the Left-Left, so rotate Right to fix it."</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not handling LR/RL as double rotations</div>
+                    <p>LR and RL require TWO rotations. First convert to LL or RR, then do a single rotation. Missing the first rotation leads to incorrect trees.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>AVL trees are rarely coded from scratch in interviews — but understanding <strong>why self-balancing matters</strong> is crucial.</li>
+                    <li>Know: balance factor, the 4 rotation types, and when each applies.</li>
+                    <li>Compare with <strong>Red-Black Trees</strong>: AVL is more strictly balanced (faster lookups) but requires more rotations on insert/delete.</li>
+                    <li>Common question: "How would you check if a binary tree is balanced?" → <strong>LC 110: Balanced Binary Tree</strong>.</li>
+                    <li>AVL guarantees height ≤ 1.44 × log₂(n), so operations are truly O(log n).</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>AVL = self-balancing BST. Balance factor = height(left) − height(right) ∈ {-1, 0, 1}.</li>
+                    <li>4 rotations: LL→Right, RR→Left, LR→Left+Right, RL→Right+Left.</li>
+                    <li>All operations guaranteed O(log n) — no degenerate cases.</li>
+                    <li>Update height bottom-up after every insert/delete.</li>
+                    <li>More balanced than Red-Black trees → faster search, slower insert/delete.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the balance factor of an AVL tree node?</div>
+                            <div class="flashcard-back">Balance Factor = height(left subtree) − height(right subtree). It must be -1, 0, or 1 for every node in the tree.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">When do you perform a Left-Right (LR) rotation?</div>
+                            <div class="flashcard-back">When the balance factor is > 1 (left-heavy) AND the new node was inserted into the <strong>right subtree of the left child</strong>. First left-rotate the left child, then right-rotate the node.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How does AVL differ from Red-Black Tree?</div>
+                            <div class="flashcard-back">AVL is more strictly balanced (max height difference = 1) → faster lookups. Red-Black allows more imbalance → fewer rotations on insert/delete. Java's TreeMap uses Red-Black; databases often use AVL.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">110</span><span class="lc-name"><a href="https://leetcode.com/problems/balanced-binary-tree/" target="_blank" rel="noopener">Balanced Binary Tree</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Check AVL property</span></li>
+                    <li class="leetcode-item"><span class="lc-number">108</span><span class="lc-name"><a href="https://leetcode.com/problems/convert-sorted-array-to-binary-search-tree/" target="_blank" rel="noopener">Convert Sorted Array to BST</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Build balanced BST</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1382</span><span class="lc-name"><a href="https://leetcode.com/problems/balance-a-binary-search-tree/" target="_blank" rel="noopener">Balance a Binary Search Tree</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Rebalance BST</span></li>
+                    <li class="leetcode-item"><span class="lc-number">98</span><span class="lc-name"><a href="https://leetcode.com/problems/validate-binary-search-tree/" target="_blank" rel="noopener">Validate Binary Search Tree</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">BST property check</span></li>
+                    <li class="leetcode-item"><span class="lc-number">450</span><span class="lc-name"><a href="https://leetcode.com/problems/delete-node-in-a-bst/" target="_blank" rel="noopener">Delete Node in a BST</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">BST deletion + rebalance</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

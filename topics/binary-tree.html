@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Tree - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 9</a><span class="separator">›</span><span class="current">Binary Tree</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Binary Tree</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 9</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="binary-tree">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is a Binary Tree?</h2>
+                <p>A <strong>Binary Tree</strong> is a hierarchical data structure where each node has <strong>at most two children</strong>, called the <strong>left child</strong> and <strong>right child</strong>. It's called "binary" because each node branches into at most 2 paths.</p>
+                <p>Trees are <strong>non-linear</strong> — unlike arrays and linked lists, data branches out, allowing for efficient searching, sorting, and hierarchical representation.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Trees are the most <strong>recursion-friendly</strong> data structure. Almost every tree problem has an elegant recursive solution: solve for the left subtree, solve for the right subtree, combine the results. Once you internalize this pattern, tree problems become formulaic.</p>
+                </div>
+            </div>
+
+            <!-- Real-Life Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">👨‍👩‍👧‍👦 Family Tree</div>
+                    <p>A family tree is the perfect analogy. One person (the <strong>root</strong>) has children, who have their own children (grandchildren), and so on. People with no children are <strong>leaves</strong>. The number of generations is the <strong>height</strong>. You can trace lineage from root to any leaf — that's a <strong>path</strong>.</p>
+                </div>
+                <ul>
+                    <li><strong>Company org chart:</strong> CEO (root) → VPs → Directors → Managers → Employees (leaves).</li>
+                    <li><strong>File system:</strong> Root folder contains subfolders, which contain files (leaves).</li>
+                    <li><strong>Tournament bracket:</strong> Each match has two participants — winner advances up.</li>
+                    <li><strong>Decision tree:</strong> Each node is a yes/no question, branches lead to outcomes.</li>
+                </ul>
+            </div>
+
+            <!-- Terminology -->
+            <div class="section-card">
+                <h2><span class="section-icon">📚</span> Key Terminology</h2>
+
+                <div class="viz-container">
+                    <div class="viz-title">Binary Tree Structure</div>
+                    <div class="ascii-diagram">
+                    1          ← Root (no parent)
+                   / \
+                  2    3       ← Internal nodes
+                 / \    \
+                4   5    6    ← Leaves (no children)
+               /
+              7
+
+Terminology:
+• Root: 1 (topmost node)
+• Leaf nodes: 5, 7, 6 (no children)
+• Internal nodes: 1, 2, 3, 4
+• Parent of 4: 2. Children of 2: 4, 5
+• Siblings: 2 and 3 (same parent)
+• Height of tree: 3 (longest root-to-leaf path)
+• Depth of node 4: 2 (edges from root to node 4)
+• Level 0: [1], Level 1: [2,3], Level 2: [4,5,6]
+                    </div>
+                </div>
+
+                <table class="complexity-table">
+                    <thead><tr><th>Term</th><th>Definition</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>Root</strong></td><td>Topmost node (no parent)</td></tr>
+                        <tr><td><strong>Leaf</strong></td><td>Node with no children</td></tr>
+                        <tr><td><strong>Height</strong></td><td>Longest path from root to any leaf (edges count)</td></tr>
+                        <tr><td><strong>Depth</strong></td><td>Number of edges from root to that node</td></tr>
+                        <tr><td><strong>Level</strong></td><td>Set of nodes at the same depth</td></tr>
+                        <tr><td><strong>Subtree</strong></td><td>A node and all its descendants</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Types of Binary Trees -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌳</span> Types of Binary Trees</h2>
+
+                <div class="ascii-diagram">
+Full Binary Tree       Complete Binary Tree     Perfect Binary Tree
+(every node has         (all levels filled       (all internal nodes
+ 0 or 2 children)       except possibly last,     have 2 children AND
+                        filled left to right)     all leaves at same level)
+
+      1                      1                        1
+     / \                   / \                      / \
+    2   3                 2   3                    2   3
+   / \                   / \ / \                  / \ / \
+  4   5                 4  5 6                   4  5 6  7
+
+Balanced Binary Tree: Height = O(log n). Left and right subtree
+heights differ by at most 1 at every node.
+                </div>
+            </div>
+
+            <!-- Node Structure & Implementation -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Implementation</h2>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>class TreeNode {
+    constructor(val) {
+        this.val = val;
+        this.left = null;
+        this.right = null;
+    }
+}
+
+// Build this tree:    1
+//                    / \
+//                   2   3
+//                  / \
+//                 4   5
+const root = new TreeNode(1);
+root.left = new TreeNode(2);
+root.right = new TreeNode(3);
+root.left.left = new TreeNode(4);
+root.left.right = new TreeNode(5);</code></pre>
+            </div>
+
+            <!-- Traversals -->
+            <div class="section-card">
+                <h2><span class="section-icon">🚶</span> Tree Traversals</h2>
+
+                <div class="ascii-diagram">
+Tree:      1
+          / \
+         2   3
+        / \
+       4   5
+
+Inorder   (Left, Root, Right):  4, 2, 5, 1, 3
+Preorder  (Root, Left, Right):  1, 2, 4, 5, 3
+Postorder (Left, Right, Root):  4, 5, 2, 3, 1
+Level Order (BFS):              1, 2, 3, 4, 5
+                </div>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Inorder: Left → Root → Right
+function inorder(node, result = []) {
+    if (!node) return result;
+    inorder(node.left, result);
+    result.push(node.val);      // Process root
+    inorder(node.right, result);
+    return result;
+}
+
+// Preorder: Root → Left → Right
+function preorder(node, result = []) {
+    if (!node) return result;
+    result.push(node.val);       // Process root first
+    preorder(node.left, result);
+    preorder(node.right, result);
+    return result;
+}
+
+// Level Order (BFS) — uses Queue
+function levelOrder(root) {
+    if (!root) return [];
+    const queue = [root];
+    const result = [];
+    
+    while (queue.length > 0) {
+        const levelSize = queue.length;
+        const level = [];
+        for (let i = 0; i < levelSize; i++) {
+            const node = queue.shift();
+            level.push(node.val);
+            if (node.left) queue.push(node.left);
+            if (node.right) queue.push(node.right);
+        }
+        result.push(level);
+    }
+    return result; // [[1], [2, 3], [4, 5]]
+}</code></pre>
+            </div>
+
+            <!-- Classic Problems -->
+            <div class="section-card">
+                <h2><span class="section-icon">⭐</span> Classic: Maximum Depth</h2>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function maxDepth(root) {
+    if (!root) return 0;  // Base case: empty tree
+    
+    let leftDepth = maxDepth(root.left);
+    let rightDepth = maxDepth(root.right);
+    
+    return 1 + Math.max(leftDepth, rightDepth);
+}
+// The pattern: solve left, solve right, combine!</code></pre>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">maxDepth(1): needs max of left subtree and right subtree</div><div class="step-state">Recurse into node 2 and node 3</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">maxDepth(2): left=maxDepth(4)=1, right=maxDepth(5)=1 → 1+max(1,1) = 2</div><div class="step-state">Left subtree depth = 2</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">maxDepth(3): left=null→0, right=null→0 → 1+max(0,0) = 1</div><div class="step-state">Right subtree depth = 1</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">maxDepth(1) = 1 + max(2, 1) = <strong>3</strong></div><div class="step-state">Answer: 3 ✅</div></div></div>
+                </div>
+
+                <h3>Invert Binary Tree</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function invertTree(root) {
+    if (!root) return null;
+    
+    // Swap left and right children
+    [root.left, root.right] = [root.right, root.left];
+    
+    // Recursively invert subtrees
+    invertTree(root.left);
+    invertTree(root.right);
+    
+    return root;
+}
+// Famous story: Homebrew creator Max Howell was rejected by Google
+// for not being able to invert a binary tree on a whiteboard!</code></pre>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Balanced Tree</th><th>Skewed Tree</th></tr></thead>
+                    <tbody>
+                        <tr><td>Search</td><td class="best">O(log n)</td><td class="worst">O(n)</td></tr>
+                        <tr><td>Insert</td><td class="best">O(log n)</td><td class="worst">O(n)</td></tr>
+                        <tr><td>Delete</td><td class="best">O(log n)</td><td class="worst">O(n)</td></tr>
+                        <tr><td>Traversal (any)</td><td class="avg">O(n)</td><td class="avg">O(n)</td></tr>
+                        <tr><td>Space (recursion)</td><td class="best">O(log n)</td><td class="worst">O(n)</td></tr>
+                    </tbody>
+                </table>
+                <div class="callout info">
+                    <div class="callout-title">💡 Balanced vs Skewed</div>
+                    <p>A balanced tree has height O(log n), giving fast operations. A skewed tree (every node has only one child) degrades to a linked list with height O(n). This is why self-balancing trees (AVL, Red-Black) exist.</p>
+                </div>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting the base case (null check)</div>
+                    <pre><code>// ❌ Crashes when node is null
+function height(node) {
+    return 1 + Math.max(height(node.left), height(node.right));
+    // node.left throws if node is null!
+}
+
+// ✅ Always check for null first
+function height(node) {
+    if (!node) return 0;  // BASE CASE
+    return 1 + Math.max(height(node.left), height(node.right));
+}</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing height vs depth</div>
+                    <p><strong>Height:</strong> measured from a node DOWN to the farthest leaf. <strong>Depth:</strong> measured from the root DOWN to the node. The root has depth 0 and the tree's height equals the root's height.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Using BFS when DFS is needed (or vice versa)</div>
+                    <p>DFS (recursion/stack): depth-related problems, path problems. BFS (queue): level-related problems, shortest path in unweighted graphs.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>The <strong>recursive template</strong>: handle null → recurse left → recurse right → combine. This solves 80% of tree problems.</li>
+                    <li>Know all four traversals: <strong>inorder, preorder, postorder, level-order</strong>.</li>
+                    <li>Inorder traversal of a BST gives <strong>sorted order</strong> — this is a common trick.</li>
+                    <li>Tree problems test <strong>recursion skills</strong>. If recursion is weak, practice tree problems.</li>
+                    <li>Common follow-up: "Can you do it iteratively?" — use an explicit stack for DFS.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Binary tree: each node has at most 2 children (left, right).</li>
+                    <li>Traversals: Inorder (L,Root,R), Preorder (Root,L,R), Postorder (L,R,Root), Level-order (BFS).</li>
+                    <li>Balanced tree height = O(log n). Skewed tree height = O(n).</li>
+                    <li>Recursive pattern: base case (null) → recurse left → recurse right → combine.</li>
+                    <li>DFS uses recursion/stack. BFS uses queue.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What are the four tree traversal orders?</div>
+                            <div class="flashcard-back">Inorder (Left→Root→Right), Preorder (Root→Left→Right), Postorder (Left→Right→Root), Level-order (BFS, level by level). Inorder on BST gives sorted order.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the height of a balanced binary tree with n nodes?</div>
+                            <div class="flashcard-back">O(log n). A perfect binary tree with height h has 2^(h+1) - 1 nodes. So height ≈ log₂(n). This is why balanced BSTs give O(log n) search.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the recursive template for tree problems?</div>
+                            <div class="flashcard-back">1. Base case: if node is null, return default value. 2. Recurse on left subtree. 3. Recurse on right subtree. 4. Combine results (e.g., max, sum, and/or). This solves 80% of tree problems.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">104</span><span class="lc-name"><a href="https://leetcode.com/problems/maximum-depth-of-binary-tree/" target="_blank" rel="noopener">Maximum Depth of Binary Tree</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">DFS Recursion</span></li>
+                    <li class="leetcode-item"><span class="lc-number">226</span><span class="lc-name"><a href="https://leetcode.com/problems/invert-binary-tree/" target="_blank" rel="noopener">Invert Binary Tree</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">DFS Recursion</span></li>
+                    <li class="leetcode-item"><span class="lc-number">100</span><span class="lc-name"><a href="https://leetcode.com/problems/same-tree/" target="_blank" rel="noopener">Same Tree</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">DFS Comparison</span></li>
+                    <li class="leetcode-item"><span class="lc-number">101</span><span class="lc-name"><a href="https://leetcode.com/problems/symmetric-tree/" target="_blank" rel="noopener">Symmetric Tree</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">DFS Mirror</span></li>
+                    <li class="leetcode-item"><span class="lc-number">102</span><span class="lc-name"><a href="https://leetcode.com/problems/binary-tree-level-order-traversal/" target="_blank" rel="noopener">Binary Tree Level Order Traversal</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">BFS</span></li>
+                    <li class="leetcode-item"><span class="lc-number">543</span><span class="lc-name"><a href="https://leetcode.com/problems/diameter-of-binary-tree/" target="_blank" rel="noopener">Diameter of Binary Tree</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">DFS + Global Max</span></li>
+                    <li class="leetcode-item"><span class="lc-number">110</span><span class="lc-name"><a href="https://leetcode.com/problems/balanced-binary-tree/" target="_blank" rel="noopener">Balanced Binary Tree</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">DFS Height Check</span></li>
+                    <li class="leetcode-item"><span class="lc-number">112</span><span class="lc-name"><a href="https://leetcode.com/problems/path-sum/" target="_blank" rel="noopener">Path Sum</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">DFS Path</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

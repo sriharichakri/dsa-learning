@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Next Greater Element - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 7</a><span class="separator">›</span><span class="current">Next Greater Element</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Next Greater Element</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 7</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="next-greater-element">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is the Next Greater Element?</h2>
+                <p>For each element in an array, the <strong>Next Greater Element (NGE)</strong> is the first element to its <strong>right</strong> that is <strong>larger</strong> than it. If no such element exists, the answer is -1.</p>
+                <div class="callout tip">
+                    <div class="callout-title">🌍 Real-Life Analogy</div>
+                    <p>Imagine standing in a crowd and looking to your right for the <strong>first person taller</strong> than you. That's your "next greater element." If everyone to your right is shorter, there's no next greater (answer = -1). A tall person at the back may never find someone taller!</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How It Works</h2>
+
+                <h3>Basic NGE (right to left scan)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function nextGreaterElement(arr) {
+    const n = arr.length;
+    const result = new Array(n).fill(-1);
+    const stack = []; // Monotonic decreasing stack
+    
+    // Scan right to left
+    for (let i = n - 1; i >= 0; i--) {
+        // Pop elements smaller than current
+        while (stack.length && stack[stack.length - 1] <= arr[i]) {
+            stack.pop();
+        }
+        // Top of stack is the next greater (if exists)
+        if (stack.length) result[i] = stack[stack.length - 1];
+        stack.push(arr[i]);
+    }
+    return result;
+}
+
+// [4, 5, 2, 25] → [5, 25, 25, -1]</code></pre>
+
+                <h3>NGE I — Two arrays (LC 496)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function nextGreaterElementI(nums1, nums2) {
+    const map = new Map();
+    const stack = [];
+    
+    // Find NGE for all elements in nums2
+    for (let num of nums2) {
+        while (stack.length && stack[stack.length - 1] < num) {
+            map.set(stack.pop(), num);
+        }
+        stack.push(num);
+    }
+    
+    // Look up results for nums1
+    return nums1.map(num => map.get(num) ?? -1);
+}</code></pre>
+
+                <h3>NGE II — Circular array (LC 503)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function nextGreaterElements(nums) {
+    const n = nums.length;
+    const result = new Array(n).fill(-1);
+    const stack = [];
+    
+    // Loop through array twice to handle circular
+    for (let i = 2 * n - 1; i >= 0; i--) {
+        const idx = i % n;
+        while (stack.length && stack[stack.length - 1] <= nums[idx]) {
+            stack.pop();
+        }
+        if (stack.length) result[idx] = stack[stack.length - 1];
+        stack.push(nums[idx]);
+    }
+    return result;
+}
+
+// [1, 2, 1] → [2, -1, 2]  (circular: after 1, wraps to 2)</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run</h2>
+                <p>Find NGE for <code>[4, 5, 2, 25]</code></p>
+
+                <div class="viz-container">
+                    <div class="viz-title">Right-to-left scan with monotonic stack</div>
+                    <div class="ascii-diagram">
+Processing right to left:
+
+i=3: val=25  Stack: []       → NGE = -1, push 25
+     Stack: [25]
+
+i=2: val=2   Stack: [25]     → 25 > 2, NGE = 25, push 2
+     Stack: [25, 2]
+
+i=1: val=5   Stack: [25, 2]  → pop 2 (2 ≤ 5), 25 > 5, NGE = 25
+     Stack: [25, 5]
+
+i=0: val=4   Stack: [25, 5]  → 5 > 4, NGE = 5
+     Stack: [25, 5, 4]
+
+Result: [5, 25, 25, -1] ✅
+                    </div>
+                </div>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">i=3, val=25: Stack empty → result[3]=-1. Push 25.</div><div class="step-state">Stack: [25] | Result: [_,_,_,-1]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">i=2, val=2: Top=25 > 2 → result[2]=25. Push 2.</div><div class="step-state">Stack: [25,2] | Result: [_,_,25,-1]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">i=1, val=5: Pop 2 (≤5). Top=25 > 5 → result[1]=25. Push 5.</div><div class="step-state">Stack: [25,5] | Result: [_,25,25,-1]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">i=0, val=4: Top=5 > 4 → result[0]=5. Push 4.</div><div class="step-state">Stack: [25,5,4] | Result: [5,25,25,-1] ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Variant</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Basic NGE</td><td class="best">O(n)</td><td class="avg">O(n)</td></tr>
+                        <tr><td>NGE I (two arrays)</td><td class="best">O(n + m)</td><td class="avg">O(n)</td></tr>
+                        <tr><td>NGE II (circular)</td><td class="best">O(n)</td><td class="avg">O(n)</td></tr>
+                        <tr><td>Brute force</td><td class="worst">O(n²)</td><td class="best">O(1)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Using strict less-than instead of less-than-or-equal</div>
+                    <p>When popping from the stack, use <code>&lt;=</code> to handle equal elements. For "strictly greater," equal elements should also be popped since they're not greater.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting circular handling in NGE II</div>
+                    <p>For circular arrays, iterate from <code>2*n-1</code> to <code>0</code> and use <code>i % n</code> as the index. This simulates wrapping around the array.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>NGE is the <strong>gateway problem</strong> for monotonic stack — master it first.</li>
+                    <li>Two approaches: left-to-right (pop when found answer) or right-to-left (maintain potential answers).</li>
+                    <li>"Daily Temperatures" (LC 739) is NGE in disguise — find the next warmer day.</li>
+                    <li>For circular variant, iterate 2×n with modulo. This is a standard trick.</li>
+                    <li>Variation: Next Smaller Element (use increasing stack instead).</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>NGE = first element to the right that is larger than current.</li>
+                    <li>Use monotonic decreasing stack. Pop elements ≤ current.</li>
+                    <li>Right-to-left: stack holds "potential next greaters." Top = answer.</li>
+                    <li>Circular: iterate 2×n with i % n. Time still O(n).</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you handle circular arrays for Next Greater Element?</div>
+                            <div class="flashcard-back">Iterate from <code>2*n - 1</code> down to <code>0</code>. Use <code>i % n</code> as the actual index. This effectively processes the array twice, allowing elements to "wrap around" and find their next greater on the other side.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What's the difference between left-to-right and right-to-left monotonic stack approaches?</div>
+                            <div class="flashcard-back"><strong>Left-to-right:</strong> Stack holds elements "waiting" for their answer. When current element is the answer, pop and assign. <strong>Right-to-left:</strong> Stack holds "potential answers." Top of stack is the answer for current element. Both are O(n).</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">496</span><span class="lc-name"><a href="https://leetcode.com/problems/next-greater-element-i/" target="_blank" rel="noopener">Next Greater Element I</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">NGE with map lookup</span></li>
+                    <li class="leetcode-item"><span class="lc-number">503</span><span class="lc-name"><a href="https://leetcode.com/problems/next-greater-element-ii/" target="_blank" rel="noopener">Next Greater Element II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Circular NGE</span></li>
+                    <li class="leetcode-item"><span class="lc-number">739</span><span class="lc-name"><a href="https://leetcode.com/problems/daily-temperatures/" target="_blank" rel="noopener">Daily Temperatures</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">NGE variant (days until warmer)</span></li>
+                    <li class="leetcode-item"><span class="lc-number">556</span><span class="lc-name"><a href="https://leetcode.com/problems/next-greater-element-iii/" target="_blank" rel="noopener">Next Greater Element III</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Next permutation variant</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1019</span><span class="lc-name"><a href="https://leetcode.com/problems/next-greater-node-in-linked-list/" target="_blank" rel="noopener">Next Greater Node In Linked List</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">NGE on linked list</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Search Tree - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 9</a><span class="separator">›</span><span class="current">Binary Search Tree</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Binary Search Tree (BST)</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 9</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="bst">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is a Binary Search Tree?</h2>
+                <p>A <strong>Binary Search Tree (BST)</strong> is a binary tree where every node follows the <strong>BST property</strong>:</p>
+                <ul>
+                    <li>All values in the <strong>left subtree</strong> are <strong>less than</strong> the node</li>
+                    <li>All values in the <strong>right subtree</strong> are <strong>greater than</strong> the node</li>
+                </ul>
+                <p>This ordering makes search, insert, and delete operations O(log n) on average — like doing binary search on a dynamic data set.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>An <strong>inorder traversal</strong> of a BST always produces elements in <strong>sorted order</strong>. This is the most important property to remember — it comes up in many interview problems!</p>
+                </div>
+            </div>
+
+            <!-- Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🗄️ Organized Filing Cabinet</div>
+                    <p>Imagine a filing cabinet where every drawer has a label. When you look for a file, you check the current drawer's label. If your file comes <strong>before</strong> alphabetically, go to the <strong>left section</strong>. If it comes <strong>after</strong>, go <strong>right</strong>. Each step cuts your search in half — just like a BST!</p>
+                </div>
+                <ul>
+                    <li><strong>Library book organization:</strong> Books ordered by call number with a hierarchical structure</li>
+                    <li><strong>Tournament bracket:</strong> Each match narrows down — winners go one way, losers go another</li>
+                    <li><strong>Binary decision tree:</strong> Yes/no questions that narrow down possibilities</li>
+                </ul>
+            </div>
+
+            <!-- BST Visualization -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> BST Structure</h2>
+                <div class="viz-container">
+                    <div class="viz-title">BST with values [8, 3, 10, 1, 6, 14, 4, 7, 13]</div>
+                    <div class="ascii-diagram">
+              8
+            /   \
+          3      10
+         / \       \
+        1    6      14
+            / \     /
+           4   7  13
+
+  Inorder traversal: 1, 3, 4, 6, 7, 8, 10, 13, 14  ← SORTED! ✅
+
+  Search for 7:
+  8 → 7 < 8 → go left
+  3 → 7 > 3 → go right
+  6 → 7 > 6 → go right
+  7 → Found! ✅  (3 comparisons)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Implementation -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔧</span> BST Operations</h2>
+                <div class="code-header"><span>JavaScript — BST Implementation</span><button class="copy-btn">Copy</button></div>
+                <pre><code>class TreeNode {
+    constructor(val) {
+        this.val = val;
+        this.left = null;
+        this.right = null;
+    }
+}
+
+class BST {
+    constructor() {
+        this.root = null;
+    }
+    
+    // Insert — O(log n) average, O(n) worst
+    insert(val) {
+        this.root = this._insertRec(this.root, val);
+    }
+    _insertRec(node, val) {
+        if (!node) return new TreeNode(val);
+        if (val < node.val) node.left = this._insertRec(node.left, val);
+        else if (val > node.val) node.right = this._insertRec(node.right, val);
+        return node;
+    }
+    
+    // Search — O(log n) average
+    search(val) {
+        return this._searchRec(this.root, val);
+    }
+    _searchRec(node, val) {
+        if (!node) return false;
+        if (val === node.val) return true;
+        if (val < node.val) return this._searchRec(node.left, val);
+        return this._searchRec(node.right, val);
+    }
+    
+    // Delete — O(log n) average
+    delete(val) {
+        this.root = this._deleteRec(this.root, val);
+    }
+    _deleteRec(node, val) {
+        if (!node) return null;
+        if (val < node.val) {
+            node.left = this._deleteRec(node.left, val);
+        } else if (val > node.val) {
+            node.right = this._deleteRec(node.right, val);
+        } else {
+            // Node found! Handle 3 cases:
+            if (!node.left) return node.right;     // Case 1 & 2
+            if (!node.right) return node.left;     // Case 2
+            // Case 3: Two children — replace with inorder successor
+            let successor = this._findMin(node.right);
+            node.val = successor.val;
+            node.right = this._deleteRec(node.right, successor.val);
+        }
+        return node;
+    }
+    _findMin(node) {
+        while (node.left) node = node.left;
+        return node;
+    }
+    
+    // Inorder traversal — gives sorted order
+    inorder() {
+        const result = [];
+        this._inorderRec(this.root, result);
+        return result;
+    }
+    _inorderRec(node, result) {
+        if (!node) return;
+        this._inorderRec(node.left, result);
+        result.push(node.val);
+        this._inorderRec(node.right, result);
+    }
+}</code></pre>
+            </div>
+
+            <!-- Delete Cases -->
+            <div class="section-card">
+                <h2><span class="section-icon">🗑️</span> BST Deletion — 3 Cases</h2>
+                <div class="viz-container">
+                    <div class="viz-title">Deletion Cases Visualized</div>
+                    <div class="ascii-diagram">
+Case 1: Leaf node (no children) — just remove it
+  Delete 4:      8          8
+                / \   →    / \
+               3   10     3   10
+              /           
+             4            
+
+Case 2: One child — replace node with its child
+  Delete 10:     8          8
+                / \   →    / \
+               3   10     3   14
+                    \
+                    14
+
+Case 3: Two children — replace with inorder successor
+  Delete 3:      8          8
+                / \   →    / \
+               3   10     4   10
+              / \        / \
+             1   6      1   6
+                /             
+               4    (successor of 3 is 4 — smallest in right subtree)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Insert [5, 3, 7, 1, 4] then Search for 4</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Insert 5: Tree is empty → 5 becomes root</div><div class="step-state">Tree: 5</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Insert 3: 3 < 5 → go left. Empty → insert as left child</div><div class="step-state">Tree: 5(L:3)</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Insert 7: 7 > 5 → go right. Empty → insert as right child</div><div class="step-state">Tree: 5(L:3, R:7)</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Insert 1: 1 < 5 → left(3). 1 < 3 → left. Empty → insert</div><div class="step-state">Tree: 5(L:3(L:1), R:7)</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">Insert 4: 4 < 5 → left(3). 4 > 3 → right. Empty → insert</div><div class="step-state">Tree: 5(L:3(L:1,R:4), R:7)</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">6</div><div class="step-content"><div class="step-desc">Search 4: 4 < 5 → left(3). 4 > 3 → right(4). 4 === 4 → <strong>Found!</strong></div><div class="step-state">Return true ✅ (2 comparisons)</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Time & Space Complexity</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Average</th><th>Worst (Skewed)</th><th>Why?</th></tr></thead>
+                    <tbody>
+                        <tr><td>Search</td><td class="best">O(log n)</td><td class="worst">O(n)</td><td>Balanced tree = log n height; skewed = n height</td></tr>
+                        <tr><td>Insert</td><td class="best">O(log n)</td><td class="worst">O(n)</td><td>Same as search — find position then insert</td></tr>
+                        <tr><td>Delete</td><td class="best">O(log n)</td><td class="worst">O(n)</td><td>Find node + find successor</td></tr>
+                        <tr><td>Inorder</td><td class="best">O(n)</td><td class="best">O(n)</td><td>Visit every node once</td></tr>
+                        <tr><td>Space</td><td class="best">O(n)</td><td class="best">O(n)</td><td>Store n nodes</td></tr>
+                    </tbody>
+                </table>
+                <div class="callout info">
+                    <div class="callout-title">💡 Skewed BST = Linked List!</div>
+                    <p>Inserting sorted data (1, 2, 3, 4, 5) creates a skewed BST — effectively a linked list with O(n) operations. Self-balancing trees (AVL, Red-Black) prevent this.</p>
+                </div>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Validating BST by Checking Only Parent-Child</div>
+                    <pre><code>// ❌ WRONG: Only checks immediate parent-child
+if (node.left.val < node.val) // Not enough!
+
+// ✅ RIGHT: Check against the FULL valid range
+function isValid(node, min, max) {
+    if (!node) return true;
+    if (node.val <= min || node.val >= max) return false;
+    return isValid(node.left, min, node.val) &&
+           isValid(node.right, node.val, max);
+}</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting the Inorder Successor in Deletion</div>
+                    <p>When deleting a node with two children, you must replace it with its <strong>inorder successor</strong> (smallest in right subtree) or <strong>inorder predecessor</strong> (largest in left subtree).</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Assuming BST is Always Balanced</div>
+                    <p>A plain BST can degrade to O(n) with sorted insertions. For guaranteed O(log n), use AVL or Red-Black trees.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Tips</h2>
+                <ul>
+                    <li><strong>Inorder = sorted:</strong> If asked to validate BST, use inorder traversal or min/max range approach</li>
+                    <li><strong>Kth smallest:</strong> Inorder traversal, return the kth element. Or use augmented BST with subtree sizes.</li>
+                    <li><strong>LCA in BST:</strong> Exploit BST property — if both values < node, go left; both > node, go right; else current node is LCA</li>
+                    <li><strong>BST from preorder:</strong> Use min/max bounds to reconstruct the tree in O(n)</li>
+                    <li><strong>BST vs Heap:</strong> BST supports search for any element. Heap only gives min/max efficiently.</li>
+                </ul>
+            </div>
+
+            <!-- Real-world -->
+            <div class="section-card">
+                <h2><span class="section-icon">🏗️</span> Where BSTs Are Used</h2>
+                <ul>
+                    <li><strong>Database indexing:</strong> B-trees (generalized BSTs) power database index structures</li>
+                    <li><strong>File systems:</strong> Directory structures use tree-based organization</li>
+                    <li><strong>Symbol tables:</strong> Compilers use BSTs to look up variable names</li>
+                    <li><strong>Auto-balancing variants:</strong> Red-Black trees in Java TreeMap, C++ std::map</li>
+                    <li><strong>Priority scheduling:</strong> Self-balancing BSTs maintain sorted order dynamically</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>BST property: left &lt; node &lt; right for ALL descendants, not just immediate children</li>
+                    <li>Inorder traversal of BST = sorted order</li>
+                    <li>Average: O(log n) for search/insert/delete | Worst: O(n) if skewed</li>
+                    <li>Delete has 3 cases: leaf, one child, two children (use inorder successor)</li>
+                    <li>Validate BST using min/max range, not just parent-child comparison</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What traversal of a BST gives sorted output?</div>
+                            <div class="flashcard-back">Inorder traversal (Left → Node → Right). This visits nodes in ascending order because left subtree < node < right subtree.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you find the Lowest Common Ancestor (LCA) in a BST?</div>
+                            <div class="flashcard-back">Start at root. If both values < node, go left. If both > node, go right. Otherwise, current node is the LCA (the split point). O(log n) for balanced BST.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the worst case for BST operations and when does it happen?</div>
+                            <div class="flashcard-back">O(n) — when the tree is skewed (all nodes in one direction). Happens when inserting sorted data: 1, 2, 3, 4, 5 creates a chain. Use self-balancing trees to prevent this.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you delete a node with two children in a BST?</div>
+                            <div class="flashcard-back">Replace it with its inorder successor (smallest node in right subtree). Copy the successor's value to the target node, then delete the successor (which has at most one child).</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode Problems -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">700</span><span class="lc-name"><a href="https://leetcode.com/problems/search-in-a-binary-search-tree/" target="_blank" rel="noopener">Search in a Binary Search Tree</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">BST Search</span></li>
+                    <li class="leetcode-item"><span class="lc-number">701</span><span class="lc-name"><a href="https://leetcode.com/problems/insert-into-a-binary-search-tree/" target="_blank" rel="noopener">Insert into a BST</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">BST Insert</span></li>
+                    <li class="leetcode-item"><span class="lc-number">450</span><span class="lc-name"><a href="https://leetcode.com/problems/delete-node-in-a-bst/" target="_blank" rel="noopener">Delete Node in a BST</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">BST Delete</span></li>
+                    <li class="leetcode-item"><span class="lc-number">98</span><span class="lc-name"><a href="https://leetcode.com/problems/validate-binary-search-tree/" target="_blank" rel="noopener">Validate Binary Search Tree</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">BST Property</span></li>
+                    <li class="leetcode-item"><span class="lc-number">230</span><span class="lc-name"><a href="https://leetcode.com/problems/kth-smallest-element-in-a-bst/" target="_blank" rel="noopener">Kth Smallest Element in a BST</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Inorder</span></li>
+                    <li class="leetcode-item"><span class="lc-number">235</span><span class="lc-name"><a href="https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/" target="_blank" rel="noopener">Lowest Common Ancestor of BST</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">BST LCA</span></li>
+                    <li class="leetcode-item"><span class="lc-number">108</span><span class="lc-name"><a href="https://leetcode.com/problems/convert-sorted-array-to-binary-search-tree/" target="_blank" rel="noopener">Convert Sorted Array to BST</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Divide & Conquer</span></li>
+                    <li class="leetcode-item"><span class="lc-number">653</span><span class="lc-name"><a href="https://leetcode.com/problems/two-sum-iv-input-is-a-bst/" target="_blank" rel="noopener">Two Sum IV - Input is a BST</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">BST + HashSet</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1038</span><span class="lc-name"><a href="https://leetcode.com/problems/binary-search-tree-to-greater-sum-tree/" target="_blank" rel="noopener">BST to Greater Sum Tree</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Reverse Inorder</span></li>
+                    <li class="leetcode-item"><span class="lc-number">99</span><span class="lc-name"><a href="https://leetcode.com/problems/recover-binary-search-tree/" target="_blank" rel="noopener">Recover Binary Search Tree</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Inorder + Fix</span></li>
+                </ul>
+            </div>
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

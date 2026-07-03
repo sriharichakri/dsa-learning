@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expression Conversion - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 7</a><span class="separator">›</span><span class="current">Expression Conversion</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Expression Conversion (Infix/Postfix/Prefix)</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 7</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="expression-conversion">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What are Expression Notations?</h2>
+                <p>Mathematical expressions can be written in three forms:</p>
+                <ul>
+                    <li><strong>Infix:</strong> Operator between operands → <code>A + B</code> (what humans use)</li>
+                    <li><strong>Postfix (RPN):</strong> Operator after operands → <code>A B +</code> (what computers prefer)</li>
+                    <li><strong>Prefix (Polish):</strong> Operator before operands → <code>+ A B</code></li>
+                </ul>
+                <div class="callout tip">
+                    <div class="callout-title">🌍 Real-Life Analogy</div>
+                    <p>Think of giving directions: <strong>Infix</strong> is "take the road <em>between</em> the gas station and the mall." <strong>Postfix</strong> is "gas station, mall — take the road." <strong>Prefix</strong> is "take the road — gas station, mall." All say the same thing, just in different orders. Computers prefer postfix because it needs no parentheses and processes naturally with a stack!</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How It Works</h2>
+
+                <h3>Infix to Postfix (Shunting Yard Algorithm)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function infixToPostfix(expr) {
+    const precedence = { '+': 1, '-': 1, '*': 2, '/': 2, '^': 3 };
+    const rightAssoc = new Set(['^']);
+    const stack = [];
+    let output = '';
+    
+    for (let ch of expr) {
+        if (/[A-Za-z0-9]/.test(ch)) {
+            output += ch;  // Operand → output
+        } else if (ch === '(') {
+            stack.push(ch);
+        } else if (ch === ')') {
+            while (stack.length && stack[stack.length - 1] !== '(') {
+                output += stack.pop();
+            }
+            stack.pop(); // Remove '('
+        } else {
+            // Operator
+            while (
+                stack.length &&
+                stack[stack.length - 1] !== '(' &&
+                (precedence[stack[stack.length - 1]] > precedence[ch] ||
+                 (precedence[stack[stack.length - 1]] === precedence[ch] && !rightAssoc.has(ch)))
+            ) {
+                output += stack.pop();
+            }
+            stack.push(ch);
+        }
+    }
+    while (stack.length) output += stack.pop();
+    return output;
+}
+
+// infixToPostfix("A+B*C")     → "ABC*+"
+// infixToPostfix("(A+B)*C")   → "AB+C*"
+// infixToPostfix("A+B*C-D/E") → "ABC*+DE/-"</code></pre>
+
+                <h3>Evaluate Postfix Expression</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function evalPostfix(expr) {
+    const stack = [];
+    
+    for (let ch of expr.split(' ')) {
+        if (!isNaN(ch)) {
+            stack.push(Number(ch));
+        } else {
+            const b = stack.pop();
+            const a = stack.pop();
+            switch (ch) {
+                case '+': stack.push(a + b); break;
+                case '-': stack.push(a - b); break;
+                case '*': stack.push(a * b); break;
+                case '/': stack.push(Math.trunc(a / b)); break;
+            }
+        }
+    }
+    return stack[0];
+}
+
+// evalPostfix("2 1 + 3 *") → 9  // (2+1)*3</code></pre>
+
+                <h3>Infix to Prefix</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function infixToPrefix(expr) {
+    // 1. Reverse the expression (swap parentheses)
+    let reversed = expr.split('').reverse().map(ch => {
+        if (ch === '(') return ')';
+        if (ch === ')') return '(';
+        return ch;
+    }).join('');
+    
+    // 2. Get postfix of reversed
+    let postfix = infixToPostfix(reversed);
+    
+    // 3. Reverse the postfix
+    return postfix.split('').reverse().join('');
+}
+
+// infixToPrefix("A+B*C") → "+A*BC"</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run</h2>
+                <p>Convert <code>A+B*C</code> to postfix</p>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Read 'A': operand → output</div><div class="step-state">Output: "A" | Stack: []</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Read '+': operator, stack empty → push</div><div class="step-state">Output: "A" | Stack: [+]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Read 'B': operand → output</div><div class="step-state">Output: "AB" | Stack: [+]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Read '*': precedence(*) > precedence(+) → push (don't pop +)</div><div class="step-state">Output: "AB" | Stack: [+, *]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">Read 'C': operand → output</div><div class="step-state">Output: "ABC" | Stack: [+, *]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">6</div><div class="step-content"><div class="step-desc">End: pop all from stack → output</div><div class="step-state">Output: "ABC*+" ✅ | Stack: []</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Infix → Postfix</td><td class="best">O(n)</td><td class="avg">O(n)</td></tr>
+                        <tr><td>Infix → Prefix</td><td class="best">O(n)</td><td class="avg">O(n)</td></tr>
+                        <tr><td>Evaluate Postfix</td><td class="best">O(n)</td><td class="avg">O(n)</td></tr>
+                        <tr><td>Evaluate Prefix</td><td class="best">O(n)</td><td class="avg">O(n)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Wrong operator precedence</div>
+                    <p>Remember: ^ (3) > * / (2) > + - (1). Also, ^ is <strong>right-associative</strong> (2^3^4 = 2^(3^4)), while +, -, *, / are left-associative.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not handling parentheses correctly</div>
+                    <p>When you see '(', push it. When you see ')', pop until '(' — but DON'T include '(' in the output. Forgetting to remove '(' from the stack is a common bug.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>The Shunting Yard algorithm (Dijkstra) is the standard for infix → postfix.</li>
+                    <li>Postfix evaluation is straightforward: operand → push, operator → pop two, compute, push result.</li>
+                    <li>"Basic Calculator" problems on LeetCode are variations of this concept.</li>
+                    <li>Know the precedence table and associativity rules by heart.</li>
+                    <li>Prefix → Postfix: evaluate right to left with a stack.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Infix: A+B. Postfix: AB+. Prefix: +AB.</li>
+                    <li>Infix → Postfix: operands to output, operators to stack (respect precedence).</li>
+                    <li>Evaluate Postfix: operand → push, operator → pop 2, compute, push result.</li>
+                    <li>Infix → Prefix: reverse, convert to postfix, reverse again.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why do computers prefer postfix notation over infix?</div>
+                            <div class="flashcard-back">Postfix needs <strong>no parentheses</strong> and no precedence rules during evaluation. Just scan left to right: push operands, and when you see an operator, pop two and compute. Simple stack-based evaluation!</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Convert A*(B+C) to postfix</div>
+                            <div class="flashcard-back">Step by step: A→output. *→stack. (→stack. B→output. +→stack. C→output. )→pop until (: output gets +. End: pop *. <strong>Result: ABC+*</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">150</span><span class="lc-name"><a href="https://leetcode.com/problems/evaluate-reverse-polish-notation/" target="_blank" rel="noopener">Evaluate Reverse Polish Notation</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Postfix evaluation</span></li>
+                    <li class="leetcode-item"><span class="lc-number">224</span><span class="lc-name"><a href="https://leetcode.com/problems/basic-calculator/" target="_blank" rel="noopener">Basic Calculator</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Infix with parentheses</span></li>
+                    <li class="leetcode-item"><span class="lc-number">227</span><span class="lc-name"><a href="https://leetcode.com/problems/basic-calculator-ii/" target="_blank" rel="noopener">Basic Calculator II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Infix without parentheses</span></li>
+                    <li class="leetcode-item"><span class="lc-number">772</span><span class="lc-name"><a href="https://leetcode.com/problems/basic-calculator-iii/" target="_blank" rel="noopener">Basic Calculator III</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Full expression evaluation</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1597</span><span class="lc-name"><a href="https://leetcode.com/problems/build-binary-expression-tree-from-infix-expression/" target="_blank" rel="noopener">Build Expression Tree</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Expression tree from infix</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

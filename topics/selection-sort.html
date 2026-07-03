@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selection Sort - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 4</a><span class="separator">›</span><span class="current">Selection Sort</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Selection Sort</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 4</span>
+                    <span class="topic-badge difficulty-easy">Easy</span>
+                    <button class="topic-complete-btn" data-topic-id="selection-sort">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Selection Sort?</h2>
+                <p><strong>Selection Sort</strong> works by repeatedly finding the <strong>minimum element</strong> from the unsorted portion and placing it at the beginning. It "selects" the smallest element in each pass.</p>
+                <p>Think of it as: divide the array into sorted (left) and unsorted (right) portions. Each iteration, pick the smallest from the right and add it to the end of the left.</p>
+                <div class="callout tip">
+                    <div class="callout-title">🌍 Real-Life Analogy</div>
+                    <p>Imagine sorting a hand of playing cards. You scan all cards, find the <strong>smallest</strong>, pull it out and place it first. Then scan the remaining cards, find the next smallest, place it second. You keep "selecting" the minimum from what's left. That's selection sort!</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How It Works</h2>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function selectionSort(arr) {
+    const n = arr.length;
+    
+    for (let i = 0; i < n - 1; i++) {
+        // Find the minimum element in unsorted portion
+        let minIdx = i;
+        for (let j = i + 1; j < n; j++) {
+            if (arr[j] < arr[minIdx]) {
+                minIdx = j;
+            }
+        }
+        // Swap minimum with current position
+        if (minIdx !== i) {
+            [arr[i], arr[minIdx]] = [arr[minIdx], arr[i]];
+        }
+    }
+    return arr;
+}
+
+// selectionSort([64, 25, 12, 22, 11]) → [11, 12, 22, 25, 64]</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run</h2>
+                <p>Sort <code>[64, 25, 12, 22, 11]</code></p>
+
+                <div class="viz-container">
+                    <div class="viz-title">Selection Sort — each pass selects the minimum</div>
+                    <div class="ascii-diagram">
+Pass 1: Find min in [64, 25, 12, 22, 11] → 11
+        Swap 64 and 11
+        [11 | 25, 12, 22, 64]
+         ✅    unsorted
+
+Pass 2: Find min in [25, 12, 22, 64] → 12
+        Swap 25 and 12
+        [11, 12 | 25, 22, 64]
+         ✅  ✅    unsorted
+
+Pass 3: Find min in [25, 22, 64] → 22
+        Swap 25 and 22
+        [11, 12, 22 | 25, 64]
+         ✅  ✅  ✅    unsorted
+
+Pass 4: Find min in [25, 64] → 25
+        Already in place!
+        [11, 12, 22, 25 | 64]
+         ✅  ✅  ✅  ✅    ✅
+
+Result: [11, 12, 22, 25, 64] ✅
+                    </div>
+                </div>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">i=0: Scan [64,25,12,22,11] → min is 11 at index 4. Swap arr[0] and arr[4].</div><div class="step-state">[11, 25, 12, 22, 64]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">i=1: Scan [25,12,22,64] → min is 12 at index 2. Swap arr[1] and arr[2].</div><div class="step-state">[11, 12, 25, 22, 64]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">i=2: Scan [25,22,64] → min is 22 at index 3. Swap arr[2] and arr[3].</div><div class="step-state">[11, 12, 22, 25, 64]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">i=3: Scan [25,64] → min is 25 at index 3. Already in place!</div><div class="step-state">[11, 12, 22, 25, 64] ✅ Sorted!</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Case</th><th>Time</th><th>Space</th><th>Swaps</th></tr></thead>
+                    <tbody>
+                        <tr><td>Best Case</td><td class="worst">O(n²)</td><td class="best">O(1)</td><td class="best">O(n)</td></tr>
+                        <tr><td>Average Case</td><td class="worst">O(n²)</td><td class="best">O(1)</td><td class="best">O(n)</td></tr>
+                        <tr><td>Worst Case</td><td class="worst">O(n²)</td><td class="best">O(1)</td><td class="best">O(n)</td></tr>
+                    </tbody>
+                </table>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Property</div>
+                    <p>Selection sort always does O(n²) comparisons regardless of input. But it does at most <strong>O(n) swaps</strong> — one per pass. This makes it good when <strong>swaps are expensive</strong> (e.g., writing to flash memory).</p>
+                </div>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Swapping inside the inner loop</div>
+                    <pre><code>// ❌ Wrong — swaps every time we find a smaller element
+for (let j = i + 1; j < n; j++) {
+    if (arr[j] < arr[i]) {
+        [arr[i], arr[j]] = [arr[j], arr[i]]; // Too many swaps!
+    }
+}
+
+// ✅ Correct — track minIdx, swap only once per pass
+let minIdx = i;
+for (let j = i + 1; j < n; j++) {
+    if (arr[j] < arr[minIdx]) minIdx = j;
+}
+[arr[i], arr[minIdx]] = [arr[minIdx], arr[i]];</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing with Bubble Sort</div>
+                    <p>Selection sort finds the min and places it. Bubble sort compares adjacent elements and swaps. Selection sort does fewer swaps but always O(n²) comparisons.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Selection sort is <strong>NOT stable</strong> — equal elements may change relative order.</li>
+                    <li>It's useful when memory writes are expensive (minimum number of swaps).</li>
+                    <li>Always O(n²) — doesn't benefit from partially sorted input (unlike insertion sort).</li>
+                    <li>Know how it differs from insertion sort and bubble sort — common interview comparison.</li>
+                    <li>In-place, but not adaptive and not stable.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Repeatedly select the minimum from unsorted portion, swap to front.</li>
+                    <li>Time: always O(n²). Space: O(1). Swaps: O(n) — at most one per pass.</li>
+                    <li>NOT stable. In-place. NOT adaptive.</li>
+                    <li>Good when swaps are expensive. Otherwise prefer insertion sort.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the key advantage of selection sort over bubble sort?</div>
+                            <div class="flashcard-back">Selection sort makes at most <strong>O(n) swaps</strong> (one per pass), while bubble sort can make O(n²) swaps. If writes/swaps are expensive, selection sort wins.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Is selection sort stable? Why or why not?</div>
+                            <div class="flashcard-back"><strong>No, it's unstable.</strong> When swapping the minimum to the front, it can jump over equal elements. Example: [5a, 3, 5b] → after first pass [3, 5b, 5a] — the two 5s switched order.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">912</span><span class="lc-name"><a href="https://leetcode.com/problems/sort-an-array/" target="_blank" rel="noopener">Sort an Array</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Implement sorting (TLE with selection sort)</span></li>
+                    <li class="leetcode-item"><span class="lc-number">75</span><span class="lc-name"><a href="https://leetcode.com/problems/sort-colors/" target="_blank" rel="noopener">Sort Colors</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Selection-like with 3 values</span></li>
+                    <li class="leetcode-item"><span class="lc-number">215</span><span class="lc-name"><a href="https://leetcode.com/problems/kth-largest-element-in-an-array/" target="_blank" rel="noopener">Kth Largest Element</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Partial selection sort idea</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1051</span><span class="lc-name"><a href="https://leetcode.com/problems/height-checker/" target="_blank" rel="noopener">Height Checker</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Compare with sorted version</span></li>
+                    <li class="leetcode-item"><span class="lc-number">169</span><span class="lc-name"><a href="https://leetcode.com/problems/majority-element/" target="_blank" rel="noopener">Majority Element</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Finding dominant element</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

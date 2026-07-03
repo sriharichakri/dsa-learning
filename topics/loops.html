@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loops &amp; Iteration - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 1</a><span class="separator">›</span><span class="current">Loops &amp; Iteration</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Loops &amp; Iteration</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 1</span>
+                    <span class="topic-badge difficulty-easy">Beginner Friendly</span>
+                    <button class="topic-complete-btn" data-topic-id="loops">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What Are Loops?</h2>
+                <p>A <strong>loop</strong> is a programming construct that repeats a block of code as long as a condition remains true. Instead of writing the same instruction 100 times, you write it <strong>once</strong> and tell the computer to repeat it.</p>
+                <p>Loops are the backbone of every algorithm — from searching through an array to processing millions of database records.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Understanding loops is understanding <strong>time complexity</strong>. A single loop = O(n). A nested loop = O(n²). The number and depth of your loops directly determines how fast your code runs.</p>
+                </div>
+            </div>
+
+            <!-- Real-Life Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🏭 Assembly Line in a Factory</div>
+                    <p>Imagine a car factory assembly line. Each car goes through the same steps: weld frame → paint → install engine → quality check. The factory doesn't write new instructions for each car — it <strong>loops</strong> the same process for every car until the batch is complete.</p>
+                </div>
+                <ul>
+                    <li><strong>Clock ticking:</strong> Every second, the same action (tick) repeats. It stops when the alarm goes off (condition becomes false).</li>
+                    <li><strong>Brushing your teeth:</strong> You repeat the brushing motion ~200 times. Each stroke is one iteration.</li>
+                    <li><strong>Dealing cards:</strong> Deal one card to each player, repeat for the number of rounds.</li>
+                    <li><strong>Washing dishes:</strong> Pick dish → scrub → rinse → stack. Repeat until sink is empty.</li>
+                </ul>
+            </div>
+
+            <!-- Types of Loops -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Types of Loops</h2>
+
+                <h3>1. For Loop — "I know how many times to repeat"</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Syntax: for (initialization; condition; update)
+for (let i = 0; i < 5; i++) {
+    console.log(i);  // 0, 1, 2, 3, 4
+}
+
+// Counting backwards
+for (let i = 10; i >= 0; i--) {
+    console.log(i);  // 10, 9, 8, ..., 0
+}
+
+// Iterating through an array
+let fruits = ["apple", "banana", "cherry"];
+for (let i = 0; i < fruits.length; i++) {
+    console.log(fruits[i]);
+}</code></pre>
+
+                <h3>2. While Loop — "Keep going until this changes"</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Syntax: while (condition) { body }
+let count = 0;
+while (count < 5) {
+    console.log(count);  // 0, 1, 2, 3, 4
+    count++;
+}
+
+// Unknown number of iterations
+let n = 12345;
+let digitCount = 0;
+while (n > 0) {
+    digitCount++;
+    n = Math.floor(n / 10);
+}
+// digitCount = 5</code></pre>
+
+                <h3>3. Do-While Loop — "Run at least once, then check"</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Syntax: do { body } while (condition);
+let input;
+do {
+    input = prompt("Enter a positive number:");
+} while (input <= 0);
+// Guarantees the prompt shows at least once</code></pre>
+
+                <div class="viz-container">
+                    <div class="viz-title">Loop Comparison Flowchart</div>
+                    <div class="ascii-diagram">
+    FOR LOOP              WHILE LOOP           DO-WHILE LOOP
+    ┌──────┐              ┌──────┐             ┌──────┐
+    │ Init │              │      │             │      │
+    └──┬───┘              └──┬───┘             └──┬───┘
+       ▼                     ▼                    ▼
+    ┌──────┐              ┌──────┐          ┌──────────┐
+    │Check │──false──→    │Check │──false──→ │ Execute  │
+    │Cond. │              │Cond. │          │  Body    │
+    └──┬───┘              └──┬───┘          └──┬───────┘
+       │true                 │true              ▼
+       ▼                     ▼              ┌──────┐
+    ┌──────┐              ┌──────┐          │Check │──false──→
+    │Execute│              │Execute│          │Cond. │
+    │ Body │              │ Body │          └──┬───┘
+    └──┬───┘              └──┬───┘             │true
+       ▼                     │                  │
+    ┌──────┐                 └──────────┘       └──────┘
+    │Update│
+    └──┬───┘
+       └──────┘
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nested Loops -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔄</span> Nested Loops</h2>
+                <p>A loop inside another loop. The inner loop runs <strong>completely</strong> for each iteration of the outer loop.</p>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Multiplication table (nested loop)
+for (let i = 1; i <= 3; i++) {
+    for (let j = 1; j <= 3; j++) {
+        console.log(`${i} × ${j} = ${i * j}`);
+    }
+}
+// 1×1=1, 1×2=2, 1×3=3, 2×1=2, 2×2=4, ... (9 total)</code></pre>
+
+                <div class="callout warning">
+                    <div class="callout-title">⚡ Nested Loop = O(n²) — Be Careful!</div>
+                    <p>If outer loop runs n times and inner loop runs n times, total iterations = n × n = n². For n=10,000 that's 100,000,000 operations. Nested loops are often the first thing to optimize in interviews.</p>
+                </div>
+
+                <h3>Classic Pattern: Print a Triangle</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Right triangle of stars
+for (let i = 1; i <= 5; i++) {
+    let row = "";
+    for (let j = 0; j < i; j++) {
+        row += "* ";
+    }
+    console.log(row);
+}
+// Output:
+// *
+// * *
+// * * *
+// * * * *
+// * * * * *</code></pre>
+            </div>
+
+            <!-- Loop Control -->
+            <div class="section-card">
+                <h2><span class="section-icon">🎮</span> Loop Control: break &amp; continue</h2>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// BREAK — exit the loop immediately
+for (let i = 0; i < 10; i++) {
+    if (i === 5) break;   // Stop at 5
+    console.log(i);       // 0, 1, 2, 3, 4
+}
+
+// CONTINUE — skip current iteration, go to next
+for (let i = 0; i < 6; i++) {
+    if (i === 3) continue; // Skip 3
+    console.log(i);        // 0, 1, 2, 4, 5
+}
+
+// Real use: find first negative number
+let arr = [4, 7, -2, 9, -5];
+for (let i = 0; i < arr.length; i++) {
+    if (arr[i] < 0) {
+        console.log(`First negative: ${arr[i]} at index ${i}`);
+        break;  // Found it, stop looking
+    }
+}</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Sum of Digits</h2>
+                <p>Let's trace through finding the sum of digits of <code>1234</code> using a while loop.</p>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function sumOfDigits(n) {
+    let sum = 0;
+    while (n > 0) {
+        sum += n % 10;     // Extract last digit
+        n = Math.floor(n / 10); // Remove last digit
+    }
+    return sum;
+}
+sumOfDigits(1234); // → 10</code></pre>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Initial: <code>n=1234</code>, <code>sum=0</code></div><div class="step-state">n=1234, sum=0</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">1234 % 10 = <strong>4</strong> → sum = 0+4 = 4. n = 1234/10 = 123</div><div class="step-state">n=123, sum=4</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">123 % 10 = <strong>3</strong> → sum = 4+3 = 7. n = 123/10 = 12</div><div class="step-state">n=12, sum=7</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">12 % 10 = <strong>2</strong> → sum = 7+2 = 9. n = 12/10 = 1</div><div class="step-state">n=1, sum=9</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">1 % 10 = <strong>1</strong> → sum = 9+1 = 10. n = 1/10 = 0. Loop ends (n=0).</div><div class="step-state">sum=10 ✅ Answer!</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Loop Pattern</th><th>Time Complexity</th><th>Example</th></tr></thead>
+                    <tbody>
+                        <tr><td>Single loop (0 to n)</td><td class="best">O(n)</td><td>Sum of array elements</td></tr>
+                        <tr><td>Nested loop (n × n)</td><td class="worst">O(n²)</td><td>Bubble sort, brute force pair check</td></tr>
+                        <tr><td>Triple nested loop</td><td class="worst">O(n³)</td><td>Matrix multiplication</td></tr>
+                        <tr><td>Loop halving (n/2 each time)</td><td class="best">O(log n)</td><td>Binary search</td></tr>
+                        <tr><td>Two independent loops</td><td class="avg">O(n + m)</td><td>Process two arrays separately</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Infinite Loop (forgetting to update)</div>
+                    <pre><code>// ❌ i never changes — runs forever!
+let i = 0;
+while (i < 10) {
+    console.log(i);
+    // Missing i++!
+}
+
+// ✅ Always update the loop variable
+while (i < 10) {
+    console.log(i);
+    i++;
+}</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Off-by-One: &lt; vs &lt;=</div>
+                    <pre><code>let arr = [10, 20, 30]; // length = 3, indices: 0, 1, 2
+
+// ❌ i <= arr.length goes to index 3 (undefined!)
+for (let i = 0; i <= arr.length; i++) { ... }
+
+// ✅ Use < length
+for (let i = 0; i < arr.length; i++) { ... }</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Wrong loop type</div>
+                    <p>Use <code>for</code> when you know the count. Use <code>while</code> when you don't. Use <code>do-while</code> when you need at least one execution. Choosing wrong makes code confusing.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>When you see a brute force with <strong>nested loops (O(n²))</strong>, immediately think: "Can I reduce this to O(n) using a hash map or two pointers?"</li>
+                    <li>Know how to identify the <strong>time complexity</strong> by counting loop levels and iterations.</li>
+                    <li><strong>Pattern problems</strong> (stars, numbers) test your nested loop understanding — common in campus placements.</li>
+                    <li>Be comfortable with <strong>while loops for digit manipulation</strong> (reverse number, palindrome check, count digits).</li>
+                    <li>Understand <code>for...of</code> (values) vs <code>for...in</code> (keys) in JavaScript — interviewers test this.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li><code>for</code> = known iterations. <code>while</code> = unknown. <code>do-while</code> = at least once.</li>
+                    <li>Single loop = O(n). Nested loop = O(n²). Halving loop = O(log n).</li>
+                    <li><code>break</code> exits the loop. <code>continue</code> skips current iteration.</li>
+                    <li>Always ensure loop variable is updated to avoid infinite loops.</li>
+                    <li>Array indices: 0 to length-1. Use <code>&lt;</code> not <code>&lt;=</code> with length.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the time complexity of a nested loop (n × n)?</div>
+                            <div class="flashcard-back">O(n²) — quadratic. For each of the n outer iterations, the inner loop runs n times. Total = n × n operations.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the difference between break and continue?</div>
+                            <div class="flashcard-back"><code>break</code> exits the entire loop immediately. <code>continue</code> skips only the current iteration and proceeds to the next one.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">When should you use a while loop vs a for loop?</div>
+                            <div class="flashcard-back">Use <code>for</code> when iterations are known in advance (e.g., loop n times). Use <code>while</code> when iterations depend on a runtime condition (e.g., process until input is 0).</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">412</span><span class="lc-name"><a href="https://leetcode.com/problems/fizz-buzz/" target="_blank" rel="noopener">Fizz Buzz</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Loop + Conditionals</span></li>
+                    <li class="leetcode-item"><span class="lc-number">9</span><span class="lc-name"><a href="https://leetcode.com/problems/palindrome-number/" target="_blank" rel="noopener">Palindrome Number</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">While Loop</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1523</span><span class="lc-name"><a href="https://leetcode.com/problems/count-odd-numbers-in-an-interval-range/" target="_blank" rel="noopener">Count Odd Numbers in an Interval Range</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Math + Loop</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

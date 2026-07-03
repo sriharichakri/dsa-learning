@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lowest Common Ancestor - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 9</a><span class="separator">›</span><span class="current">Lowest Common Ancestor</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Lowest Common Ancestor (LCA)</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 9</span>
+                    <span class="topic-badge difficulty-hard">Hard</span>
+                    <button class="topic-complete-btn" data-topic-id="lca">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is the Lowest Common Ancestor?</h2>
+                <p>The <strong>Lowest Common Ancestor (LCA)</strong> of two nodes <code>p</code> and <code>q</code> in a tree is the <strong>deepest node</strong> that is an ancestor of both <code>p</code> and <code>q</code>. A node is also considered an ancestor of itself.</p>
+                <p>There are multiple approaches: simple recursion for binary trees, parent pointer traversal, and the advanced <strong>Binary Lifting</strong> technique for efficient repeated LCA queries on general trees.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>For a single LCA query on a binary tree, a simple DFS works in O(n). But if you have <strong>Q queries</strong> on a tree of n nodes, binary lifting preprocesses in O(n log n) and answers each query in <strong>O(log n)</strong>, making Q queries cost O(n log n + Q log n) instead of O(Qn).</p>
+                </div>
+            </div>
+
+            <!-- Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">👨‍👩‍👧‍👦 Family Tree</div>
+                    <p>In a family tree, the LCA of two people is their <strong>most recent common ancestor</strong>. For example, if Alice and Bob are cousins, their LCA is their shared grandparent. The LCA is the "lowest" (closest to them) person who appears in both of their lineages.</p>
+                </div>
+                <ul>
+                    <li><strong>File system:</strong> The LCA of two files is their closest common directory.</li>
+                    <li><strong>Organizational chart:</strong> The LCA of two employees is their closest shared manager.</li>
+                    <li><strong>Version control:</strong> The merge-base of two git branches is their LCA in the commit graph.</li>
+                </ul>
+            </div>
+
+            <!-- Simple Recursive Approach -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Approach 1: Recursive LCA (Binary Tree)</h2>
+                <div class="viz-container">
+                    <div class="viz-title">Find LCA of nodes 5 and 4</div>
+                    <div class="ascii-diagram">
+            3          ← LCA(5, 4) = 3? No — let's check.
+           / \
+          5    1       LCA(5, 4):
+         / \  / \      - Left subtree of 3: found 5 (also contains 4 under 5's subtree? No.)
+        6   2 0   8    - But 4 is under 5! So 5 itself is the LCA.
+           / \
+          7   4        Actually: LCA(5, 4) = 5 ✅
+                       (5 is an ancestor of 4, and 5 is an ancestor of itself)
+                    </div>
+                </div>
+
+                <div class="code-header"><span>JavaScript — Recursive LCA (Binary Tree)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function lowestCommonAncestor(root, p, q) {
+    // Base case: reached null or found one of the targets
+    if (!root || root === p || root === q) return root;
+
+    // Search in both subtrees
+    const left = lowestCommonAncestor(root.left, p, q);
+    const right = lowestCommonAncestor(root.right, p, q);
+
+    // If both sides return non-null, current node is the LCA
+    if (left && right) return root;
+
+    // Otherwise, return whichever side found something
+    return left || right;
+}
+// Time: O(n), Space: O(h) where h is height</code></pre>
+            </div>
+
+            <!-- Binary Lifting -->
+            <div class="section-card">
+                <h2><span class="section-icon">🚀</span> Approach 2: Binary Lifting (for Multiple Queries)</h2>
+                <p><strong>Binary Lifting</strong> precomputes the 2^k-th ancestor of every node. To find LCA, lift both nodes to the same depth, then lift both together until they meet.</p>
+
+                <div class="code-header"><span>JavaScript — Binary Lifting LCA</span><button class="copy-btn">Copy</button></div>
+                <pre><code>class LCABinaryLifting {
+    constructor(n, edges, root = 0) {
+        this.n = n;
+        this.LOG = Math.ceil(Math.log2(n)) + 1;
+        this.depth = new Array(n).fill(0);
+        this.up = Array.from({length: n}, () => new Array(this.LOG).fill(-1));
+
+        // Build adjacency list
+        const adj = Array.from({length: n}, () => []);
+        for (const [u, v] of edges) {
+            adj[u].push(v);
+            adj[v].push(u);
+        }
+
+        // BFS to compute depth and up[node][0] (direct parent)
+        const visited = new Array(n).fill(false);
+        const queue = [root];
+        visited[root] = true;
+        while (queue.length) {
+            const u = queue.shift();
+            for (const v of adj[u]) {
+                if (!visited[v]) {
+                    visited[v] = true;
+                    this.depth[v] = this.depth[u] + 1;
+                    this.up[v][0] = u;
+                    queue.push(v);
+                }
+            }
+        }
+
+        // Fill up table: up[v][k] = 2^k-th ancestor of v
+        for (let k = 1; k < this.LOG; k++) {
+            for (let v = 0; v < n; v++) {
+                if (this.up[v][k - 1] !== -1) {
+                    this.up[v][k] = this.up[this.up[v][k - 1]][k - 1];
+                }
+            }
+        }
+    }
+
+    query(u, v) {
+        // Step 1: Bring to same depth
+        if (this.depth[u] < this.depth[v]) [u, v] = [v, u];
+
+        let diff = this.depth[u] - this.depth[v];
+        for (let k = 0; k < this.LOG; k++) {
+            if ((diff >> k) & 1) u = this.up[u][k];
+        }
+
+        if (u === v) return u;
+
+        // Step 2: Lift both until they meet
+        for (let k = this.LOG - 1; k >= 0; k--) {
+            if (this.up[u][k] !== this.up[v][k]) {
+                u = this.up[u][k];
+                v = this.up[v][k];
+            }
+        }
+        return this.up[u][0]; // Parent is the LCA
+    }
+}
+// Preprocessing: O(n log n), Each query: O(log n)</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Recursive LCA</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Tree: 3(L:5(L:6,R:2(L:7,R:4)), R:1(L:0,R:8)). Find LCA(5, 1).</div><div class="step-state">Call LCA(root=3, p=5, q=1)</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">root=3, not null, not p or q. Recurse left(5) and right(1).</div><div class="step-state">left=LCA(5,5,1), right=LCA(1,5,1)</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Left call: root=5, root===p → return 5. Right call: root=1, root===q → return 1.</div><div class="step-state">left=5, right=1 (both non-null)</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Both left and right are non-null → current node (3) is the LCA.</div><div class="step-state">LCA(5, 1) = 3 ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Approach</th><th>Preprocessing</th><th>Per Query</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Recursive (Binary Tree)</td><td class="best">O(1)</td><td>O(n)</td><td>O(h)</td></tr>
+                        <tr><td>Binary Lifting</td><td>O(n log n)</td><td class="best">O(log n)</td><td>O(n log n)</td></tr>
+                        <tr><td>Euler Tour + RMQ</td><td>O(n)</td><td class="best">O(1)</td><td>O(n)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting that a node is its own ancestor</div>
+                    <p>If p is an ancestor of q, then LCA(p, q) = p. Don't assume the LCA must be a separate node above both.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing Binary Tree LCA with BST LCA</div>
+                    <p>In a BST, you can use the ordering property to find LCA more efficiently. In a general binary tree, you must search both subtrees.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Wrong base case in recursion</div>
+                    <p>The base case checks <code>root === p || root === q</code>. If you only check for null, you'll miss the case where one node is the ancestor of the other.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>The recursive approach is the most common interview question — know it cold. LC 236.</li>
+                    <li>For BSTs, use the BST property: if both nodes are smaller, go left; both larger, go right; split means current is LCA.</li>
+                    <li>Binary lifting is for competitive programming or system design with many queries.</li>
+                    <li>Follow-up: "What if nodes have parent pointers?" → Treat as finding intersection of two linked lists.</li>
+                    <li>Follow-up: "What if one node might not exist in the tree?" → Do full traversal and check both found.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>LCA = deepest node that is ancestor of both p and q.</li>
+                    <li>Recursive: if both subtrees return non-null → current node is LCA. O(n) per query.</li>
+                    <li>Binary Lifting: precompute 2^k-th ancestors. O(n log n) preprocessing, O(log n) per query.</li>
+                    <li>BST LCA: use ordering property for O(h) solution.</li>
+                    <li>A node is considered an ancestor of itself.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What does the recursive LCA function return at each node?</div>
+                            <div class="flashcard-back">It returns: (1) <strong>null</strong> if neither p nor q is found in the subtree, (2) <strong>the node itself</strong> if it's p or q, (3) <strong>the node</strong> if both children return non-null (it's the LCA). Otherwise returns whichever child's result is non-null.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How does binary lifting work for LCA?</div>
+                            <div class="flashcard-back">1. Precompute up[v][k] = 2^k-th ancestor of v. 2. To find LCA(u,v): bring both to the same depth using binary jumps. 3. If they're the same node, that's the LCA. 4. Otherwise, jump both up together with decreasing powers of 2 until their parents match. Return the parent.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How does LCA differ in a BST vs a general binary tree?</div>
+                            <div class="flashcard-back">In a BST: start at root. If both p,q < node, go left. If both > node, go right. Otherwise, current node is LCA. O(h) time. In a general binary tree, you must search both subtrees since there's no ordering property.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">236</span><span class="lc-name"><a href="https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/" target="_blank" rel="noopener">Lowest Common Ancestor of a Binary Tree</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Recursive LCA</span></li>
+                    <li class="leetcode-item"><span class="lc-number">235</span><span class="lc-name"><a href="https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/" target="_blank" rel="noopener">Lowest Common Ancestor of a BST</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">BST property</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1644</span><span class="lc-name"><a href="https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree-ii/" target="_blank" rel="noopener">LCA of Binary Tree II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Nodes may not exist</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1650</span><span class="lc-name"><a href="https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree-iii/" target="_blank" rel="noopener">LCA of Binary Tree III</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Parent pointers</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1676</span><span class="lc-name"><a href="https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree-iv/" target="_blank" rel="noopener">LCA of Binary Tree IV</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Multiple nodes</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

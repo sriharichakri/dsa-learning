@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Double-ended Queue - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 8</a><span class="separator">›</span><span class="current">Deque</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Double-ended Queue (Deque)</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 8</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="deque">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is a Deque?</h2>
+                <p>A <strong>Deque</strong> (Double-Ended Queue, pronounced "deck") allows insertion and deletion at <strong>both ends</strong> — front and back. It's a hybrid of a stack and a queue, supporting all four operations in O(1).</p>
+                <div class="callout tip">
+                    <div class="callout-title">🌍 Real-Life Analogy</div>
+                    <p>Think of a <strong>tunnel with two openings</strong>. Cars can enter and exit from <strong>either end</strong>. A queue is a one-way tunnel (enter back, exit front). A stack is a dead-end tunnel (enter and exit same end). A deque is the most flexible — two-way traffic at both ends!</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How It Works</h2>
+
+                <div class="viz-container">
+                    <div class="viz-title">Deque Operations</div>
+                    <div class="ascii-diagram">
+         Front                    Back
+  addFront ↔ removeFront    addBack ↔ removeBack
+         ↓                       ↓
+        [10, 20, 30, 40, 50]
+         ↑                   ↑
+       peekFront          peekBack
+
+Stack behavior:  addBack + removeBack (or addFront + removeFront)
+Queue behavior:  addBack + removeFront
+                    </div>
+                </div>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>class Deque {
+    constructor() {
+        this.items = {};
+        this.front = 0;
+        this.back = 0;
+    }
+    
+    addFront(val) {
+        this.front--;
+        this.items[this.front] = val;
+    }
+    
+    addBack(val) {
+        this.items[this.back] = val;
+        this.back++;
+    }
+    
+    removeFront() {
+        if (this.isEmpty()) return undefined;
+        const val = this.items[this.front];
+        delete this.items[this.front];
+        this.front++;
+        return val;
+    }
+    
+    removeBack() {
+        if (this.isEmpty()) return undefined;
+        this.back--;
+        const val = this.items[this.back];
+        delete this.items[this.back];
+        return val;
+    }
+    
+    peekFront() { return this.items[this.front]; }
+    peekBack()  { return this.items[this.back - 1]; }
+    isEmpty()   { return this.back - this.front === 0; }
+    size()      { return this.back - this.front; }
+}
+
+// Sliding Window Maximum using deque
+function maxSlidingWindow(nums, k) {
+    const deque = []; // Stores indices
+    const result = [];
+    
+    for (let i = 0; i < nums.length; i++) {
+        // Remove indices out of window
+        while (deque.length && deque[0] < i - k + 1) deque.shift();
+        // Remove smaller elements (they'll never be the max)
+        while (deque.length && nums[deque[deque.length - 1]] < nums[i]) deque.pop();
+        deque.push(i);
+        
+        if (i >= k - 1) result.push(nums[deque[0]]);
+    }
+    return result;
+}
+
+// maxSlidingWindow([1,3,-1,-3,5,3,6,7], 3) → [3,3,5,5,6,7]</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run</h2>
+                <p>Sliding window max: <code>[1,3,-1,-3,5,3,6,7]</code>, k=3</p>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">i=0, val=1: Push 0. Deque: [0(1)]</div><div class="step-state">Window not full yet</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">i=1, val=3: Pop 0 (1<3). Push 1. Deque: [1(3)]</div><div class="step-state">Window not full yet</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">i=2, val=-1: Push 2. Deque: [1(3), 2(-1)]. Window full!</div><div class="step-state">Max = nums[deque[0]] = 3. Result: [3]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">i=3, val=-3: Push 3. Deque: [1(3), 2(-1), 3(-3)]</div><div class="step-state">Max = 3. Result: [3,3]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">i=4, val=5: Remove 1 (out of window). Pop 3,2 (smaller). Deque: [4(5)]</div><div class="step-state">Max = 5. Result: [3,3,5]</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>addFront / addBack</td><td class="best">O(1)</td><td class="best">O(1)</td></tr>
+                        <tr><td>removeFront / removeBack</td><td class="best">O(1)</td><td class="best">O(1)</td></tr>
+                        <tr><td>peekFront / peekBack</td><td class="best">O(1)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Sliding Window Maximum</td><td class="best">O(n)</td><td class="avg">O(k)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Using array shift() as deque front removal</div>
+                    <p>JavaScript's <code>Array.shift()</code> is O(n) because it reindexes all elements. For a true O(1) deque, use a linked list or hash-based approach. For competitive programming, the O(n) shift is often acceptable for small inputs.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not removing out-of-window elements</div>
+                    <p>In sliding window max, always check if <code>deque[0]</code> is still within the window bounds. Remove from front if <code>deque[0] &lt; i - k + 1</code>.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>"Sliding Window Maximum" (LC 239) is THE classic deque problem — learn it cold.</li>
+                    <li>A deque can act as both a stack AND a queue simultaneously.</li>
+                    <li>In Python: <code>collections.deque</code>. In Java: <code>ArrayDeque</code>. In JS: implement manually.</li>
+                    <li>Deque is key for <strong>monotonic queue</strong> problems (next topic).</li>
+                    <li>Used in BFS with 0-1 weights (0-1 BFS): add 0-weight to front, 1-weight to back.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Deque: insert/delete at BOTH ends in O(1).</li>
+                    <li>Can simulate stack (one end) or queue (both ends).</li>
+                    <li>Sliding Window Max: maintain decreasing deque of indices.</li>
+                    <li>Remove from front if out of window, from back if smaller than current.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How does a deque solve Sliding Window Maximum in O(n)?</div>
+                            <div class="flashcard-back">Maintain a <strong>monotonically decreasing deque</strong> of indices. Front = max of current window. For each new element: remove from back anything smaller (they'll never be useful), remove from front if out of window. Each element enters and leaves the deque at most once → O(n).</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How is a deque different from a regular queue?</div>
+                            <div class="flashcard-back">A queue allows insert at back, remove at front (FIFO). A deque allows <strong>both insert and remove at both ends</strong>. It's strictly more powerful — it can simulate both a stack and a queue.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">239</span><span class="lc-name"><a href="https://leetcode.com/problems/sliding-window-maximum/" target="_blank" rel="noopener">Sliding Window Maximum</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Monotonic deque</span></li>
+                    <li class="leetcode-item"><span class="lc-number">641</span><span class="lc-name"><a href="https://leetcode.com/problems/design-circular-deque/" target="_blank" rel="noopener">Design Circular Deque</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Implement deque</span></li>
+                    <li class="leetcode-item"><span class="lc-number">862</span><span class="lc-name"><a href="https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/" target="_blank" rel="noopener">Shortest Subarray with Sum at Least K</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Deque + prefix sums</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1696</span><span class="lc-name"><a href="https://leetcode.com/problems/jump-game-vi/" target="_blank" rel="noopener">Jump Game VI</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">DP + deque optimization</span></li>
+                    <li class="leetcode-item"><span class="lc-number">346</span><span class="lc-name"><a href="https://leetcode.com/problems/moving-average-from-data-stream/" target="_blank" rel="noopener">Moving Average from Data Stream</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Queue/Deque application</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

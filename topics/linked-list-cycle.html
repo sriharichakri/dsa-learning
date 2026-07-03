@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cycle Detection - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 6</a><span class="separator">›</span><span class="current">Cycle Detection</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Cycle Detection</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 6</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="linked-list-cycle">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Cycle Detection?</h2>
+                <p><strong>Cycle Detection</strong> determines whether a linked list contains a loop — where a node's next pointer points back to a previous node, creating an infinite cycle. This is critical because cycles cause infinite loops in traversal.</p>
+                <div class="callout tip">
+                    <div class="callout-title">🌍 Real-Life Analogy</div>
+                    <p>Imagine driving on a highway following road signs. If you keep seeing the <strong>same landmark</strong> again and again, you know you're going in circles! One approach: drop breadcrumbs (hash set) at each landmark. If you find a breadcrumb already there → cycle! Better approach: send two cars at different speeds. If the road loops, the faster car will catch up to the slower one.</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How It Works</h2>
+
+                <h3>Approach 1: Hash Set — O(n) time, O(n) space</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function hasCycleHashSet(head) {
+    const visited = new Set();
+    let curr = head;
+    
+    while (curr) {
+        if (visited.has(curr)) return true; // Seen before = cycle!
+        visited.add(curr);
+        curr = curr.next;
+    }
+    return false;  // Reached null = no cycle
+}</code></pre>
+
+                <h3>Approach 2: Floyd's Algorithm — O(n) time, O(1) space ⭐</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function hasCycle(head) {
+    let slow = head, fast = head;
+    
+    while (fast && fast.next) {
+        slow = slow.next;         // 1 step
+        fast = fast.next.next;     // 2 steps
+        if (slow === fast) return true;
+    }
+    return false;
+}
+
+// Find WHERE the cycle starts
+function detectCycle(head) {
+    let slow = head, fast = head;
+    
+    while (fast && fast.next) {
+        slow = slow.next;
+        fast = fast.next.next;
+        
+        if (slow === fast) {
+            // Phase 2: Find cycle entry
+            slow = head;
+            while (slow !== fast) {
+                slow = slow.next;
+                fast = fast.next;
+            }
+            return slow;  // Cycle start node
+        }
+    }
+    return null;  // No cycle
+}
+
+// Find cycle LENGTH
+function cycleLength(head) {
+    let slow = head, fast = head;
+    
+    while (fast && fast.next) {
+        slow = slow.next;
+        fast = fast.next.next;
+        
+        if (slow === fast) {
+            let count = 1;
+            let runner = slow.next;
+            while (runner !== slow) {
+                count++;
+                runner = runner.next;
+            }
+            return count;
+        }
+    }
+    return 0;
+}</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run</h2>
+                <p>List: 1→2→3→4→5→3 (node 5 points back to node 3)</p>
+
+                <div class="viz-container">
+                    <div class="viz-title">Floyd's cycle detection</div>
+                    <div class="ascii-diagram">
+1 → 2 → 3 → 4 → 5
+            ↑         |
+            └─────────┘
+
+Step  slow  fast  Meet?
+ 0     1     1     -
+ 1     2     3     No
+ 2     3     5     No
+ 3     4     4     YES! → Cycle found
+
+Phase 2: Find cycle start
+Reset slow to head=1, move both by 1:
+ slow=1, fast=4
+ slow=2, fast=5
+ slow=3, fast=3  → Meet at 3! Cycle starts at node 3 ✅
+                    </div>
+                </div>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">slow=1, fast=1 → slow moves to 2, fast moves to 3</div><div class="step-state">slow≠fast, continue</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">slow=2→3, fast=3→4→5</div><div class="step-state">slow=3, fast=5. Not equal, continue</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">slow=3→4, fast=5→3→4</div><div class="step-state">slow=4, fast=4. EQUAL! Cycle detected ✅</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Phase 2: Reset slow=head=1. Move both by 1 until they meet.</div><div class="step-state">They meet at node 3 → Cycle starts at 3 ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Approach</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Hash Set</td><td class="best">O(n)</td><td class="worst">O(n)</td></tr>
+                        <tr><td>Floyd's (detect)</td><td class="best">O(n)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Floyd's (find start)</td><td class="best">O(n)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Floyd's (cycle length)</td><td class="best">O(n)</td><td class="best">O(1)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Comparing node VALUES instead of references</div>
+                    <pre><code>// ❌ Two different nodes can have the same value!
+if (slow.val === fast.val) return true;
+
+// ✅ Compare node REFERENCES (identity)
+if (slow === fast) return true;</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not checking fast AND fast.next</div>
+                    <p>If fast is null or fast.next is null, there's no cycle. Skipping this check causes a null reference error.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Floyd's algorithm is the <strong>gold standard</strong> — O(n) time, O(1) space.</li>
+                    <li>Three variants: (1) detect cycle, (2) find cycle start, (3) find cycle length.</li>
+                    <li>The math behind finding cycle start: if distance to cycle start is a, and slow traveled a + b inside cycle, then fast traveled a + b + c + b. Since fast = 2×slow: a = c. So resetting slow to head and moving both by 1 makes them meet at cycle start.</li>
+                    <li>Related: "Find Duplicate Number" (LC 287) — treat array as linked list with cycle.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Floyd's: slow (1 step) + fast (2 steps). If they meet → cycle.</li>
+                    <li>Cycle start: after meeting, reset slow to head, move both by 1.</li>
+                    <li>Cycle length: after meeting, count steps until they meet again.</li>
+                    <li>Time: O(n), Space: O(1). Compare REFERENCES, not values.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why does resetting slow to head and moving both by 1 find the cycle start?</div>
+                            <div class="flashcard-back">Let a = distance from head to cycle start, b = distance from cycle start to meeting point, c = remaining cycle length. Fast traveled 2× slow's distance. Math gives us: a = c. So a pointer from head and one from the meeting point both need 'a' steps to reach the cycle start.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How is "Find the Duplicate Number" (LC 287) related to cycle detection?</div>
+                            <div class="flashcard-back">Treat the array as a linked list: index i points to arr[i]. A duplicate value means two indices point to the same node → a cycle exists! Use Floyd's to find where the cycle starts = the duplicate number.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">141</span><span class="lc-name"><a href="https://leetcode.com/problems/linked-list-cycle/" target="_blank" rel="noopener">Linked List Cycle</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Detect cycle</span></li>
+                    <li class="leetcode-item"><span class="lc-number">142</span><span class="lc-name"><a href="https://leetcode.com/problems/linked-list-cycle-ii/" target="_blank" rel="noopener">Linked List Cycle II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Find cycle start</span></li>
+                    <li class="leetcode-item"><span class="lc-number">287</span><span class="lc-name"><a href="https://leetcode.com/problems/find-the-duplicate-number/" target="_blank" rel="noopener">Find the Duplicate Number</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Array as linked list + cycle</span></li>
+                    <li class="leetcode-item"><span class="lc-number">202</span><span class="lc-name"><a href="https://leetcode.com/problems/happy-number/" target="_blank" rel="noopener">Happy Number</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Cycle in sequence</span></li>
+                    <li class="leetcode-item"><span class="lc-number">457</span><span class="lc-name"><a href="https://leetcode.com/problems/circular-array-loop/" target="_blank" rel="noopener">Circular Array Loop</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Cycle in circular array</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

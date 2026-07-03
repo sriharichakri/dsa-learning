@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rolling Hash - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 15</a><span class="separator">›</span><span class="current">Rolling Hash</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Rolling Hash</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 15</span>
+                    <span class="topic-badge difficulty-hard">Hard</span>
+                    <button class="topic-complete-btn" data-topic-id="rolling-hash">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is a Rolling Hash?</h2>
+                <p>A <strong>Rolling Hash</strong> (also called a polynomial hash) is a technique for computing hash values of <strong>sliding windows</strong> of a string in O(1) per slide after O(n) preprocessing. It converts substrings into numerical fingerprints, enabling fast string comparisons without character-by-character checks.</p>
+                <p>The core idea is that when you slide the window one position right, you can compute the new hash from the old one by removing the outgoing character and adding the incoming character — all in O(1) using modular arithmetic.</p>
+                <div class="callout tip">
+                    <div class="callout-title">🔢 Real-Life Analogy: Odometer Reading</div>
+                    <p>Think of a car odometer that shows the last 4 digits. When the car drives forward (slides the window), the leftmost digit "falls off" and a new digit appears on the right. You don't re-read all 4 digits from scratch — you shift left, drop the old leading digit, and add the new trailing one. Rolling hash works the same way with string characters as "digits" in a polynomial number system.</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How Rolling Hash Works</h2>
+                <div class="viz-container">
+                    <div class="viz-title">Polynomial Rolling Hash Formula</div>
+                    <div class="ascii-diagram">
+Hash of s[l..r] using base B and modulus M:
+
+h(s[l..r]) = s[l]×B^(r-l) + s[l+1]×B^(r-l-1) + ... + s[r]×B^0  (mod M)
+
+Prefix hash approach:
+  prefixHash[i] = hash of s[0..i-1]
+  prefixHash[0] = 0
+  prefixHash[i] = prefixHash[i-1] × B + s[i-1]  (mod M)
+
+Substring hash s[l..r]:
+  h(l, r) = (prefixHash[r+1] - prefixHash[l] × B^(r-l+1))  mod M
+
+Example: "abcab", B=31, M=1e9+7
+  a=1, b=2, c=3
+
+  prefixHash[0] = 0
+  prefixHash[1] = 0×31 + 1 = 1           ("a")
+  prefixHash[2] = 1×31 + 2 = 33          ("ab")
+  prefixHash[3] = 33×31 + 3 = 1026       ("abc")
+  prefixHash[4] = 1026×31 + 1 = 31807    ("abca")
+  prefixHash[5] = 31807×31 + 2 = 986019  ("abcab")
+
+  h("ab") using indices [0,1]:
+  = prefixHash[2] - prefixHash[0] × 31² = 33 - 0 = 33
+
+  h("ab") using indices [3,4]:
+  = prefixHash[5] - prefixHash[3] × 31² = 986019 - 1026×961
+  = 986019 - 985986 = 33  ← Same hash! ✓
+                    </div>
+                </div>
+            </div>
+
+            <!-- Implementation -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔧</span> Implementation</h2>
+                <div class="code-header"><span>JavaScript — Rolling Hash (Prefix Hash + Substring Query)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>class RollingHash {
+    constructor(s, base = 31, mod = 1_000_000_007) {
+        this.n = s.length;
+        this.BASE = base;
+        this.MOD = mod;
+
+        // Precompute prefix hashes and powers
+        this.prefixHash = new Array(this.n + 1).fill(0);
+        this.power = new Array(this.n + 1).fill(1);
+
+        for (let i = 0; i < this.n; i++) {
+            this.prefixHash[i + 1] = (this.prefixHash[i] * this.BASE +
+                (s.charCodeAt(i) - 96)) % this.MOD;
+            this.power[i + 1] = (this.power[i] * this.BASE) % this.MOD;
+        }
+    }
+
+    // Get hash of substring s[l..r] (0-indexed, inclusive) — O(1)
+    getHash(l, r) {
+        const len = r - l + 1;
+        let h = (this.prefixHash[r + 1] -
+                 this.prefixHash[l] * this.power[len] % this.MOD + 
+                 this.MOD * 2) % this.MOD;
+        return h;
+    }
+
+    // Compare two substrings in O(1)
+    isEqual(l1, r1, l2, r2) {
+        return this.getHash(l1, r1) === this.getHash(l2, r2);
+    }
+}
+
+// Double hashing for collision safety
+class DoubleHash {
+    constructor(s) {
+        this.h1 = new RollingHash(s, 31, 1_000_000_007);
+        this.h2 = new RollingHash(s, 37, 1_000_000_009);
+    }
+
+    getHash(l, r) {
+        return this.h1.getHash(l, r) + "," + this.h2.getHash(l, r);
+    }
+
+    isEqual(l1, r1, l2, r2) {
+        return this.h1.isEqual(l1, r1, l2, r2) &&
+               this.h2.isEqual(l1, r1, l2, r2);
+    }
+}
+
+// Usage
+const rh = new RollingHash("abcabc");
+console.log(rh.getHash(0, 2));  // hash of "abc"
+console.log(rh.getHash(3, 5));  // hash of "abc" — same!
+console.log(rh.isEqual(0, 2, 3, 5)); // true
+
+// Find longest duplicate substring using binary search + rolling hash
+function longestDupSubstring(s) {
+    const rh = new DoubleHash(s);
+    let lo = 1, hi = s.length - 1, result = "";
+
+    while (lo <= hi) {
+        const mid = (lo + hi) >> 1;
+        const seen = new Set();
+        let found = "";
+
+        for (let i = 0; i + mid - 1 < s.length; i++) {
+            const h = rh.getHash(i, i + mid - 1);
+            if (seen.has(h)) { found = s.substring(i, i + mid); break; }
+            seen.add(h);
+        }
+
+        if (found) { result = found; lo = mid + 1; }
+        else hi = mid - 1;
+    }
+    return result;
+}</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: getHash on "abcab" (B=31)</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Build prefix hashes: pH[0]=0, pH[1]=1, pH[2]=33, pH[3]=1026, pH[4]=31807, pH[5]=986019.</div><div class="step-state">Powers: pow[0]=1, pow[1]=31, pow[2]=961, pow[3]=29791</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">getHash(0,1) = "ab": pH[2] - pH[0]×pow[2] = 33 - 0 = 33.</div><div class="step-state">hash("ab") at [0,1] = 33</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">getHash(3,4) = "ab": pH[5] - pH[3]×pow[2] = 986019 - 1026×961 = 986019 - 985986 = 33.</div><div class="step-state">hash("ab") at [3,4] = 33 ✅ Same!</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">getHash(1,2) = "bc": pH[3] - pH[1]×pow[2] = 1026 - 1×961 = 65.</div><div class="step-state">hash("bc") = 65 ≠ 33, correctly different</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Preprocessing</td><td>O(n)</td><td>O(n)</td></tr>
+                        <tr><td>Substring Hash Query</td><td class="best">O(1)</td><td>-</td></tr>
+                        <tr><td>Substring Comparison</td><td class="best">O(1)</td><td>-</td></tr>
+                        <tr><td>Sliding Window Hash</td><td class="best">O(1) per slide</td><td>O(1)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not handling negative modular arithmetic</div>
+                    <p>When computing <code>prefixHash[r+1] - prefixHash[l] × power[len]</code>, the result can be negative. Always add MOD before taking modulus: <code>(result + MOD) % MOD</code>. Some use <code>+ 2*MOD</code> for extra safety.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Using single hash for competitive programming</div>
+                    <p>A single hash with one modulus can be hacked by adversarial inputs (anti-hash tests). Always use <strong>double hashing</strong> (two different base-mod pairs) to make collision probability negligible (~1/10^18).</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Integer overflow in multiplication</div>
+                    <p>In languages without BigInt, <code>hash * BASE</code> can overflow. In JavaScript, numbers are safe up to 2^53, so with MOD ≈ 10^9, products up to ~10^18 fit. In C++/Java, use <code>long long</code> or <code>long</code>.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Rolling hash is a <strong>versatile building block</strong>: pattern matching (Rabin-Karp), longest duplicate substring, palindrome detection.</li>
+                    <li>Combine with <strong>binary search</strong> for problems like "longest common substring" or "longest repeated substring."</li>
+                    <li>Key advantage over KMP/Z: substring comparison in O(1) after preprocessing. Useful when you need to compare many pairs of substrings.</li>
+                    <li>Double hashing makes it practically collision-free — mention this to interviewers.</li>
+                    <li>The prefix hash approach gives O(1) hash for <strong>any</strong> substring, not just sliding windows.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Rolling Hash: polynomial hash where h(s) = Σ s[i] × B^(n-1-i) mod M.</li>
+                    <li>Prefix hash: precompute cumulative hash, get any substring hash in O(1).</li>
+                    <li>Sliding window: remove leading char, shift, add trailing char — O(1).</li>
+                    <li>Double hashing: two (base, mod) pairs eliminates collisions practically.</li>
+                    <li>Applications: Rabin-Karp, longest duplicate substring, string comparison, plagiarism detection.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you get the hash of any substring in O(1)?</div>
+                            <div class="flashcard-back">Precompute prefix hashes: <code>pH[i] = hash(s[0..i-1])</code>. Then: <code>hash(s[l..r]) = pH[r+1] - pH[l] × B^(r-l+1) (mod M)</code>. The subtraction removes the prefix contribution, and the power scales the prefix hash to align with the substring.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why use double hashing instead of single?</div>
+                            <div class="flashcard-back">With a single (base, mod), collision probability ≈ 1/M ≈ 10^-9 per comparison. Adversarial inputs can force collisions. With double hashing (two independent hash functions), collision probability ≈ 1/(M₁ × M₂) ≈ 10^-18 — virtually impossible even with 10^6 comparisons.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">1044</span><span class="lc-name"><a href="https://leetcode.com/problems/longest-duplicate-substring/" target="_blank" rel="noopener">Longest Duplicate Substring</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Binary Search + Rolling Hash</span></li>
+                    <li class="leetcode-item"><span class="lc-number">187</span><span class="lc-name"><a href="https://leetcode.com/problems/repeated-dna-sequences/" target="_blank" rel="noopener">Repeated DNA Sequences</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Rolling Hash / Bit Manipulation</span></li>
+                    <li class="leetcode-item"><span class="lc-number">718</span><span class="lc-name"><a href="https://leetcode.com/problems/maximum-length-of-repeated-subarray/" target="_blank" rel="noopener">Maximum Length of Repeated Subarray</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Binary Search + Rolling Hash / DP</span></li>
+                    <li class="leetcode-item"><span class="lc-number">28</span><span class="lc-name"><a href="https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/" target="_blank" rel="noopener">Find the Index of First Occurrence in a String</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Rolling Hash (Rabin-Karp)</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

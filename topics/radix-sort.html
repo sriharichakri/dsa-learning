@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radix Sort - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 4</a><span class="separator">›</span><span class="current">Radix Sort</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Radix Sort</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 4</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="radix-sort">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Radix Sort?</h2>
+                <p><strong>Radix Sort</strong> sorts numbers digit by digit, starting from the <strong>least significant digit</strong> (LSD) to the most significant. It uses a <strong>stable sort</strong> (like counting sort) as a subroutine for each digit position.</p>
+                <p>It achieves <strong>O(d × (n + k))</strong> time, where d is the number of digits and k is the base (usually 10).</p>
+                <div class="callout tip">
+                    <div class="callout-title">🌍 Real-Life Analogy</div>
+                    <p>Imagine sorting a pile of checks by amount. You first sort by the <strong>ones</strong> digit into 10 piles (0-9). Collect them in order. Then sort by the <strong>tens</strong> digit, then <strong>hundreds</strong>. After processing every digit, the checks are fully sorted! Each pass is quick, and together they sort everything — without ever directly comparing two amounts.</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How It Works</h2>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function radixSort(arr) {
+    if (arr.length === 0) return arr;
+    const max = Math.max(...arr);
+    
+    // Sort by each digit position (1s, 10s, 100s, ...)
+    for (let exp = 1; Math.floor(max / exp) > 0; exp *= 10) {
+        countingSortByDigit(arr, exp);
+    }
+    return arr;
+}
+
+function countingSortByDigit(arr, exp) {
+    const n = arr.length;
+    const output = new Array(n);
+    const count = new Array(10).fill(0);
+    
+    // Count occurrences of each digit
+    for (let i = 0; i < n; i++) {
+        const digit = Math.floor(arr[i] / exp) % 10;
+        count[digit]++;
+    }
+    
+    // Cumulative count
+    for (let i = 1; i < 10; i++) {
+        count[i] += count[i - 1];
+    }
+    
+    // Build output (right to left for stability)
+    for (let i = n - 1; i >= 0; i--) {
+        const digit = Math.floor(arr[i] / exp) % 10;
+        output[count[digit] - 1] = arr[i];
+        count[digit]--;
+    }
+    
+    // Copy back
+    for (let i = 0; i < n; i++) arr[i] = output[i];
+}
+
+// radixSort([170, 45, 75, 90, 802, 24, 2, 66])
+// → [2, 24, 45, 66, 75, 90, 170, 802]</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run</h2>
+                <p>Sort <code>[170, 45, 75, 90, 802, 24, 2, 66]</code></p>
+
+                <div class="viz-container">
+                    <div class="viz-title">Radix Sort — digit by digit (LSD first)</div>
+                    <div class="ascii-diagram">
+Original: [170, 45, 75, 90, 802, 24, 2, 66]
+
+Pass 1: Sort by ONES digit
+  0: 170, 90       2: 802, 2
+  4: 24             5: 45, 75
+  6: 66
+  → [170, 90, 802, 2, 24, 45, 75, 66]
+
+Pass 2: Sort by TENS digit
+  0: 802, 2         2: 24
+  4: 45              6: 66
+  7: 170, 75         9: 90
+  → [802, 2, 24, 45, 66, 170, 75, 90]
+
+Pass 3: Sort by HUNDREDS digit
+  0: 2, 24, 45, 66, 75, 90
+  1: 170
+  8: 802
+  → [2, 24, 45, 66, 75, 90, 170, 802] ✅
+                    </div>
+                </div>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">exp=1 (ones): Sort by last digit. 170→0, 45→5, 75→5, etc.</div><div class="step-state">[170, 90, 802, 2, 24, 45, 75, 66]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">exp=10 (tens): Sort by tens digit. 802→0, 2→0, 24→2, etc.</div><div class="step-state">[802, 2, 24, 45, 66, 170, 75, 90]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">exp=100 (hundreds): Sort by hundreds digit. Most have 0.</div><div class="step-state">[2, 24, 45, 66, 75, 90, 170, 802] ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Aspect</th><th>Complexity</th><th>Note</th></tr></thead>
+                    <tbody>
+                        <tr><td>Time</td><td class="best">O(d × (n + k))</td><td>d = digits, k = base (10)</td></tr>
+                        <tr><td>Space</td><td class="avg">O(n + k)</td><td>Output array + count array</td></tr>
+                        <tr><td>Stable?</td><td class="best">Yes</td><td>Uses stable counting sort</td></tr>
+                    </tbody>
+                </table>
+                <div class="callout info">
+                    <div class="callout-title">💡 When is radix sort faster than O(n log n)?</div>
+                    <p>When d (number of digits) is constant or small. For 32-bit integers, d=10 with base 10 (or d=4 with base 256). So it's effectively O(n) for fixed-width integers!</p>
+                </div>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Using an unstable sort as subroutine</div>
+                    <p>Radix sort MUST use a <strong>stable</strong> sort for each digit. If the subroutine is unstable, earlier digit orderings get destroyed. Counting sort (stable version) is the standard choice.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting to handle negative numbers</div>
+                    <p>Standard radix sort works only on non-negative integers. For negatives, separate them, sort the absolute values, reverse, then concatenate.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Radix sort is O(d(n+k)) — effectively O(n) for fixed-width integers.</li>
+                    <li>Non-comparison sort — breaks the Ω(n log n) barrier.</li>
+                    <li>Used in practice for sorting large datasets of integers or fixed-length strings.</li>
+                    <li>LSD (least significant digit first) is most common. MSD is used for strings.</li>
+                    <li>Requires stable subroutine sort — always mention this in interviews.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Sort digit by digit: ones → tens → hundreds → ... using stable counting sort.</li>
+                    <li>Time: O(d(n+k)). Space: O(n+k). Stable. Non-comparison.</li>
+                    <li>d = number of digits, k = base (usually 10).</li>
+                    <li>Only for integers (or fixed-length strings). LSD variant is most common.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why must radix sort use a STABLE subroutine sort?</div>
+                            <div class="flashcard-back">If the subroutine is unstable, sorting by a later digit could <strong>destroy the ordering</strong> from earlier digits. Stability ensures that elements with the same current digit remain in their previously-sorted order.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the time complexity of radix sort for 32-bit integers?</div>
+                            <div class="flashcard-back">O(d × n) where d = number of digits (constant for fixed-width). For 32-bit integers using base 256: d = 4 passes. Effectively <strong>O(n)</strong> — linear time!</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">164</span><span class="lc-name"><a href="https://leetcode.com/problems/maximum-gap/" target="_blank" rel="noopener">Maximum Gap</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Radix sort in linear time</span></li>
+                    <li class="leetcode-item"><span class="lc-number">912</span><span class="lc-name"><a href="https://leetcode.com/problems/sort-an-array/" target="_blank" rel="noopener">Sort an Array</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Radix sort implementation</span></li>
+                    <li class="leetcode-item"><span class="lc-number">179</span><span class="lc-name"><a href="https://leetcode.com/problems/largest-number/" target="_blank" rel="noopener">Largest Number</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Custom digit-based sort</span></li>
+                    <li class="leetcode-item"><span class="lc-number">561</span><span class="lc-name"><a href="https://leetcode.com/problems/array-partition/" target="_blank" rel="noopener">Array Partition</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Sorting then pairing</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1029</span><span class="lc-name"><a href="https://leetcode.com/problems/two-city-scheduling/" target="_blank" rel="noopener">Two City Scheduling</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Sort-based greedy</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

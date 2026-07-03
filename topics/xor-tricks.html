@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XOR Tricks - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 14</a><span class="separator">›</span><span class="current">XOR Tricks</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>XOR Tricks</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 14</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="xor-tricks">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is XOR?</h2>
+                <p><strong>XOR (exclusive OR)</strong> is a bitwise operation that returns 1 when bits differ and 0 when they're the same. Its key properties make it incredibly useful for finding unique elements, swapping values, and solving parity problems.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Properties</div>
+                    <p><code>a ^ a = 0</code> (self-inverse), <code>a ^ 0 = a</code> (identity), commutative and associative. XORing all elements cancels out duplicates, leaving only the unique element. This is the basis of the famous "Single Number" problem.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">💡 Light Switch Toggle</div>
+                    <p>A light switch XORs its state: flip once → on. Flip again → off (back to original). Two flips cancel out. If you flip a switch an odd number of times, it's on; even times, it's off. XOR works the same way with bits.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> XOR Trick Problems</h2>
+
+                <h3>Single Number (every element appears twice except one)</h3>
+                <div class="code-header"><span>JavaScript — Single Number (LC 136)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function singleNumber(nums) {
+    let result = 0;
+    for (const num of nums) {
+        result ^= num; // Pairs cancel out: a^a=0, 0^b=b
+    }
+    return result;
+}
+// [4,1,2,1,2] → 4^1^2^1^2 = (1^1)^(2^2)^4 = 0^0^4 = 4</code></pre>
+
+                <h3>Single Number III (two unique elements)</h3>
+                <div class="code-header"><span>JavaScript — Single Number III (LC 260)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function singleNumber3(nums) {
+    // Step 1: XOR all → get xor of two unique numbers (a ^ b)
+    let xorAll = 0;
+    for (const num of nums) xorAll ^= num;
+
+    // Step 2: Find a bit where a and b differ
+    const diffBit = xorAll & (-xorAll); // Lowest set bit
+
+    // Step 3: Split into two groups and XOR each
+    let a = 0, b = 0;
+    for (const num of nums) {
+        if (num & diffBit) a ^= num;
+        else b ^= num;
+    }
+    return [a, b];
+}
+// [1,2,1,3,2,5] → a=3, b=5</code></pre>
+
+                <h3>Missing Number</h3>
+                <div class="code-header"><span>JavaScript — Missing Number (LC 268)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function missingNumber(nums) {
+    let xor = nums.length; // Start with n
+    for (let i = 0; i < nums.length; i++) {
+        xor ^= i ^ nums[i]; // XOR index and value
+    }
+    return xor;
+}
+// [3,0,1] → 3^(0^3)^(1^0)^(2^1) = 3^3^0^1^2^1 = 0^0^2 = 2</code></pre>
+
+                <h3>Swap Without Temp</h3>
+                <div class="code-header"><span>JavaScript — XOR Swap</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function xorSwap(arr, i, j) {
+    if (i === j) return; // Important: XOR swap fails if same index!
+    arr[i] ^= arr[j]; // a = a^b
+    arr[j] ^= arr[i]; // b = b^(a^b) = a
+    arr[i] ^= arr[j]; // a = (a^b)^a = b
+}</code></pre>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Single Number on [4, 1, 2, 1, 2]</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">result = 0. XOR with 4: 0 ^ 4 = 4.</div><div class="step-state">result = 4 (100)</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">XOR with 1: 4 ^ 1 = 5 (101). XOR with 2: 5 ^ 2 = 7 (111).</div><div class="step-state">result = 7</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">XOR with 1: 7 ^ 1 = 6 (110). XOR with 2: 6 ^ 2 = 4 (100).</div><div class="step-state">result = 4 ✅ (pairs cancelled out!)</div></div></div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Problem</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Single Number</td><td class="best">O(n)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Single Number III</td><td class="best">O(n)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Missing Number</td><td class="best">O(n)</td><td class="best">O(1)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ XOR swap on the same element</div>
+                    <p><code>a ^= a</code> gives 0, destroying the value. Always check <code>if (i !== j)</code> before XOR swapping array elements.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Assuming XOR works for more than 2 duplicates</div>
+                    <p>Single Number (XOR trick) only works when every element appears exactly twice except one. For three duplicates (Single Number II), you need a different approach (bit counting modulo 3).</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Single Number is asked frequently — know the XOR solution instantly.</li>
+                    <li>Missing Number can use XOR or math (sum formula). Know both.</li>
+                    <li>Single Number III is tricky — splitting by a differing bit is the key insight.</li>
+                    <li>XOR is useful for parity, toggling, and finding differences between sets.</li>
+                </ul>
+            </div>
+
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>XOR properties: a^a=0, a^0=a, commutative, associative.</li>
+                    <li>Single Number: XOR all elements. Pairs cancel, unique remains.</li>
+                    <li>Missing Number: XOR indices 0..n with all elements.</li>
+                    <li>Two uniques: XOR all, find differing bit, split and XOR each group.</li>
+                    <li>XOR swap: a^=b; b^=a; a^=b. Don't use if a and b are the same variable.</li>
+                </ul>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why does XORing all elements find the single number?</div>
+                            <div class="flashcard-back">Because <code>a ^ a = 0</code> (pairs cancel) and <code>a ^ 0 = a</code> (identity). When every number appears twice except one, all pairs cancel to 0, leaving only the unique number. XOR is commutative and associative, so order doesn't matter.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How does Single Number III find TWO unique elements?</div>
+                            <div class="flashcard-back">1. XOR all → get a^b (the two uniques XORed). 2. Find any set bit in a^b (this bit differs between a and b). 3. Split all numbers into two groups by that bit. 4. XOR each group separately → one gives a, the other gives b. Pairs still cancel within each group.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">136</span><span class="lc-name"><a href="https://leetcode.com/problems/single-number/" target="_blank" rel="noopener">Single Number</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">XOR all elements</span></li>
+                    <li class="leetcode-item"><span class="lc-number">137</span><span class="lc-name"><a href="https://leetcode.com/problems/single-number-ii/" target="_blank" rel="noopener">Single Number II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Bit counting mod 3</span></li>
+                    <li class="leetcode-item"><span class="lc-number">260</span><span class="lc-name"><a href="https://leetcode.com/problems/single-number-iii/" target="_blank" rel="noopener">Single Number III</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">XOR + bit split</span></li>
+                    <li class="leetcode-item"><span class="lc-number">268</span><span class="lc-name"><a href="https://leetcode.com/problems/missing-number/" target="_blank" rel="noopener">Missing Number</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">XOR indices + values</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1720</span><span class="lc-name"><a href="https://leetcode.com/problems/decode-xored-array/" target="_blank" rel="noopener">Decode XORed Array</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">XOR inverse</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1486</span><span class="lc-name"><a href="https://leetcode.com/problems/xor-operation-in-an-array/" target="_blank" rel="noopener">XOR Operation in an Array</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Basic XOR</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

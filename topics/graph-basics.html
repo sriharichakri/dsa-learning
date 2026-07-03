@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Basics - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 10</a><span class="separator">›</span><span class="current">Graph Basics</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Graph Basics</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 10</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="graph-basics">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is a Graph?</h2>
+                <p>A <strong>Graph</strong> is a data structure consisting of <strong>vertices (nodes)</strong> and <strong>edges (connections)</strong> between them. Unlike trees, graphs can have <strong>cycles</strong>, <strong>multiple paths</strong>, and nodes can connect to any other node.</p>
+                <p>Graphs are the most <strong>general-purpose</strong> data structure — trees, linked lists, and even arrays can be viewed as special cases of graphs.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Graphs model <strong>relationships</strong>. Whenever you see connections, networks, paths, or dependencies in a problem, think graphs. Social networks, maps, internet routing, dependency resolution — all graphs. Master BFS and DFS on graphs, and you unlock an enormous class of problems.</p>
+                </div>
+            </div>
+
+            <!-- Real-Life Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🌐 Social Network</div>
+                    <p>Facebook is a graph! Each person is a <strong>node</strong>. Each friendship is an <strong>edge</strong>. If Alice is friends with Bob, that's an <strong>undirected edge</strong> (friendship goes both ways). On Twitter, following is a <strong>directed edge</strong> (Alice follows Bob, but Bob might not follow Alice).</p>
+                </div>
+                <ul>
+                    <li><strong>Cities and roads:</strong> Cities = nodes, roads = edges. A highway map is a weighted graph (edges have distances).</li>
+                    <li><strong>Internet:</strong> Computers = nodes, cables/WiFi = edges. Routing packets = finding paths in a graph.</li>
+                    <li><strong>Course prerequisites:</strong> Courses = nodes, "must take before" = directed edge. Finding valid course order = topological sort.</li>
+                    <li><strong>Flight routes:</strong> Airports = nodes, flights = directed edges with weight (cost/time).</li>
+                </ul>
+            </div>
+
+            <!-- Graph Types -->
+            <div class="section-card">
+                <h2><span class="section-icon">📊</span> Types of Graphs</h2>
+
+                <div class="ascii-diagram">
+UNDIRECTED GRAPH           DIRECTED GRAPH (Digraph)
+(edges go both ways)       (edges have direction)
+
+    A --- B                    A → B
+    |   / |                    ↑   ↓
+    |  /  |                    D ← C
+    C --- D
+
+WEIGHTED GRAPH              UNWEIGHTED GRAPH
+(edges have values)         (all edges equal)
+
+    A --5-- B                  A --- B
+    |       |                  |     |
+    3       2                  |     |
+    |       |                  C --- D
+    C --4-- D
+                </div>
+
+                <table class="complexity-table">
+                    <thead><tr><th>Type</th><th>Description</th><th>Example</th></tr></thead>
+                    <tbody>
+                        <tr><td>Undirected</td><td>Edges have no direction</td><td>Facebook friendships</td></tr>
+                        <tr><td>Directed</td><td>Edges have direction (A→B)</td><td>Twitter follows, web links</td></tr>
+                        <tr><td>Weighted</td><td>Edges have values (cost, distance)</td><td>Road distances, flight costs</td></tr>
+                        <tr><td>Cyclic</td><td>Contains at least one cycle</td><td>Circular dependencies</td></tr>
+                        <tr><td>Acyclic</td><td>No cycles (DAG if directed)</td><td>Task scheduling, Git commits</td></tr>
+                        <tr><td>Connected</td><td>Every node is reachable from any other</td><td>Single landmass</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Graph Representation -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Graph Representation</h2>
+
+                <h3>1. Adjacency List (Most Common)</h3>
+                <div class="ascii-diagram">
+Graph:  0 --- 1          Adjacency List:
+        |   / |          0: [1, 2]
+        |  /  |          1: [0, 2, 3]
+        2 --- 3          2: [0, 1, 3]
+                         3: [1, 2]
+                </div>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Adjacency List — using Map
+class Graph {
+    constructor() {
+        this.adjacencyList = new Map();
+    }
+    
+    addVertex(v) {
+        if (!this.adjacencyList.has(v)) {
+            this.adjacencyList.set(v, []);
+        }
+    }
+    
+    addEdge(v1, v2) {
+        this.adjacencyList.get(v1).push(v2);
+        this.adjacencyList.get(v2).push(v1); // Remove for directed
+    }
+}
+
+// Or simply using an object:
+const graph = {
+    0: [1, 2],
+    1: [0, 2, 3],
+    2: [0, 1, 3],
+    3: [1, 2]
+};</code></pre>
+
+                <h3>2. Adjacency Matrix</h3>
+                <div class="ascii-diagram">
+     0  1  2  3
+0 [  0  1  1  0 ]     1 = edge exists
+1 [  1  0  1  1 ]     0 = no edge
+2 [  1  1  0  1 ]
+3 [  0  1  1  0 ]
+                </div>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Adjacency Matrix
+const matrix = [
+    [0, 1, 1, 0],
+    [1, 0, 1, 1],
+    [1, 1, 0, 1],
+    [0, 1, 1, 0]
+];
+// matrix[i][j] === 1 means edge between i and j</code></pre>
+
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Adjacency List</th><th>Adjacency Matrix</th></tr></thead>
+                    <tbody>
+                        <tr><td>Space</td><td class="best">O(V + E)</td><td class="worst">O(V²)</td></tr>
+                        <tr><td>Add edge</td><td class="best">O(1)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Check edge exists</td><td class="avg">O(degree)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Get all neighbors</td><td class="best">O(degree)</td><td class="worst">O(V)</td></tr>
+                    </tbody>
+                </table>
+                <div class="callout tip">
+                    <div class="callout-title">🎯 Which to use?</div>
+                    <p><strong>Adjacency List</strong> for sparse graphs (few edges). <strong>Adjacency Matrix</strong> for dense graphs or when you need O(1) edge lookups. In interviews, adjacency list is used 90% of the time.</p>
+                </div>
+            </div>
+
+            <!-- BFS and DFS -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Graph Traversal: BFS &amp; DFS</h2>
+
+                <h3>BFS (Breadth-First Search) — Level by Level</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function bfs(graph, start) {
+    const visited = new Set();
+    const queue = [start];
+    visited.add(start);
+    const result = [];
+    
+    while (queue.length > 0) {
+        const node = queue.shift();
+        result.push(node);
+        
+        for (let neighbor of graph[node]) {
+            if (!visited.has(neighbor)) {
+                visited.add(neighbor);
+                queue.push(neighbor);
+            }
+        }
+    }
+    return result;
+}</code></pre>
+
+                <h3>DFS (Depth-First Search) — Go Deep First</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function dfs(graph, node, visited = new Set()) {
+    visited.add(node);
+    console.log(node);
+    
+    for (let neighbor of graph[node]) {
+        if (!visited.has(neighbor)) {
+            dfs(graph, neighbor, visited);
+        }
+    }
+}</code></pre>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">BFS from node 0. Queue=[0], Visited={0}</div><div class="step-state">Process: 0, Add neighbors 1,2</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Queue=[1,2]. Process 1. Add unvisited neighbor 3.</div><div class="step-state">Result: [0, 1], Visited={0,1,2}</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Queue=[2,3]. Process 2. No new unvisited neighbors.</div><div class="step-state">Result: [0, 1, 2]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Queue=[3]. Process 3. No new neighbors. Queue empty.</div><div class="step-state">Result: [0, 1, 2, 3] ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Number of Islands -->
+            <div class="section-card">
+                <h2><span class="section-icon">⭐</span> Classic: Number of Islands</h2>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function numIslands(grid) {
+    let count = 0;
+    
+    for (let i = 0; i < grid.length; i++) {
+        for (let j = 0; j < grid[0].length; j++) {
+            if (grid[i][j] === '1') {
+                count++;
+                dfs(grid, i, j); // Sink the entire island
+            }
+        }
+    }
+    return count;
+}
+
+function dfs(grid, i, j) {
+    // Boundary check + water check
+    if (i < 0 || i >= grid.length || 
+        j < 0 || j >= grid[0].length || 
+        grid[i][j] === '0') return;
+    
+    grid[i][j] = '0'; // Mark as visited (sink)
+    dfs(grid, i+1, j); // Down
+    dfs(grid, i-1, j); // Up
+    dfs(grid, i, j+1); // Right
+    dfs(grid, i, j-1); // Left
+}</code></pre>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Algorithm</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>BFS</td><td class="avg">O(V + E)</td><td class="avg">O(V)</td></tr>
+                        <tr><td>DFS</td><td class="avg">O(V + E)</td><td class="avg">O(V)</td></tr>
+                        <tr><td>Number of Islands (grid)</td><td class="avg">O(rows × cols)</td><td class="avg">O(rows × cols)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting the visited set → infinite loops!</div>
+                    <pre><code>// ❌ Without visited, you'll revisit nodes forever in cyclic graphs
+for (let neighbor of graph[node]) {
+    dfs(graph, neighbor); // Will loop back!
+}
+
+// ✅ Always track visited nodes
+if (!visited.has(neighbor)) {
+    dfs(graph, neighbor, visited);
+}</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not handling disconnected components</div>
+                    <p>A graph might have multiple disconnected components. A single BFS/DFS from one node won't visit all nodes. Loop through all nodes and start traversal from each unvisited one.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing directed vs undirected edges</div>
+                    <p>For undirected graphs, add the edge in BOTH directions. For directed, only one direction.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li><strong>Grid problems</strong> (islands, paths) are graph problems. Each cell is a node, adjacent cells are neighbors.</li>
+                    <li><strong>BFS</strong> = shortest path in unweighted graphs. <strong>DFS</strong> = connected components, cycle detection, path existence.</li>
+                    <li>Always clarify: <strong>directed or undirected? weighted? can there be cycles?</strong></li>
+                    <li>Know how to build an adjacency list from an edge list — this is step 1 in most graph problems.</li>
+                    <li>Graph problems are considered <strong>medium-hard</strong> in interviews. They separate good from great candidates.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Graph = vertices + edges. Can be directed/undirected, weighted/unweighted, cyclic/acyclic.</li>
+                    <li>Adjacency list: O(V+E) space, best for sparse graphs. Adjacency matrix: O(V²), best for dense graphs.</li>
+                    <li>BFS: uses queue, explores level by level, finds shortest path in unweighted graphs.</li>
+                    <li>DFS: uses recursion/stack, goes deep first, good for connectivity and cycle detection.</li>
+                    <li>Both BFS and DFS: O(V+E) time. Always use a visited set to avoid infinite loops.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the difference between BFS and DFS?</div>
+                            <div class="flashcard-back">BFS uses a queue and explores level by level (finds shortest path). DFS uses a stack/recursion and goes as deep as possible first (good for connectivity and path existence). Both visit all reachable nodes in O(V+E).</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Adjacency List vs Adjacency Matrix — when to use each?</div>
+                            <div class="flashcard-back">Adjacency List: sparse graphs, O(V+E) space, fast neighbor iteration. Adjacency Matrix: dense graphs, O(V²) space, O(1) edge lookup. In interviews, adjacency list is used ~90% of the time.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you find the number of connected components in a graph?</div>
+                            <div class="flashcard-back">Loop through all nodes. For each unvisited node, run BFS/DFS and increment a counter. Each BFS/DFS marks all nodes in one connected component as visited. The counter = number of components.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">200</span><span class="lc-name"><a href="https://leetcode.com/problems/number-of-islands/" target="_blank" rel="noopener">Number of Islands</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Grid DFS/BFS</span></li>
+                    <li class="leetcode-item"><span class="lc-number">133</span><span class="lc-name"><a href="https://leetcode.com/problems/clone-graph/" target="_blank" rel="noopener">Clone Graph</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">BFS + HashMap</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1971</span><span class="lc-name"><a href="https://leetcode.com/problems/find-if-path-exists-in-graph/" target="_blank" rel="noopener">Find if Path Exists in Graph</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">BFS/DFS</span></li>
+                    <li class="leetcode-item"><span class="lc-number">547</span><span class="lc-name"><a href="https://leetcode.com/problems/number-of-provinces/" target="_blank" rel="noopener">Number of Provinces</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Connected Components</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

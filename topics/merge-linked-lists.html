@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merge Linked Lists - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 6</a><span class="separator">›</span><span class="current">Merge Linked Lists</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Merge Linked Lists</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 6</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="merge-linked-lists">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Merging Linked Lists?</h2>
+                <p><strong>Merging linked lists</strong> combines two (or more) sorted linked lists into one sorted list. It's the linked list version of the merge step in merge sort — comparing heads and always picking the smaller one.</p>
+                <div class="callout tip">
+                    <div class="callout-title">🌍 Real-Life Analogy</div>
+                    <p>Imagine two lines of people at an airport, both already sorted by boarding group number. You merge them into one line by always picking the person with the <strong>lower boarding number</strong> from the front of either line. You keep doing this until both lines are empty — now you have one perfectly merged, sorted line!</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How It Works</h2>
+
+                <h3>Merge Two Sorted Lists (Iterative)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function mergeTwoLists(l1, l2) {
+    const dummy = { next: null };
+    let tail = dummy;
+    
+    while (l1 && l2) {
+        if (l1.val <= l2.val) {
+            tail.next = l1;
+            l1 = l1.next;
+        } else {
+            tail.next = l2;
+            l2 = l2.next;
+        }
+        tail = tail.next;
+    }
+    
+    tail.next = l1 || l2;  // Attach remaining
+    return dummy.next;
+}</code></pre>
+
+                <h3>Merge Two Sorted Lists (Recursive)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function mergeTwoListsRecursive(l1, l2) {
+    if (!l1) return l2;
+    if (!l2) return l1;
+    
+    if (l1.val <= l2.val) {
+        l1.next = mergeTwoListsRecursive(l1.next, l2);
+        return l1;
+    } else {
+        l2.next = mergeTwoListsRecursive(l1, l2.next);
+        return l2;
+    }
+}</code></pre>
+
+                <h3>Merge K Sorted Lists (Divide &amp; Conquer)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function mergeKLists(lists) {
+    if (lists.length === 0) return null;
+    
+    while (lists.length > 1) {
+        const merged = [];
+        for (let i = 0; i < lists.length; i += 2) {
+            const l1 = lists[i];
+            const l2 = i + 1 < lists.length ? lists[i + 1] : null;
+            merged.push(mergeTwoLists(l1, l2));
+        }
+        lists = merged;
+    }
+    return lists[0];
+}
+// Time: O(N log k) where N = total nodes, k = number of lists</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run</h2>
+                <p>Merge <code>1→3→5</code> and <code>2→4→6</code></p>
+
+                <div class="viz-container">
+                    <div class="viz-title">Merging two sorted lists</div>
+                    <div class="ascii-diagram">
+L1: 1 → 3 → 5
+L2: 2 → 4 → 6
+
+Compare 1 vs 2 → pick 1    Result: 1
+Compare 3 vs 2 → pick 2    Result: 1→2
+Compare 3 vs 4 → pick 3    Result: 1→2→3
+Compare 5 vs 4 → pick 4    Result: 1→2→3→4
+Compare 5 vs 6 → pick 5    Result: 1→2→3→4→5
+L1 empty, attach L2        Result: 1→2→3→4→5→6 ✅
+                    </div>
+                </div>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">l1=1, l2=2. 1 ≤ 2 → pick 1, advance l1</div><div class="step-state">Result: 1, l1=3, l2=2</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">l1=3, l2=2. 3 > 2 → pick 2, advance l2</div><div class="step-state">Result: 1→2, l1=3, l2=4</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">l1=3, l2=4. 3 ≤ 4 → pick 3, advance l1</div><div class="step-state">Result: 1→2→3, l1=5, l2=4</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">l1=5, l2=4. 5 > 4 → pick 4. Then pick 5, attach 6.</div><div class="step-state">Result: 1→2→3→4→5→6 ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Merge 2 lists (iterative)</td><td class="best">O(n + m)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Merge 2 lists (recursive)</td><td class="best">O(n + m)</td><td class="avg">O(n + m) stack</td></tr>
+                        <tr><td>Merge K lists (D&amp;C)</td><td class="avg">O(N log k)</td><td class="best">O(1)*</td></tr>
+                        <tr><td>Merge K lists (heap)</td><td class="avg">O(N log k)</td><td class="avg">O(k)</td></tr>
+                    </tbody>
+                </table>
+                <p class="text-muted">N = total nodes across all lists, k = number of lists.</p>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting the dummy node</div>
+                    <p>Without a dummy node, you need special logic for the first element. Using <code>dummy = { next: null }</code> simplifies the code — just build from dummy.next and return dummy.next.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not attaching remaining nodes</div>
+                    <pre><code>// ❌ Forgets leftover nodes!
+while (l1 && l2) { ... }
+// Missing: tail.next = l1 || l2;
+
+// ✅ Always attach the remaining list
+tail.next = l1 || l2;</code></pre>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>"Merge Two Sorted Lists" is one of the most common easy interview questions.</li>
+                    <li>"Merge K Sorted Lists" is a classic hard problem — know both heap and D&amp;C approaches.</li>
+                    <li>The <strong>dummy node</strong> trick is essential — use it for any list-building problem.</li>
+                    <li>Iterative merge is preferred in interviews (no stack overflow risk).</li>
+                    <li>This is the same merge operation used in merge sort for linked lists.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Use dummy node, compare heads, pick smaller, advance that pointer.</li>
+                    <li>Attach remaining list when one runs out: <code>tail.next = l1 || l2</code>.</li>
+                    <li>Merge 2: O(n+m). Merge K: O(N log k) with divide & conquer or min-heap.</li>
+                    <li>Iterative is O(1) space. Recursive uses O(n+m) stack space.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the time complexity of merging K sorted lists using divide and conquer?</div>
+                            <div class="flashcard-back"><strong>O(N log k)</strong> where N = total nodes and k = number of lists. We do log k rounds of merging, and each round processes all N nodes once.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why use a dummy node when merging linked lists?</div>
+                            <div class="flashcard-back">The dummy node eliminates the need for special handling of the first element. You build the list from dummy.next, and return dummy.next. No edge case for "is the result list empty?"</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">21</span><span class="lc-name"><a href="https://leetcode.com/problems/merge-two-sorted-lists/" target="_blank" rel="noopener">Merge Two Sorted Lists</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Basic merge</span></li>
+                    <li class="leetcode-item"><span class="lc-number">23</span><span class="lc-name"><a href="https://leetcode.com/problems/merge-k-sorted-lists/" target="_blank" rel="noopener">Merge k Sorted Lists</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">D&C or Min-Heap merge</span></li>
+                    <li class="leetcode-item"><span class="lc-number">148</span><span class="lc-name"><a href="https://leetcode.com/problems/sort-list/" target="_blank" rel="noopener">Sort List</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Merge sort on linked list</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1669</span><span class="lc-name"><a href="https://leetcode.com/problems/merge-in-between-linked-lists/" target="_blank" rel="noopener">Merge In Between Linked Lists</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Splice lists together</span></li>
+                    <li class="leetcode-item"><span class="lc-number">88</span><span class="lc-name"><a href="https://leetcode.com/problems/merge-sorted-array/" target="_blank" rel="noopener">Merge Sorted Array</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Same concept, array version</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

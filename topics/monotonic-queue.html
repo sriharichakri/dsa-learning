@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monotonic Queue - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 8</a><span class="separator">›</span><span class="current">Monotonic Queue</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Monotonic Queue</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 8</span>
+                    <span class="topic-badge difficulty-hard">Hard</span>
+                    <button class="topic-complete-btn" data-topic-id="monotonic-queue">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is a Monotonic Queue?</h2>
+                <p>A <strong>Monotonic Queue</strong> is a deque that maintains elements in <strong>monotonically increasing or decreasing order</strong>. Unlike a monotonic stack (LIFO), a monotonic queue supports removing from <strong>both ends</strong>: remove from front when elements expire (leave the window), remove from back to maintain monotonicity.</p>
+                <p>It's the key to solving <strong>sliding window min/max</strong> in O(n).</p>
+                <div class="callout tip">
+                    <div class="callout-title">🌍 Real-Life Analogy</div>
+                    <p>Imagine a VIP line where only <strong>increasingly important</strong> people can stand. When a new VIP arrives, everyone less important behind them leaves (back removal). When the first person's ticket expires, they leave from the front (front removal). The front of the line is always the most important active person!</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How It Works</h2>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Sliding Window Maximum — O(n)
+function maxSlidingWindow(nums, k) {
+    const deque = [];  // Stores indices, values are decreasing
+    const result = [];
+    
+    for (let i = 0; i < nums.length; i++) {
+        // 1. Remove expired front (out of window)
+        if (deque.length && deque[0] < i - k + 1) {
+            deque.shift();
+        }
+        
+        // 2. Remove from back: smaller elements will never be max
+        while (deque.length && nums[deque[deque.length - 1]] <= nums[i]) {
+            deque.pop();
+        }
+        
+        // 3. Add current
+        deque.push(i);
+        
+        // 4. Record answer when window is full
+        if (i >= k - 1) {
+            result.push(nums[deque[0]]);  // Front = max
+        }
+    }
+    return result;
+}
+
+// Sliding Window Minimum — same idea, flip the comparison
+function minSlidingWindow(nums, k) {
+    const deque = [];
+    const result = [];
+    
+    for (let i = 0; i < nums.length; i++) {
+        if (deque.length && deque[0] < i - k + 1) deque.shift();
+        while (deque.length && nums[deque[deque.length - 1]] >= nums[i]) {
+            deque.pop();
+        }
+        deque.push(i);
+        if (i >= k - 1) result.push(nums[deque[0]]);
+    }
+    return result;
+}</code></pre>
+
+                <h3>DP Optimization with Monotonic Queue</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Jump Game VI: max score path, can jump 1..k steps
+// dp[i] = nums[i] + max(dp[i-k], ..., dp[i-1])
+function maxResult(nums, k) {
+    const n = nums.length;
+    const dp = new Array(n).fill(0);
+    dp[0] = nums[0];
+    const deque = [0]; // Monotonic decreasing on dp values
+    
+    for (let i = 1; i < n; i++) {
+        // Remove expired
+        if (deque[0] < i - k) deque.shift();
+        
+        dp[i] = nums[i] + dp[deque[0]]; // Best in window
+        
+        // Maintain decreasing monotonicity
+        while (deque.length && dp[deque[deque.length - 1]] <= dp[i]) {
+            deque.pop();
+        }
+        deque.push(i);
+    }
+    return dp[n - 1];
+}</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run</h2>
+                <p>Sliding window max: <code>[1, 3, -1, -3, 5, 3, 6, 7]</code>, k=3</p>
+
+                <div class="viz-container">
+                    <div class="viz-title">Monotonic Queue maintaining decreasing order</div>
+                    <div class="ascii-diagram">
+i=0: val=1   Deque: [0(1)]                 window: [1]
+i=1: val=3   Pop 0(1<3). Deque: [1(3)]     window: [1,3]
+i=2: val=-1  Deque: [1(3), 2(-1)]          window: [1,3,-1]    max=3 ✅
+i=3: val=-3  Deque: [1(3), 2(-1), 3(-3)]   window: [3,-1,-3]   max=3 ✅
+i=4: val=5   Remove 1(expired). Pop all<5.  window: [-1,-3,5]   max=5 ✅
+             Deque: [4(5)]
+i=5: val=3   Deque: [4(5), 5(3)]           window: [-3,5,3]    max=5 ✅
+i=6: val=6   Pop 3,5(<6). Deque: [6(6)]    window: [5,3,6]     max=6 ✅
+i=7: val=7   Pop 6(<7). Deque: [7(7)]      window: [3,6,7]     max=7 ✅
+
+Result: [3, 3, 5, 5, 6, 7] ✅
+                    </div>
+                </div>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">i=0-1: Build initial window. Deque maintains [1(3)] after 3 pops 1.</div><div class="step-state">Deque: [1(3)]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">i=2: -1 < 3, just push. First full window. Max = deque front = 3.</div><div class="step-state">Result: [3]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">i=3: -3 < -1, push. Max = 3 (still at front).</div><div class="step-state">Result: [3,3]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">i=4: Remove expired idx 1. Pop all < 5. Deque: [4(5)]. Max = 5.</div><div class="step-state">Result: [3,3,5]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">i=5-7: Continue pattern. Final result complete.</div><div class="step-state">Result: [3,3,5,5,6,7] ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Approach</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Brute force (check all in window)</td><td class="worst">O(nk)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Heap / Priority Queue</td><td class="avg">O(n log n)</td><td class="avg">O(n)</td></tr>
+                        <tr><td>Monotonic Queue (deque)</td><td class="best">O(n)</td><td class="avg">O(k)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing monotonic stack vs monotonic queue</div>
+                    <p>Monotonic <strong>stack</strong>: removes from back only (next greater/smaller element). Monotonic <strong>queue</strong>: removes from BOTH ends (front for expiry, back for monotonicity). Queue is for <strong>sliding window</strong> problems.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Storing values instead of indices</div>
+                    <p>Store <strong>indices</strong> so you can check if elements have expired (left the window). Condition: <code>deque[0] &lt; i - k + 1</code>.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Monotonic queue = deque + monotonic property. It's the O(n) solution for sliding window min/max.</li>
+                    <li>Key signal: "sliding window" + "maximum/minimum" → monotonic queue.</li>
+                    <li>Also optimizes certain DP problems: dp[i] = f(max/min over dp[i-k..i-1]).</li>
+                    <li>Each element enters and leaves the deque <strong>at most once</strong> → amortized O(1) per element.</li>
+                    <li>If interviewer asks about sliding window max, start with heap O(n log n), then optimize to deque O(n).</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Monotonic queue = deque maintaining decreasing (for max) or increasing (for min) order.</li>
+                    <li>Remove from front: expired elements. Remove from back: maintain monotonicity.</li>
+                    <li>O(n) time, O(k) space for sliding window max/min.</li>
+                    <li>Store indices, not values. Front = answer for current window.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What's the difference between monotonic stack and monotonic queue?</div>
+                            <div class="flashcard-back"><strong>Monotonic stack:</strong> removes from back only. Used for next greater/smaller element (no window constraint). <strong>Monotonic queue:</strong> removes from BOTH ends — back for monotonicity, front for window expiry. Used for sliding window problems.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why is monotonic queue O(n) for sliding window max?</div>
+                            <div class="flashcard-back">Each element is <strong>pushed once</strong> (at most) and <strong>popped once</strong> (at most) across the entire algorithm. Even though there's a while loop inside the for loop, the total pops across all iterations is bounded by n. Amortized O(1) per element.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">239</span><span class="lc-name"><a href="https://leetcode.com/problems/sliding-window-maximum/" target="_blank" rel="noopener">Sliding Window Maximum</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Classic monotonic queue</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1696</span><span class="lc-name"><a href="https://leetcode.com/problems/jump-game-vi/" target="_blank" rel="noopener">Jump Game VI</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">DP + monotonic queue</span></li>
+                    <li class="leetcode-item"><span class="lc-number">862</span><span class="lc-name"><a href="https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/" target="_blank" rel="noopener">Shortest Subarray with Sum ≥ K</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Monotonic deque + prefix sum</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1438</span><span class="lc-name"><a href="https://leetcode.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/" target="_blank" rel="noopener">Longest Subarray With Diff ≤ Limit</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Two monotonic deques (max+min)</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1425</span><span class="lc-name"><a href="https://leetcode.com/problems/constrained-subsequence-sum/" target="_blank" rel="noopener">Constrained Subsequence Sum</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">DP + monotonic queue</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

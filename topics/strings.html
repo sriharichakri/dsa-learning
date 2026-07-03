@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strings - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 2</a><span class="separator">›</span><span class="current">Strings</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Strings</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 2</span>
+                    <span class="topic-badge difficulty-easy">Beginner Friendly</span>
+                    <button class="topic-complete-btn" data-topic-id="strings">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What Are Strings?</h2>
+                <p>A <strong>string</strong> is a sequence of characters — letters, digits, symbols, or spaces. Under the hood, a string is essentially an <strong>array of characters</strong> with some special properties.</p>
+                <p>Strings are everywhere: usernames, passwords, URLs, search queries, chat messages, DNA sequences. About <strong>20-25% of interview problems</strong> involve string manipulation.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>The most critical thing to understand about strings is <strong>immutability</strong>. In most languages (Java, Python, JavaScript), strings cannot be changed after creation. Every "modification" creates a brand new string. This has massive implications for time complexity.</p>
+                </div>
+            </div>
+
+            <!-- Real-Life Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">📿 Necklace of Beads</div>
+                    <p>Think of a string as a <strong>necklace of beads</strong>. Each bead is a character, and they're strung together in a specific order. You can look at any bead by position (index), but if you want to change one bead, you have to <strong>make an entirely new necklace</strong> — that's immutability!</p>
+                </div>
+                <ul>
+                    <li><strong>Train of carriages:</strong> Each carriage (character) is connected in order. You can walk to carriage #5 directly.</li>
+                    <li><strong>A sentence on a whiteboard:</strong> Erasing one letter and rewriting means the whole sentence is rewritten internally.</li>
+                    <li><strong>DNA strand:</strong> A sequence of characters (A, T, G, C) — bioinformatics is essentially string algorithms!</li>
+                </ul>
+            </div>
+
+            <!-- How Strings Work -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How Strings Work</h2>
+
+                <h3>String as Character Array</h3>
+                <div class="viz-container">
+                    <div class="viz-title">String "HELLO" in Memory</div>
+                    <div class="ascii-diagram">
+Index:    0     1     2     3     4
+        +-----+-----+-----+-----+-----+
+Value:  | 'H' | 'E' | 'L' | 'L' | 'O' |
+        +-----+-----+-----+-----+-----+
+
+str.length = 5
+str[0] = 'H'
+str[4] = 'O'
+                    </div>
+                </div>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>let str = "HELLO";
+
+// Accessing characters
+str[0];          // 'H'
+str.charAt(2);   // 'L'
+str[str.length - 1]; // 'O' (last character)
+
+// String length
+str.length;      // 5
+
+// Iterating through characters
+for (let i = 0; i < str.length; i++) {
+    console.log(str[i]);
+}
+
+// Or using for...of
+for (let char of str) {
+    console.log(char);
+}</code></pre>
+
+                <h3>Immutability</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>let str = "Hello";
+str[0] = 'J';     // ❌ Does nothing! Strings are immutable
+console.log(str);  // Still "Hello"
+
+// To "change" a string, create a new one:
+str = 'J' + str.slice(1); // "Jello" — new string created</code></pre>
+
+                <div class="callout warning">
+                    <div class="callout-title">⚡ The Hidden O(n) Cost of String Concatenation</div>
+                    <pre><code>// ❌ O(n²) — each += creates a new string!
+let result = "";
+for (let i = 0; i < n; i++) {
+    result += "a";  // Copies entire string each time!
+}
+
+// ✅ O(n) — use array and join
+let parts = [];
+for (let i = 0; i < n; i++) {
+    parts.push("a");
+}
+let result = parts.join(""); // One copy at the end</code></pre>
+                </div>
+            </div>
+
+            <!-- Common Operations -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔧</span> Essential String Operations</h2>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>let str = "Hello, World!";
+
+// Searching
+str.indexOf("World");     // 7 (first occurrence)
+str.includes("Hello");    // true
+str.startsWith("Hello");  // true
+str.endsWith("!");        // true
+
+// Extracting
+str.slice(0, 5);          // "Hello"
+str.substring(7, 12);     // "World"
+
+// Transforming (returns NEW string)
+str.toUpperCase();        // "HELLO, WORLD!"
+str.toLowerCase();        // "hello, world!"
+str.trim();               // Removes leading/trailing whitespace
+str.replace("Hello", "Hi"); // "Hi, World!"
+
+// Splitting and Joining
+"a,b,c".split(",");      // ["a", "b", "c"]
+["a","b","c"].join("-");  // "a-b-c"
+
+// Converting
+str.split("");            // ["H","e","l","l","o",",",...]
+[..."Hello"];             // ["H","e","l","l","o"] (spread)
+String(42);               // "42"
+parseInt("42");           // 42</code></pre>
+            </div>
+
+            <!-- Common Patterns -->
+            <div class="section-card">
+                <h2><span class="section-icon">⭐</span> Key String Patterns for Interviews</h2>
+
+                <h3>1. Reverse a String</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Method 1: Built-in
+function reverse(str) {
+    return str.split("").reverse().join("");
+}
+
+// Method 2: Two pointers (in-place on array)
+function reverseArray(chars) {
+    let l = 0, r = chars.length - 1;
+    while (l < r) {
+        [chars[l], chars[r]] = [chars[r], chars[l]];
+        l++; r--;
+    }
+}</code></pre>
+
+                <h3>2. Check Palindrome</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function isPalindrome(str) {
+    str = str.toLowerCase().replace(/[^a-z0-9]/g, "");
+    let l = 0, r = str.length - 1;
+    while (l < r) {
+        if (str[l] !== str[r]) return false;
+        l++; r--;
+    }
+    return true;
+}
+// "racecar" → true, "hello" → false</code></pre>
+
+                <h3>3. Check Anagram</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function isAnagram(s, t) {
+    if (s.length !== t.length) return false;
+    let count = {};
+    for (let c of s) count[c] = (count[c] || 0) + 1;
+    for (let c of t) {
+        if (!count[c]) return false;
+        count[c]--;
+    }
+    return true;
+}
+// "listen", "silent" → true</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Valid Palindrome Check</h2>
+                <p>Checking if <code>"racecar"</code> is a palindrome using two pointers:</p>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc"><code>l=0 ('r')</code> vs <code>r=6 ('r')</code> → Match! Move inward.</div><div class="step-state">l=1, r=5</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc"><code>l=1 ('a')</code> vs <code>r=5 ('a')</code> → Match! Move inward.</div><div class="step-state">l=2, r=4</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc"><code>l=2 ('c')</code> vs <code>r=4 ('c')</code> → Match! Move inward.</div><div class="step-state">l=3, r=3</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc"><code>l=3</code> not &lt; <code>r=3</code> → Loop ends. All characters matched!</div><div class="step-state">return true ✅ It's a palindrome!</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Time</th><th>Why?</th></tr></thead>
+                    <tbody>
+                        <tr><td>Access character by index</td><td class="best">O(1)</td><td>Direct address calculation</td></tr>
+                        <tr><td>Concatenation (a + b)</td><td class="avg">O(n+m)</td><td>Creates new string, copies all chars</td></tr>
+                        <tr><td>Substring / slice</td><td class="avg">O(k)</td><td>Copies k characters</td></tr>
+                        <tr><td>Search (indexOf)</td><td class="avg">O(n×m)</td><td>Worst case for pattern of length m</td></tr>
+                        <tr><td>Compare two strings</td><td class="avg">O(n)</td><td>Must check each character</td></tr>
+                        <tr><td>split / join</td><td class="avg">O(n)</td><td>Processes entire string</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ String concatenation in a loop (O(n²))</div>
+                    <pre><code>// ❌ Each += copies the entire growing string
+let s = "";
+for (let i = 0; i < 10000; i++) s += "x"; // O(n²)!
+
+// ✅ Use array + join
+let arr = [];
+for (let i = 0; i < 10000; i++) arr.push("x");
+let s = arr.join(""); // O(n)</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting strings are immutable</div>
+                    <pre><code>let s = "hello";
+s[0] = 'H'; // ❌ No effect! Strings can't be modified.
+
+// ✅ Create a new string
+s = 'H' + s.slice(1); // "Hello"</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not normalizing before comparison</div>
+                    <pre><code>// ❌ Case-sensitive comparison
+"Hello" === "hello"; // false
+
+// ✅ Normalize first
+s1.toLowerCase() === s2.toLowerCase(); // true</code></pre>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Always ask: "Should I treat uppercase and lowercase as the same?"</li>
+                    <li>Ask about <strong>character set</strong>: ASCII only? Unicode? This affects space complexity of frequency arrays.</li>
+                    <li>Convert string to <strong>char array</strong> when you need to modify characters in-place.</li>
+                    <li>Key patterns: <strong>two pointers</strong> (palindrome), <strong>hash map</strong> (anagram, frequency), <strong>sliding window</strong> (substring problems).</li>
+                    <li>Know the difference between <code>==</code> and <code>.equals()</code> in Java for string comparison.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Strings are immutable arrays of characters. Any "modification" creates a new string.</li>
+                    <li>Access by index: O(1). Concatenation: O(n). Build strings with arrays + join().</li>
+                    <li>Palindrome → two pointers. Anagram → frequency count. Substring → sliding window.</li>
+                    <li>Always normalize (lowercase, trim) before comparisons.</li>
+                    <li>Character codes: 'a'=97, 'z'=122, 'A'=65, '0'=48.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why is string concatenation in a loop O(n²)?</div>
+                            <div class="flashcard-back">Strings are immutable. Each <code>+=</code> creates a new string and copies all existing characters. After k iterations, you've copied 1+2+3+...+k = O(k²) characters total.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you check if two strings are anagrams?</div>
+                            <div class="flashcard-back">Count character frequencies in both strings and compare. If lengths differ → not anagrams. Use a hash map or a 26-element array (for lowercase letters). O(n) time, O(1) space.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What does immutability mean for strings?</div>
+                            <div class="flashcard-back">Once a string is created, its characters cannot be changed. Operations like replace, toUpperCase, or concatenation return a <strong>new string</strong> — the original is untouched.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">242</span><span class="lc-name"><a href="https://leetcode.com/problems/valid-anagram/" target="_blank" rel="noopener">Valid Anagram</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Hash Map</span></li>
+                    <li class="leetcode-item"><span class="lc-number">125</span><span class="lc-name"><a href="https://leetcode.com/problems/valid-palindrome/" target="_blank" rel="noopener">Valid Palindrome</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Two Pointers</span></li>
+                    <li class="leetcode-item"><span class="lc-number">14</span><span class="lc-name"><a href="https://leetcode.com/problems/longest-common-prefix/" target="_blank" rel="noopener">Longest Common Prefix</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">String Comparison</span></li>
+                    <li class="leetcode-item"><span class="lc-number">151</span><span class="lc-name"><a href="https://leetcode.com/problems/reverse-words-in-a-string/" target="_blank" rel="noopener">Reverse Words in a String</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Two Pointers</span></li>
+                    <li class="leetcode-item"><span class="lc-number">8</span><span class="lc-name"><a href="https://leetcode.com/problems/string-to-integer-atoi/" target="_blank" rel="noopener">String to Integer (atoi)</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Parsing</span></li>
+                    <li class="leetcode-item"><span class="lc-number">5</span><span class="lc-name"><a href="https://leetcode.com/problems/longest-palindromic-substring/" target="_blank" rel="noopener">Longest Palindromic Substring</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Expand from Center</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

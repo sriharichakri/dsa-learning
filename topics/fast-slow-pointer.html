@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fast &amp; Slow Pointer - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 5</a><span class="separator">›</span><span class="current">Fast &amp; Slow Pointer</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Fast &amp; Slow Pointer</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 5</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="fast-slow-pointer">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is the Fast &amp; Slow Pointer Technique?</h2>
+                <p>The <strong>Fast &amp; Slow Pointer</strong> (also called Floyd's Tortoise and Hare) technique uses two pointers that move at <strong>different speeds</strong>. The slow pointer moves one step at a time, while the fast pointer moves two steps. This simple idea solves cycle detection, finding middle elements, and more.</p>
+                <div class="callout tip">
+                    <div class="callout-title">🌍 Real-Life Analogy</div>
+                    <p>Imagine two runners on a circular track. One runs at <strong>twice the speed</strong> of the other. If the track is circular, the fast runner will eventually <strong>lap</strong> the slow runner — they'll meet! If it's a straight road, the fast runner just reaches the end first. This "meeting" or "reaching the end" tells us about the structure of the path (circular or linear).</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How It Works</h2>
+
+                <h3>1. Cycle Detection in Linked List</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function hasCycle(head) {
+    let slow = head, fast = head;
+    
+    while (fast && fast.next) {
+        slow = slow.next;         // 1 step
+        fast = fast.next.next;     // 2 steps
+        if (slow === fast) return true;  // They met = cycle!
+    }
+    return false;  // Fast reached end = no cycle
+}</code></pre>
+
+                <h3>2. Find Middle of Linked List</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function findMiddle(head) {
+    let slow = head, fast = head;
+    
+    while (fast && fast.next) {
+        slow = slow.next;
+        fast = fast.next.next;
+    }
+    return slow;  // When fast reaches end, slow is at middle!
+}
+// [1→2→3→4→5] → slow=3 (middle)
+// [1→2→3→4→5→6] → slow=4 (second middle)</code></pre>
+
+                <h3>3. Find Cycle Start (Floyd's Algorithm)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function detectCycleStart(head) {
+    let slow = head, fast = head;
+    
+    // Phase 1: Detect cycle
+    while (fast && fast.next) {
+        slow = slow.next;
+        fast = fast.next.next;
+        if (slow === fast) break;
+    }
+    
+    if (!fast || !fast.next) return null; // No cycle
+    
+    // Phase 2: Find start of cycle
+    slow = head;  // Reset slow to head
+    while (slow !== fast) {
+        slow = slow.next;  // Both move 1 step
+        fast = fast.next;  // Both move 1 step
+    }
+    return slow;  // Meeting point = cycle start!
+}</code></pre>
+
+                <h3>4. Happy Number (LC 202)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function isHappy(n) {
+    function getNext(num) {
+        let sum = 0;
+        while (num > 0) {
+            let d = num % 10;
+            sum += d * d;
+            num = Math.floor(num / 10);
+        }
+        return sum;
+    }
+    
+    let slow = n, fast = getNext(n);
+    while (fast !== 1 && slow !== fast) {
+        slow = getNext(slow);         // 1 step
+        fast = getNext(getNext(fast)); // 2 steps
+    }
+    return fast === 1;
+}</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run</h2>
+                <p>Detect cycle in: 1→2→3→4→5→3 (cycle at node 3)</p>
+
+                <div class="viz-container">
+                    <div class="viz-title">Fast &amp; Slow pointer detecting a cycle</div>
+                    <div class="ascii-diagram">
+1 → 2 → 3 → 4 → 5
+            ↑         |
+            └─────────┘  (cycle: 5 points back to 3)
+
+Step 0: slow=1, fast=1
+Step 1: slow=2, fast=3    (slow+1, fast+2)
+Step 2: slow=3, fast=5    
+Step 3: slow=4, fast=4    ← They met! Cycle exists!
+
+(fast went 3→4→5→3→4, slow went 3→4)
+                    </div>
+                </div>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">slow=1, fast=1. Both start at head.</div><div class="step-state">slow→1, fast→1</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">slow moves to 2, fast moves to 3</div><div class="step-state">slow→2, fast→3</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">slow moves to 3, fast moves to 5</div><div class="step-state">slow→3, fast→5</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">slow moves to 4, fast moves to 3→4. slow === fast!</div><div class="step-state">Both at 4 → Cycle detected! ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Problem</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Cycle Detection</td><td class="best">O(n)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Find Middle</td><td class="best">O(n)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Find Cycle Start</td><td class="best">O(n)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Happy Number</td><td class="best">O(log n)</td><td class="best">O(1)</td></tr>
+                    </tbody>
+                </table>
+                <div class="callout info">
+                    <div class="callout-title">💡 Why O(1) space?</div>
+                    <p>Without this technique, cycle detection requires a hash set (O(n) space) to track visited nodes. Fast &amp; slow pointers achieve the same result with just two pointer variables!</p>
+                </div>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not checking fast AND fast.next</div>
+                    <pre><code>// ❌ Crashes on odd-length lists!
+while (fast.next) { ... }
+
+// ✅ Check both to avoid null pointer
+while (fast && fast.next) {
+    slow = slow.next;
+    fast = fast.next.next;
+}</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing cycle detection with cycle start</div>
+                    <p>The meeting point of fast &amp; slow is NOT the cycle start! After detection, reset slow to head, then move both one step at a time until they meet again — THAT is the cycle start.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>This technique is a <strong>must-know</strong> for linked list problems.</li>
+                    <li>Cycle detection without extra space → Floyd's algorithm (this technique).</li>
+                    <li>Finding middle node in one pass → use this instead of counting length first.</li>
+                    <li>"Happy Number" is a disguised cycle detection problem — the sequence either reaches 1 or cycles.</li>
+                    <li>Can also find the <strong>kth node from end</strong>: start fast k steps ahead, then move both until fast reaches end.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Slow moves 1 step, fast moves 2 steps. If they meet → cycle exists.</li>
+                    <li>When fast reaches end, slow is at the middle.</li>
+                    <li>Cycle start: after meeting, reset slow to head. Move both 1 step until they meet.</li>
+                    <li>All solutions are O(n) time, O(1) space.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why does the fast pointer meet the slow pointer if there's a cycle?</div>
+                            <div class="flashcard-back">In the cycle, fast gains 1 node per step on slow. If the cycle length is C, fast will close the gap in C steps. They <strong>must</strong> meet within one full cycle — the gap decreases by 1 each step until it's 0.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you find the START of a cycle using Floyd's algorithm?</div>
+                            <div class="flashcard-back">After fast and slow meet: (1) Reset slow to head. (2) Move BOTH slow and fast one step at a time. (3) Where they meet again is the <strong>cycle start</strong>. This works due to the mathematical relationship between distances.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">141</span><span class="lc-name"><a href="https://leetcode.com/problems/linked-list-cycle/" target="_blank" rel="noopener">Linked List Cycle</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Basic cycle detection</span></li>
+                    <li class="leetcode-item"><span class="lc-number">142</span><span class="lc-name"><a href="https://leetcode.com/problems/linked-list-cycle-ii/" target="_blank" rel="noopener">Linked List Cycle II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Find cycle start</span></li>
+                    <li class="leetcode-item"><span class="lc-number">876</span><span class="lc-name"><a href="https://leetcode.com/problems/middle-of-the-linked-list/" target="_blank" rel="noopener">Middle of the Linked List</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Find middle node</span></li>
+                    <li class="leetcode-item"><span class="lc-number">202</span><span class="lc-name"><a href="https://leetcode.com/problems/happy-number/" target="_blank" rel="noopener">Happy Number</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Cycle in number sequence</span></li>
+                    <li class="leetcode-item"><span class="lc-number">287</span><span class="lc-name"><a href="https://leetcode.com/problems/find-the-duplicate-number/" target="_blank" rel="noopener">Find the Duplicate Number</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Floyd's on array as linked list</span></li>
+                    <li class="leetcode-item"><span class="lc-number">234</span><span class="lc-name"><a href="https://leetcode.com/problems/palindrome-linked-list/" target="_blank" rel="noopener">Palindrome Linked List</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Find middle + reverse + compare</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trie (Prefix Tree) - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 9</a><span class="separator">›</span><span class="current">Trie (Prefix Tree)</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Trie (Prefix Tree)</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 9</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="trie">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is a Trie?</h2>
+                <p>A <strong>Trie</strong> (pronounced "try") is a tree-like data structure used for storing strings efficiently. Each node represents a <strong>single character</strong>, and paths from root to marked nodes form complete words.</p>
+                <p>Tries are the backbone of <strong>autocomplete</strong>, <strong>spell checkers</strong>, and <strong>IP routing</strong>. They allow O(L) lookup where L is the length of the word — independent of how many words are stored!</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Words that share a common <strong>prefix</strong> share the same path in the trie. "car", "card", "care" all share the path c → a → r. This is why it's called a <strong>prefix tree</strong>.</p>
+                </div>
+            </div>
+
+            <!-- Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">📱 Autocomplete on Your Phone Keyboard</div>
+                    <p>When you type "hel" on your phone, it suggests "hello", "help", "helmet". How does it know? It stores all words in a trie! After following the path h → e → l, it explores all branches from that node to show you possible completions. Each keystroke narrows down the suggestions instantly.</p>
+                </div>
+                <ul>
+                    <li><strong>Phone directory:</strong> Navigate through digits to reach a contact — each digit narrows results</li>
+                    <li><strong>File system:</strong> Folders inside folders — path from root to file is like a trie path</li>
+                    <li><strong>Dictionary index:</strong> Look up words by first letter, then second, then third...</li>
+                    <li><strong>Domain Name System:</strong> com → google → www follows a trie-like structure</li>
+                </ul>
+            </div>
+
+            <!-- Trie Structure -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Trie Structure</h2>
+                <div class="viz-container">
+                    <div class="viz-title">Trie storing: ["app", "apple", "apt", "bat", "bad"]</div>
+                    <div class="ascii-diagram">
+              (root)
+             /      \
+           a          b
+           |          |
+           p          a
+          / \        / \
+         p   t*     t*   d*
+         |
+         l
+         |
+         e*
+
+  * = isEndOfWord (marks a complete word)
+
+  Paths:
+  root → a → p → p         = "app" ✗ (not marked, unless we mark it)
+  root → a → p → p → l → e = "apple" ✅
+  root → a → p → t         = "apt" ✅
+  root → b → a → t         = "bat" ✅
+  root → b → a → d         = "bad" ✅
+                    </div>
+                </div>
+            </div>
+
+            <!-- Implementation -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔧</span> Trie Implementation</h2>
+                <div class="code-header"><span>JavaScript — Trie</span><button class="copy-btn">Copy</button></div>
+                <pre><code>class TrieNode {
+    constructor() {
+        this.children = {};      // char → TrieNode
+        this.isEndOfWord = false;
+    }
+}
+
+class Trie {
+    constructor() {
+        this.root = new TrieNode();
+    }
+    
+    // Insert a word — O(L)
+    insert(word) {
+        let node = this.root;
+        for (const char of word) {
+            if (!node.children[char]) {
+                node.children[char] = new TrieNode();
+            }
+            node = node.children[char];
+        }
+        node.isEndOfWord = true;
+    }
+    
+    // Search for exact word — O(L)
+    search(word) {
+        let node = this.root;
+        for (const char of word) {
+            if (!node.children[char]) return false;
+            node = node.children[char];
+        }
+        return node.isEndOfWord;
+    }
+    
+    // Check if any word starts with prefix — O(L)
+    startsWith(prefix) {
+        let node = this.root;
+        for (const char of prefix) {
+            if (!node.children[char]) return false;
+            node = node.children[char];
+        }
+        return true;  // Node exists = prefix exists
+    }
+    
+    // Delete a word — O(L)
+    delete(word) {
+        this._deleteHelper(this.root, word, 0);
+    }
+    
+    _deleteHelper(node, word, depth) {
+        if (depth === word.length) {
+            if (!node.isEndOfWord) return false;
+            node.isEndOfWord = false;
+            return Object.keys(node.children).length === 0;
+        }
+        const char = word[depth];
+        if (!node.children[char]) return false;
+        
+        const shouldDelete = this._deleteHelper(node.children[char], word, depth + 1);
+        if (shouldDelete) {
+            delete node.children[char];
+            return !node.isEndOfWord && Object.keys(node.children).length === 0;
+        }
+        return false;
+    }
+}
+
+// Usage
+const trie = new Trie();
+trie.insert("apple");
+trie.search("apple");     // true
+trie.search("app");       // false
+trie.startsWith("app");   // true
+trie.insert("app");
+trie.search("app");       // true</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Insert "cat" and Search "car"</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">insert("cat"): At root, 'c' not in children → create node for 'c'</div><div class="step-state">root → {c: {}}</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Move to 'c' node, 'a' not in children → create node for 'a'</div><div class="step-state">root → {c: {a: {}}}</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Move to 'a' node, 't' not in children → create node for 't'</div><div class="step-state">root → {c: {a: {t: {}}}}</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Mark 't' node as isEndOfWord = true</div><div class="step-state">"cat" inserted ✅</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">search("car"): Follow root → c → a. Next char 'r' not in 'a' node's children</div><div class="step-state">Return false ❌ ("car" not found)</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Time & Space Complexity</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Time</th><th>Why?</th></tr></thead>
+                    <tbody>
+                        <tr><td>Insert</td><td class="best">O(L)</td><td>L = length of word. Traverse/create L nodes</td></tr>
+                        <tr><td>Search</td><td class="best">O(L)</td><td>Follow L edges, check isEndOfWord</td></tr>
+                        <tr><td>startsWith</td><td class="best">O(L)</td><td>Follow L edges, return true if path exists</td></tr>
+                        <tr><td>Delete</td><td class="best">O(L)</td><td>Traverse L nodes, clean up unused nodes</td></tr>
+                        <tr><td>Space</td><td class="worst">O(N × L)</td><td>N words of average length L. Shared prefixes save space</td></tr>
+                    </tbody>
+                </table>
+                <div class="callout info">
+                    <div class="callout-title">💡 Trie vs HashMap</div>
+                    <p>HashMap search is O(L) too (hashing the key). But tries support <strong>prefix queries</strong> and <strong>autocomplete</strong> that HashMaps cannot do efficiently.</p>
+                </div>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing search() and startsWith()</div>
+                    <p><code>search("app")</code> returns true only if "app" was inserted as a complete word. <code>startsWith("app")</code> returns true if ANY word starts with "app" (even if "app" itself wasn't inserted).</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not Marking End of Word</div>
+                    <p>If you insert "apple" but forget to mark 'e' as end-of-word, <code>search("apple")</code> will fail. Always set <code>isEndOfWord = true</code> for the last character.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Memory-Inefficient for Sparse Data</div>
+                    <p>With 26 children per node (for lowercase English), a trie can use a lot of memory. Consider using a HashMap for children instead of a fixed-size array when the alphabet is large.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Tips</h2>
+                <ul>
+                    <li><strong>Pattern trigger:</strong> "prefix", "autocomplete", "word search", "dictionary" → think Trie</li>
+                    <li><strong>Wildcard search:</strong> For '.' matching any character, use DFS on all children at that position</li>
+                    <li><strong>Word Search II:</strong> Combine Trie with backtracking on a grid — a top interview problem</li>
+                    <li><strong>Implement Trie:</strong> LeetCode 208 is a direct implementation question. Know it by heart.</li>
+                    <li><strong>Space optimization:</strong> Mention compressed tries (radix trees) for bonus points</li>
+                </ul>
+            </div>
+
+            <!-- Real-world -->
+            <div class="section-card">
+                <h2><span class="section-icon">🏗️</span> Where Tries Are Used</h2>
+                <ul>
+                    <li><strong>Google Search:</strong> Autocomplete suggestions as you type</li>
+                    <li><strong>Spell checkers:</strong> Quickly verify if a word exists in the dictionary</li>
+                    <li><strong>IP routing tables:</strong> Longest prefix matching for network routing</li>
+                    <li><strong>T9 predictive text:</strong> Old phone keyboards used tries for word prediction</li>
+                    <li><strong>DNA sequence matching:</strong> Storing and querying genetic sequences</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Trie = tree of characters. Each path = a word or prefix.</li>
+                    <li>All operations are O(L) where L = word length</li>
+                    <li>Each node has children (map of char → node) and isEndOfWord flag</li>
+                    <li>search checks isEndOfWord; startsWith just checks if path exists</li>
+                    <li>Perfect for autocomplete, spell check, prefix matching</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the difference between search() and startsWith() in a Trie?</div>
+                            <div class="flashcard-back">search("app") → true only if "app" is a complete word (isEndOfWord=true). startsWith("app") → true if ANY word begins with "app" (just checks path exists).</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the time complexity of Trie operations and why?</div>
+                            <div class="flashcard-back">O(L) for insert, search, delete — where L is the word length. Each character = one node traversal. Independent of how many words are stored (unlike hash collisions).</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How would you implement wildcard search (e.g., "h.llo") in a Trie?</div>
+                            <div class="flashcard-back">Use DFS/recursion. For regular characters, follow the specific child. For '.', recursively try ALL children at that level. Return true if any path leads to a match.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode Problems -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">208</span><span class="lc-name"><a href="https://leetcode.com/problems/implement-trie-prefix-tree/" target="_blank" rel="noopener">Implement Trie (Prefix Tree)</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Core Trie</span></li>
+                    <li class="leetcode-item"><span class="lc-number">211</span><span class="lc-name"><a href="https://leetcode.com/problems/design-add-and-search-words-data-structure/" target="_blank" rel="noopener">Design Add and Search Words</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Trie + DFS</span></li>
+                    <li class="leetcode-item"><span class="lc-number">212</span><span class="lc-name"><a href="https://leetcode.com/problems/word-search-ii/" target="_blank" rel="noopener">Word Search II</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Trie + Backtracking</span></li>
+                    <li class="leetcode-item"><span class="lc-number">14</span><span class="lc-name"><a href="https://leetcode.com/problems/longest-common-prefix/" target="_blank" rel="noopener">Longest Common Prefix</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Trie / String</span></li>
+                    <li class="leetcode-item"><span class="lc-number">648</span><span class="lc-name"><a href="https://leetcode.com/problems/replace-words/" target="_blank" rel="noopener">Replace Words</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Trie Prefix</span></li>
+                    <li class="leetcode-item"><span class="lc-number">677</span><span class="lc-name"><a href="https://leetcode.com/problems/map-sum-pairs/" target="_blank" rel="noopener">Map Sum Pairs</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Trie + Values</span></li>
+                    <li class="leetcode-item"><span class="lc-number">720</span><span class="lc-name"><a href="https://leetcode.com/problems/longest-word-in-dictionary/" target="_blank" rel="noopener">Longest Word in Dictionary</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Trie + BFS</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1268</span><span class="lc-name"><a href="https://leetcode.com/problems/search-suggestions-system/" target="_blank" rel="noopener">Search Suggestions System</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Trie + DFS</span></li>
+                    <li class="leetcode-item"><span class="lc-number">421</span><span class="lc-name"><a href="https://leetcode.com/problems/maximum-xor-of-two-numbers-in-an-array/" target="_blank" rel="noopener">Maximum XOR of Two Numbers</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Bitwise Trie</span></li>
+                    <li class="leetcode-item"><span class="lc-number">472</span><span class="lc-name"><a href="https://leetcode.com/problems/concatenated-words/" target="_blank" rel="noopener">Concatenated Words</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Trie + DP</span></li>
+                </ul>
+            </div>
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

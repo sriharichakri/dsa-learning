@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rabin-Karp Algorithm - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 15</a><span class="separator">›</span><span class="current">Rabin-Karp Algorithm</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Rabin-Karp Algorithm</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 15</span>
+                    <span class="topic-badge difficulty-hard">Hard</span>
+                    <button class="topic-complete-btn" data-topic-id="rabin-karp">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is the Rabin-Karp Algorithm?</h2>
+                <p>The <strong>Rabin-Karp</strong> algorithm is a string pattern matching algorithm that uses <strong>hashing</strong> to find pattern occurrences. Instead of comparing characters one by one, it computes a hash of the pattern and a rolling hash of each window in the text. When hashes match, it verifies with a character-by-character comparison to handle collisions.</p>
+                <p>Average time is <strong>O(n + m)</strong>, making it practical and especially powerful for <strong>multi-pattern matching</strong> — searching for multiple patterns simultaneously.</p>
+                <div class="callout tip">
+                    <div class="callout-title">🏷️ Real-Life Analogy: Checking Price Tags</div>
+                    <p>Imagine you're looking for a specific book in a library shelf. Instead of reading every title (naive approach), you first check if the book's spine color and thickness match (quick hash). Only when these "features" match do you actually read the title to confirm (character verification). Rabin-Karp does the same: use a quick hash to filter candidates, then verify only the promising ones.</p>
+                </div>
+            </div>
+
+            <!-- Rolling Hash -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Rolling Hash Mechanism</h2>
+                <div class="viz-container">
+                    <div class="viz-title">Rolling Hash Example: text="abcda", pattern="bcd", base=31, mod=1e9+7</div>
+                    <div class="ascii-diagram">
+Hash formula: h(s) = s[0]×base^(m-1) + s[1]×base^(m-2) + ... + s[m-1]
+
+Pattern hash: h("bcd") = 2×31² + 3×31 + 4 = 1922 + 93 + 4 = 2019
+
+Window 1: h("abc") = 1×31² + 2×31 + 3 = 961 + 62 + 3 = 1026  ✗
+Window 2: h("bcd") = ? Use rolling:
+  Remove 'a': 1026 - 1×31² = 65
+  Shift left:  65 × 31 = 2015
+  Add 'd':     2015 + 4 = 2019  ✓ Hash matches!
+  Verify: "bcd" = "bcd" → MATCH at index 1
+
+Window 3: h("cda") = ?
+  Remove 'b': 2019 - 2×31² = 97
+  Shift left:  97 × 31 = 3007
+  Add 'a':     3007 + 1 = 3008  ✗
+
+Rolling: O(1) per window instead of O(m)!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Implementation -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔧</span> Implementation</h2>
+                <div class="code-header"><span>JavaScript — Rabin-Karp Pattern Matching</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function rabinKarp(text, pattern) {
+    const n = text.length, m = pattern.length;
+    if (m > n) return [];
+
+    const BASE = 31;
+    const MOD = 1_000_000_007;
+    const results = [];
+
+    // Compute base^(m-1) % MOD
+    let basePow = 1;
+    for (let i = 0; i < m - 1; i++) {
+        basePow = (basePow * BASE) % MOD;
+    }
+
+    // Hash function: char -> (charCode - 96) for 'a'=1, 'b'=2, etc.
+    const val = ch => ch.charCodeAt(0) - 96;
+
+    // Compute pattern hash and first window hash
+    let patHash = 0, winHash = 0;
+    for (let i = 0; i < m; i++) {
+        patHash = (patHash * BASE + val(pattern[i])) % MOD;
+        winHash = (winHash * BASE + val(text[i])) % MOD;
+    }
+
+    for (let i = 0; i <= n - m; i++) {
+        // Check if hashes match
+        if (winHash === patHash) {
+            // Verify character by character (avoid false positives)
+            if (text.substring(i, i + m) === pattern) {
+                results.push(i);
+            }
+        }
+
+        // Roll the hash: remove text[i], add text[i + m]
+        if (i < n - m) {
+            winHash = (winHash - val(text[i]) * basePow % MOD + MOD) % MOD;
+            winHash = (winHash * BASE + val(text[i + m])) % MOD;
+        }
+    }
+    return results;
+}
+
+// Usage
+console.log(rabinKarp("ababcababcab", "ababc"));
+// [0, 5] — found at indices 0 and 5
+
+console.log(rabinKarp("aaaaaaa", "aaa"));
+// [0, 1, 2, 3, 4] — overlapping matches</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: rabinKarp("abcdb", "bcd")</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Pattern hash: h("bcd") = 2×31² + 3×31 + 4 = 2019. basePow = 31² = 961.</div><div class="step-state">patHash=2019, basePow=961</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">i=0: winHash = h("abc") = 1×961 + 2×31 + 3 = 1026. 1026 ≠ 2019 → skip.</div><div class="step-state">No match</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Roll: remove 'a'(1): (1026 - 1×961) = 65. Shift: 65×31 = 2015. Add 'd'(4): 2015+4 = 2019.</div><div class="step-state">winHash=2019</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">i=1: winHash=2019 = patHash=2019 → hash match! Verify: "bcd" === "bcd" ✓</div><div class="step-state">Match found at index 1 ✅</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">Roll: remove 'b'(2): (2019 - 2×961)=97. Shift: 97×31=3007. Add 'b'(2): 3007+2=3009. i=2: 3009 ≠ 2019 → skip.</div><div class="step-state">No more matches</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Case</th><th>Time</th><th>Note</th></tr></thead>
+                    <tbody>
+                        <tr><td>Average</td><td class="best">O(n + m)</td><td>Few hash collisions</td></tr>
+                        <tr><td>Worst</td><td class="worst">O(n × m)</td><td>All hashes collide (rare with good mod)</td></tr>
+                        <tr><td>Multi-pattern (k patterns)</td><td class="best">O(n × k) avg</td><td>Rabin-Karp excels here</td></tr>
+                        <tr><td>Space</td><td>O(1)</td><td>O(k) for multi-pattern</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Skipping character verification after hash match</div>
+                    <p>Hash collisions can produce false positives. Always verify with actual string comparison when hashes match. This is critical for correctness.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Negative modular arithmetic</div>
+                    <p>When removing the leading character: <code>(hash - char * basePow)</code> can go negative. Always add MOD before taking modulus: <code>(hash - char * basePow % MOD + MOD) % MOD</code>.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Using a small or easily exploitable modulus</div>
+                    <p>Small modulus causes many collisions. Use a large prime like 1e9+7. For adversarial inputs, use double hashing (two different mod values) to virtually eliminate collisions.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Rabin-Karp is ideal when asked to search for <strong>multiple patterns</strong> simultaneously — compute all pattern hashes upfront.</li>
+                    <li>For single pattern matching, KMP is generally preferred (guaranteed O(n+m)). Rabin-Karp's worst case is O(nm).</li>
+                    <li>The rolling hash concept is widely applicable: plagiarism detection, longest duplicate substring, string comparison.</li>
+                    <li>Double hashing (two mods) makes collision probability negligible: ~1/10^18.</li>
+                    <li>Key insight: rolling hash converts string comparison to integer comparison in O(1).</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Rabin-Karp: hash-based pattern matching, O(n+m) average.</li>
+                    <li>Rolling hash: remove leading char, shift, add trailing char — O(1) per slide.</li>
+                    <li>Always verify on hash match (handle collisions).</li>
+                    <li>Excels at multi-pattern search — hash all patterns, check window against all.</li>
+                    <li>Use large prime MOD (1e9+7) or double hash to minimize collisions.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How does the rolling hash update work?</div>
+                            <div class="flashcard-back"><strong>Remove</strong> the outgoing character's contribution: hash -= char[i] × base^(m-1). <strong>Shift</strong>: hash *= base. <strong>Add</strong> the incoming character: hash += char[i+m]. All modulo MOD. This converts an O(m) recomputation to O(1).</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">When is Rabin-Karp preferred over KMP?</div>
+                            <div class="flashcard-back"><strong>Multi-pattern matching:</strong> searching for k patterns simultaneously. With Rabin-Karp, compute all k pattern hashes in a set, then slide one window and check if its hash is in the set. KMP would need k separate passes. Also preferred for 2D pattern matching.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">28</span><span class="lc-name"><a href="https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/" target="_blank" rel="noopener">Find the Index of First Occurrence in a String</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Rabin-Karp / KMP</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1044</span><span class="lc-name"><a href="https://leetcode.com/problems/longest-duplicate-substring/" target="_blank" rel="noopener">Longest Duplicate Substring</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Binary Search + Rabin-Karp</span></li>
+                    <li class="leetcode-item"><span class="lc-number">187</span><span class="lc-name"><a href="https://leetcode.com/problems/repeated-dna-sequences/" target="_blank" rel="noopener">Repeated DNA Sequences</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Rolling Hash / HashSet</span></li>
+                    <li class="leetcode-item"><span class="lc-number">686</span><span class="lc-name"><a href="https://leetcode.com/problems/repeated-string-match/" target="_blank" rel="noopener">Repeated String Match</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Rabin-Karp / KMP</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

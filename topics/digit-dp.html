@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digit DP - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 12</a><span class="separator">›</span><span class="current">Digit DP</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Digit DP</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 12</span>
+                    <span class="topic-badge difficulty-hard">Hard</span>
+                    <button class="topic-complete-btn" data-topic-id="digit-dp">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Digit DP?</h2>
+                <p><strong>Digit DP</strong> is a technique for counting numbers in a range [L, R] that satisfy certain digit-based constraints (e.g., digits sum to X, no adjacent same digits, contain digit 7, etc.).</p>
+                <p>Instead of checking each number individually (which is infeasible for large ranges), Digit DP builds numbers digit by digit, tracking constraints via DP states.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Count(L, R) = Count(0, R) - Count(0, L-1). Convert to "count numbers ≤ N with property P." Process digits from most significant to least. The key state is a <strong>tight</strong> flag: are we still bounded by N's digits, or have we already placed a smaller digit (and can now place 0-9 freely)?</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🔢 Combination Lock</div>
+                    <p>Imagine a combination lock where you set digits one by one from left to right. If your limit is 357, and you've set the first digit to 2, you're "free" — the remaining digits can be anything 0-9. But if the first digit is 3, the second can only go up to 5. This "tight" constraint is exactly how digit DP works.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Digit DP Template</h2>
+                <div class="code-header"><span>JavaScript — Digit DP Template</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Count numbers from 1 to n with some digit property
+function countDigitDP(n) {
+    const digits = String(n).split('').map(Number);
+    const len = digits.length;
+    const memo = new Map();
+
+    // pos: current digit position (0 = most significant)
+    // tight: are we still bounded by n's digits?
+    // started: have we placed a non-zero digit yet? (handles leading zeros)
+    // state: problem-specific state (e.g., digit sum, last digit, etc.)
+    function dp(pos, tight, started, state) {
+        if (pos === len) return started ? 1 : 0; // Count valid numbers
+
+        const key = `${pos},${tight},${started},${state}`;
+        if (memo.has(key)) return memo.get(key);
+
+        const limit = tight ? digits[pos] : 9;
+        let count = 0;
+
+        for (let d = 0; d <= limit; d++) {
+            const newTight = tight && (d === limit);
+            const newStarted = started || (d > 0);
+
+            // Add problem-specific constraint check here
+            count += dp(pos + 1, newTight, newStarted, newState);
+        }
+
+        memo.set(key, count);
+        return count;
+    }
+
+    return dp(0, true, false, initialState);
+}
+
+// Example: Count numbers ≤ n where digit sum = target
+function countWithDigitSum(n, target) {
+    const digits = String(n).split('').map(Number);
+    const len = digits.length;
+    const memo = new Map();
+
+    function dp(pos, tight, sum) {
+        if (sum > target) return 0; // Pruning
+        if (pos === len) return sum === target ? 1 : 0;
+
+        const key = `${pos},${tight},${sum}`;
+        if (memo.has(key)) return memo.get(key);
+
+        const limit = tight ? digits[pos] : 9;
+        let count = 0;
+
+        for (let d = 0; d <= limit; d++) {
+            count += dp(pos + 1, tight && (d === limit), sum + d);
+        }
+
+        memo.set(key, count);
+        return count;
+    }
+
+    return dp(0, true, 0);
+}</code></pre>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Count numbers ≤ 25 with digit sum = 5</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">digits = [2, 5]. Start dp(0, tight=true, sum=0).</div><div class="step-state">First digit can be 0, 1, or 2 (tight)</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">d=0: dp(1, false, 0) → second digit 0-9. Only d=5 gives sum=5 → count 1. (number 05=5)</div><div class="step-state">d=0 contributes 1</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">d=1: dp(1, false, 1) → second digit 0-9. d=4 gives sum=5 → count 1. (number 14)</div><div class="step-state">d=1 contributes 1</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">d=2: dp(1, tight=true, 2) → second digit 0-5. d=3 gives sum=5 → count 1. (number 23)</div><div class="step-state">Total: 3 numbers (5, 14, 23) ✅</div></div></div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Aspect</th><th>Value</th></tr></thead>
+                    <tbody>
+                        <tr><td>Digits</td><td>O(log₁₀ N) ≈ 18 for N ≤ 10¹⁸</td></tr>
+                        <tr><td>States per position</td><td>O(2 × state_size) (tight × custom state)</td></tr>
+                        <tr><td>Transitions</td><td>O(10) per state (digits 0-9)</td></tr>
+                        <tr><td>Total Time</td><td class="best">O(digits × 10 × states)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not handling leading zeros</div>
+                    <p>The number "007" = 7, not 007. Use a "started" flag to distinguish leading zeros from actual zeros in the number.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Wrong tight propagation</div>
+                    <p>newTight = tight AND (d === digits[pos]). If previous digit was already below the limit, tight becomes permanently false for all subsequent positions.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Digit DP is more common in competitive programming than standard interviews.</li>
+                    <li>The key insight: count(L, R) = count(0, R) - count(0, L-1).</li>
+                    <li>Master the tight-bound concept — it's the foundation of all digit DP.</li>
+                    <li>Common constraints: digit sum, no repeated digits, avoid certain digits, count specific digit occurrences.</li>
+                </ul>
+            </div>
+
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Digit DP: count numbers in [L,R] with digit constraints.</li>
+                    <li>count(L,R) = count(0,R) - count(0,L-1).</li>
+                    <li>States: position, tight (bounded by N?), started (leading zeros?), custom state.</li>
+                    <li>tight propagation: newTight = tight && (d === digits[pos]).</li>
+                    <li>Works for N up to 10¹⁸ (only ~18 digit positions).</li>
+                </ul>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What does the "tight" flag mean in digit DP?</div>
+                            <div class="flashcard-back">The tight flag indicates whether the digits placed so far exactly match the upper bound N. If tight=true, the current digit can only go up to N's digit at this position. If tight=false (we've already placed a smaller digit), the current digit can be anything 0-9.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you count numbers in [L, R] using digit DP?</div>
+                            <div class="flashcard-back">Use the formula: count(L, R) = f(R) - f(L-1), where f(N) counts numbers from 0 to N satisfying the property. This reduces a range problem to two "count up to N" problems, which digit DP handles directly.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">233</span><span class="lc-name"><a href="https://leetcode.com/problems/number-of-digit-one/" target="_blank" rel="noopener">Number of Digit One</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Count digit occurrences</span></li>
+                    <li class="leetcode-item"><span class="lc-number">357</span><span class="lc-name"><a href="https://leetcode.com/problems/count-numbers-with-unique-digits/" target="_blank" rel="noopener">Count Numbers with Unique Digits</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">No repeated digits</span></li>
+                    <li class="leetcode-item"><span class="lc-number">902</span><span class="lc-name"><a href="https://leetcode.com/problems/numbers-at-most-n-given-digit-set/" target="_blank" rel="noopener">Numbers At Most N Given Digit Set</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Restricted digit set</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1012</span><span class="lc-name"><a href="https://leetcode.com/problems/numbers-with-repeated-digits/" target="_blank" rel="noopener">Numbers With Repeated Digits</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Digit DP + bitmask</span></li>
+                    <li class="leetcode-item"><span class="lc-number">2376</span><span class="lc-name"><a href="https://leetcode.com/problems/count-special-integers/" target="_blank" rel="noopener">Count Special Integers</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">All digits distinct</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Selection Problem - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 11</a><span class="separator">›</span><span class="current">Activity Selection Problem</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Activity Selection Problem</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 11</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="activity-selection">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is the Activity Selection Problem?</h2>
+                <p>The <strong>Activity Selection Problem</strong> is the foundational greedy algorithm problem: given a set of activities with start and finish times, select the <strong>maximum number of non-overlapping activities</strong> a single person can perform.</p>
+                <p>The greedy strategy is simple and provably optimal: <strong>always select the activity that finishes earliest</strong> among the remaining compatible activities.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>This was the first problem proven to have an optimal greedy solution. The proof uses an <strong>exchange argument</strong>: any other choice can be "exchanged" for the earliest-finishing activity without reducing the total count. This makes it the textbook example for proving greedy correctness.</p>
+                </div>
+            </div>
+
+            <!-- Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🎭 Attending Festival Events</div>
+                    <p>You're at a festival with many shows at different times. You want to attend as many shows as possible, but you can only be at one show at a time. Strategy: always pick the show that <strong>ends soonest</strong> — this gives you the most time to fit in more shows afterward.</p>
+                </div>
+                <ul>
+                    <li><strong>Job scheduling:</strong> Complete the most jobs when each has a fixed time window.</li>
+                    <li><strong>Classroom usage:</strong> Schedule the most classes in one classroom.</li>
+                    <li><strong>TV recording:</strong> Record the most shows on a single-tuner DVR.</li>
+                </ul>
+            </div>
+
+            <!-- Implementation -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Activity Selection Implementation</h2>
+                <div class="viz-container">
+                    <div class="viz-title">Activity Selection — Sort by finish time, pick greedily</div>
+                    <div class="ascii-diagram">
+Activities (sorted by finish time):
+  A: [1, 3]  ████
+  B: [2, 5]    ██████
+  C: [4, 6]        ████
+  D: [6, 8]            ████
+  E: [5, 9]          ████████
+  F: [8,10]                ████
+
+Select A(ends 3) → next must start >= 3
+Select C(starts 4, ends 6) → next must start >= 6
+Select D(starts 6, ends 8) → next must start >= 8
+Select F(starts 8, ends 10) ✅
+
+Maximum: 4 activities [A, C, D, F]
+                    </div>
+                </div>
+
+                <div class="code-header"><span>JavaScript — Activity Selection (Greedy)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function activitySelection(activities) {
+    // Sort by finish time
+    activities.sort((a, b) => a[1] - b[1]);
+
+    const selected = [activities[0]];
+    let lastFinish = activities[0][1];
+
+    for (let i = 1; i < activities.length; i++) {
+        if (activities[i][0] >= lastFinish) {
+            // Compatible — no overlap with last selected
+            selected.push(activities[i]);
+            lastFinish = activities[i][1];
+        }
+    }
+    return selected;
+}
+
+// Recursive version (textbook style)
+function activitySelectionRecursive(activities, k = 0, lastFinish = 0) {
+    // Find the first activity that starts after lastFinish
+    let m = k;
+    while (m < activities.length && activities[m][0] < lastFinish) {
+        m++;
+    }
+    if (m >= activities.length) return [];
+    return [activities[m], ...activitySelectionRecursive(activities, m + 1, activities[m][1])];
+}
+
+// Usage
+const activities = [[1,3], [2,5], [4,6], [6,8], [5,9], [8,10]];
+console.log(activitySelection(activities));
+// [[1,3], [4,6], [6,8], [8,10]] — 4 activities</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Activity Selection</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Sorted by finish: [[1,3],[2,5],[4,6],[6,8],[5,9],[8,10]]. Select first: [1,3].</div><div class="step-state">selected = [[1,3]], lastFinish = 3</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">[2,5]: start(2) < 3 → overlaps, skip.</div><div class="step-state">selected = [[1,3]]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">[4,6]: start(4) >= 3 → compatible! Select.</div><div class="step-state">selected = [[1,3],[4,6]], lastFinish = 6</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">[6,8]: start(6) >= 6 → compatible! [5,9]: start(5) < 8 → skip. [8,10]: start(8) >= 8 → select!</div><div class="step-state">selected = [[1,3],[4,6],[6,8],[8,10]] ✅ (4 activities)</div></div></div>
+                </div>
+            </div>
+
+            <!-- Proof of Correctness -->
+            <div class="section-card">
+                <h2><span class="section-icon">📐</span> Why Does Greedy Work Here?</h2>
+                <p><strong>Exchange Argument:</strong> Suppose the optimal solution picks activity X first (which doesn't end earliest). We can replace X with the earliest-finishing activity A without reducing the total count, because A ends no later than X, so all activities compatible with X are also compatible with A. Therefore, the greedy choice is at least as good as any other.</p>
+                <div class="callout tip">
+                    <div class="callout-title">🎯 Interview Note</div>
+                    <p>Understanding <strong>why</strong> greedy works (exchange argument) is more important than just knowing the algorithm. Interviewers may ask you to prove correctness.</p>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Sort activities</td><td>O(n log n)</td><td>O(1)*</td></tr>
+                        <tr><td>Greedy selection</td><td>O(n)</td><td>O(k) result</td></tr>
+                        <tr><td>Total</td><td class="best">O(n log n)</td><td class="best">O(1) extra</td></tr>
+                    </tbody>
+                </table>
+                <p class="text-muted">*Depends on sorting algorithm used.</p>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Sorting by start time instead of finish time</div>
+                    <p>Sorting by start time and picking the earliest start doesn't maximize selections. An early-starting but long activity blocks many others.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Sorting by duration</div>
+                    <p>Shortest activity first also doesn't work: a short activity in the middle might block two compatible long ones on either side.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing with weighted activity selection</div>
+                    <p>If activities have different values/weights, greedy doesn't work — you need DP (weighted job scheduling).</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Activity Selection is identical to "Non-overlapping Intervals" (LC 435) — same algorithm, different framing.</li>
+                    <li>Be ready to explain the <strong>greedy proof</strong> (exchange argument).</li>
+                    <li>Variations: weighted version (use DP), multiple rooms (use heap), insert/merge intervals.</li>
+                    <li>If the problem has weights or priorities, greedy likely won't work — consider DP.</li>
+                    <li>Classic greedy problems often ask: "prove the greedy choice is safe."</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Activity Selection: maximize non-overlapping activities.</li>
+                    <li>Greedy: sort by finish time, always pick earliest-finishing compatible activity.</li>
+                    <li>Proof: exchange argument — greedy choice never worse than any alternative.</li>
+                    <li>Time O(n log n), Space O(1). Identical to LC 435.</li>
+                    <li>Doesn't work with weights — use DP for weighted version.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the greedy strategy for the Activity Selection Problem?</div>
+                            <div class="flashcard-back">Sort activities by <strong>finish time</strong>. Always select the next activity that starts after or when the last selected activity finishes. This maximizes the total number of non-overlapping activities.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the exchange argument for Activity Selection?</div>
+                            <div class="flashcard-back">If the optimal solution doesn't start with the earliest-finishing activity, we can swap in the earliest-finishing one without reducing the count. Since it ends no later, all subsequent compatible activities remain compatible. So greedy is at least as good.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">435</span><span class="lc-name"><a href="https://leetcode.com/problems/non-overlapping-intervals/" target="_blank" rel="noopener">Non-overlapping Intervals</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Activity Selection (min removals)</span></li>
+                    <li class="leetcode-item"><span class="lc-number">452</span><span class="lc-name"><a href="https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/" target="_blank" rel="noopener">Minimum Number of Arrows to Burst Balloons</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Interval greedy</span></li>
+                    <li class="leetcode-item"><span class="lc-number">646</span><span class="lc-name"><a href="https://leetcode.com/problems/maximum-length-of-pair-chain/" target="_blank" rel="noopener">Maximum Length of Pair Chain</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Activity selection variant</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1235</span><span class="lc-name"><a href="https://leetcode.com/problems/maximum-profit-in-job-scheduling/" target="_blank" rel="noopener">Maximum Profit in Job Scheduling</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Weighted version (DP)</span></li>
+                    <li class="leetcode-item"><span class="lc-number">253</span><span class="lc-name"><a href="https://leetcode.com/problems/meeting-rooms-ii/" target="_blank" rel="noopener">Meeting Rooms II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Min rooms (related)</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

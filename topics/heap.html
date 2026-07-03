@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heap / Priority Queue - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 9</a><span class="separator">›</span><span class="current">Heap / Priority Queue</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Heap / Priority Queue</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 9</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="heap">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is a Heap?</h2>
+                <p>A <strong>Heap</strong> is a complete binary tree stored in an array that satisfies the <strong>heap property</strong>:</p>
+                <ul>
+                    <li><strong>Max-Heap:</strong> Every parent node is <strong>greater than or equal to</strong> its children</li>
+                    <li><strong>Min-Heap:</strong> Every parent node is <strong>less than or equal to</strong> its children</li>
+                </ul>
+                <p>A <strong>Priority Queue</strong> is an abstract data type that always gives you the highest (or lowest) priority element first. A heap is the most common implementation of a priority queue.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>A heap is <strong>not fully sorted</strong> — only the root is guaranteed to be the min/max. But this partial ordering allows O(log n) insert and O(log n) extract, making it perfect for "find the kth largest" type problems.</p>
+                </div>
+            </div>
+
+            <!-- Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🏥 Hospital Emergency Room</div>
+                    <p>Patients don't get treated in arrival order — they're treated by <strong>severity</strong>. A heart attack patient jumps ahead of someone with a sprained ankle. The most critical patient is always seen first (max priority). When a new patient arrives, they're placed based on severity, and when one is treated, the next most critical patient moves up. That's a priority queue!</p>
+                </div>
+                <ul>
+                    <li><strong>Task scheduler:</strong> OS processes with highest priority run first</li>
+                    <li><strong>Print queue:</strong> Urgent documents print before regular ones</li>
+                    <li><strong>Airline boarding:</strong> First class → Business → Premium Economy → Economy</li>
+                    <li><strong>Event-driven simulation:</strong> Process the nearest future event first</li>
+                </ul>
+            </div>
+
+            <!-- Heap as Array and Tree -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Heap Structure: Array ↔ Tree</h2>
+                <div class="viz-container">
+                    <div class="viz-title">Max-Heap: Both Representations</div>
+                    <div class="ascii-diagram">
+Tree View:                       Array View:
+         90                     Index: [0]  [1]  [2]  [3]  [4]  [5]  [6]
+        /  \                    Value: [90] [70] [80] [30] [50] [20] [60]
+      70    80
+     / \   / \                  Parent of i     = Math.floor((i - 1) / 2)
+    30  50 20  60               Left child of i  = 2 * i + 1
+                                Right child of i = 2 * i + 2
+
+Min-Heap version:
+         10
+        /  \
+      20    15
+     / \   / \
+    30  40 50  25               Array: [10, 20, 15, 30, 40, 50, 25]
+                    </div>
+                </div>
+
+                <div class="callout info">
+                    <div class="callout-title">💡 Why Use an Array?</div>
+                    <p>A complete binary tree maps perfectly to an array with no wasted space. Parent-child relationships are computed with simple math — no pointers needed!</p>
+                </div>
+            </div>
+
+            <!-- Operations -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔧</span> Heap Operations</h2>
+
+                <h3>Insert (Bubble Up / Sift Up)</h3>
+                <p>Add element at the end, then <strong>bubble it up</strong> until the heap property is restored.</p>
+                <div class="code-header"><span>JavaScript — Min-Heap Implementation</span><button class="copy-btn">Copy</button></div>
+                <pre><code>class MinHeap {
+    constructor() {
+        this.heap = [];
+    }
+    
+    insert(val) {
+        this.heap.push(val);
+        this._bubbleUp(this.heap.length - 1);
+    }
+    
+    _bubbleUp(i) {
+        while (i > 0) {
+            const parent = Math.floor((i - 1) / 2);
+            if (this.heap[parent] <= this.heap[i]) break;
+            [this.heap[parent], this.heap[i]] = [this.heap[i], this.heap[parent]];
+            i = parent;
+        }
+    }
+    
+    extractMin() {
+        if (this.heap.length === 0) return null;
+        const min = this.heap[0];
+        const last = this.heap.pop();
+        if (this.heap.length > 0) {
+            this.heap[0] = last;
+            this._sinkDown(0);
+        }
+        return min;
+    }
+    
+    _sinkDown(i) {
+        const n = this.heap.length;
+        while (true) {
+            let smallest = i;
+            const left = 2 * i + 1;
+            const right = 2 * i + 2;
+            
+            if (left < n && this.heap[left] < this.heap[smallest]) smallest = left;
+            if (right < n && this.heap[right] < this.heap[smallest]) smallest = right;
+            
+            if (smallest === i) break;
+            [this.heap[i], this.heap[smallest]] = [this.heap[smallest], this.heap[i]];
+            i = smallest;
+        }
+    }
+    
+    peek() { return this.heap[0]; }
+    size() { return this.heap.length; }
+}</code></pre>
+
+                <div class="viz-container">
+                    <div class="viz-title">Insert 5 into Min-Heap [10, 20, 15, 30, 40]</div>
+                    <div class="ascii-diagram">
+Step 1: Add 5 at end         Step 2: Bubble up (5 < 20)    Step 3: Bubble up (5 < 10)
+       10                           10                             5
+      /  \                         /  \                           / \
+    20    15                      5    15                       10   15
+   / \   /                      / \   /                       / \   /
+  30 40  5                    30  40  20                     30 40  20
+                    </div>
+                </div>
+            </div>
+
+            <!-- Heapify -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔨</span> Build Heap (Heapify)</h2>
+                <p>Building a heap from an unsorted array. Surprisingly, this is <strong>O(n)</strong>, not O(n log n)!</p>
+                <div class="code-header"><span>JavaScript — Build Heap</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function buildMinHeap(arr) {
+    // Start from last non-leaf node and sift down each
+    for (let i = Math.floor(arr.length / 2) - 1; i >= 0; i--) {
+        siftDown(arr, i, arr.length);
+    }
+    return arr;
+}
+
+function siftDown(arr, i, n) {
+    while (true) {
+        let smallest = i;
+        const left = 2 * i + 1, right = 2 * i + 2;
+        if (left < n && arr[left] < arr[smallest]) smallest = left;
+        if (right < n && arr[right] < arr[smallest]) smallest = right;
+        if (smallest === i) break;
+        [arr[i], arr[smallest]] = [arr[smallest], arr[i]];
+        i = smallest;
+    }
+}</code></pre>
+                <div class="callout info">
+                    <div class="callout-title">💡 Why O(n) and not O(n log n)?</div>
+                    <p>Most nodes are near the bottom and need few swaps. Only the root sinks log n levels. The math works out to O(n) total operations. This is a classic interview question!</p>
+                </div>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Extract Min from [3, 10, 15, 20, 25]</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Save min = heap[0] = 3. Move last element (25) to root.</div><div class="step-state">[25, 10, 15, 20] — heap property violated at root</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Sink down: 25 vs children (10, 15). 10 is smallest → swap 25 and 10</div><div class="step-state">[10, 25, 15, 20]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Sink down: 25 vs child (20). 20 < 25 → swap 25 and 20</div><div class="step-state">[10, 20, 15, 25] ✅ Heap property restored!</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Return extracted min = 3</div><div class="step-state">Min = 3, Heap = [10, 20, 15, 25]</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Time & Space Complexity</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Time</th><th>Why?</th></tr></thead>
+                    <tbody>
+                        <tr><td>Insert</td><td class="best">O(log n)</td><td>Bubble up at most tree height = log n</td></tr>
+                        <tr><td>Extract Min/Max</td><td class="best">O(log n)</td><td>Sink down at most tree height = log n</td></tr>
+                        <tr><td>Peek Min/Max</td><td class="best">O(1)</td><td>Just return root element</td></tr>
+                        <tr><td>Build Heap</td><td class="best">O(n)</td><td>Bottom-up heapify — most nodes near leaves</td></tr>
+                        <tr><td>Heap Sort</td><td class="best">O(n log n)</td><td>Build heap O(n) + n extractions O(log n) each</td></tr>
+                        <tr><td>Space</td><td class="best">O(n)</td><td>Array storing n elements</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing Min-Heap and Max-Heap</div>
+                    <p>Min-heap gives you the minimum at the root. Max-heap gives the maximum. For "kth largest," use a <strong>min-heap of size k</strong> (the root is the kth largest).</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Wrong Index Formulas</div>
+                    <pre><code>// For 0-indexed arrays:
+parent(i) = Math.floor((i - 1) / 2)
+left(i)   = 2 * i + 1
+right(i)  = 2 * i + 2
+
+// ❌ WRONG (1-indexed formulas on 0-indexed array):
+parent(i) = Math.floor(i / 2)  // Off by one!</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting to Handle Edge Cases in Extract</div>
+                    <p>When extracting from a heap with 1 element, after popping there's nothing to sink. Always check <code>heap.length > 0</code> before placing last element at root.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Using a Heap When a Simpler Structure Works</div>
+                    <p>If you only need the overall min/max once, just scan the array in O(n). Heaps shine when you need <strong>repeated</strong> min/max extractions.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Tips</h2>
+                <ul>
+                    <li><strong>"Top K" pattern:</strong> Use a heap of size k. Min-heap for k largest, max-heap for k smallest.</li>
+                    <li><strong>Two heaps for median:</strong> Max-heap for lower half, min-heap for upper half. Classic interview problem!</li>
+                    <li><strong>Merge K sorted:</strong> Use a min-heap to efficiently merge k sorted lists/arrays</li>
+                    <li><strong>In JavaScript:</strong> No built-in heap. Implement one or use sorted insertion (small n). In Python, use <code>heapq</code>.</li>
+                    <li><strong>Heap vs BST:</strong> Heap gives O(1) peek of min/max. BST gives O(log n) search for any element.</li>
+                </ul>
+            </div>
+
+            <!-- Real-world -->
+            <div class="section-card">
+                <h2><span class="section-icon">🏗️</span> Where Heaps Are Used</h2>
+                <ul>
+                    <li><strong>Dijkstra's algorithm:</strong> Priority queue selects the closest unvisited node</li>
+                    <li><strong>OS task scheduling:</strong> Processes with highest priority run first</li>
+                    <li><strong>Huffman coding:</strong> Build optimal prefix codes using a min-heap</li>
+                    <li><strong>Event-driven simulations:</strong> Process events in chronological order</li>
+                    <li><strong>Median maintenance:</strong> Streaming data median with two heaps</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Heap = complete binary tree stored in array, satisfying heap property</li>
+                    <li>Min-heap: root = smallest | Max-heap: root = largest</li>
+                    <li>Insert: add at end, bubble up — O(log n)</li>
+                    <li>Extract: remove root, move last to root, sink down — O(log n)</li>
+                    <li>Build heap from array: O(n) using bottom-up heapify</li>
+                    <li>Parent = (i-1)/2 | Left child = 2i+1 | Right child = 2i+2</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you find the kth largest element using a heap?</div>
+                            <div class="flashcard-back">Maintain a min-heap of size k. For each element, if it's larger than the heap's root, replace the root and sift down. At the end, the root is the kth largest. O(n log k).</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why is building a heap O(n) instead of O(n log n)?</div>
+                            <div class="flashcard-back">Half the nodes are leaves (0 sinks). Quarter need 1 sink. Eighth need 2 sinks. Sum: n/2·0 + n/4·1 + n/8·2 + ... converges to O(n), not O(n log n).</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How to find the running median of a stream using heaps?</div>
+                            <div class="flashcard-back">Use two heaps: max-heap for lower half, min-heap for upper half. Balance sizes (differ by at most 1). Median = root of larger heap, or average of both roots.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What are the index formulas for a 0-indexed heap array?</div>
+                            <div class="flashcard-back">Parent of i = floor((i-1)/2). Left child of i = 2i+1. Right child of i = 2i+2. A complete binary tree maps perfectly to a contiguous array.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode Problems -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">703</span><span class="lc-name"><a href="https://leetcode.com/problems/kth-largest-element-in-a-stream/" target="_blank" rel="noopener">Kth Largest Element in a Stream</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Min-Heap</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1046</span><span class="lc-name"><a href="https://leetcode.com/problems/last-stone-weight/" target="_blank" rel="noopener">Last Stone Weight</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Max-Heap</span></li>
+                    <li class="leetcode-item"><span class="lc-number">215</span><span class="lc-name"><a href="https://leetcode.com/problems/kth-largest-element-in-an-array/" target="_blank" rel="noopener">Kth Largest Element in an Array</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Heap / Quick Select</span></li>
+                    <li class="leetcode-item"><span class="lc-number">347</span><span class="lc-name"><a href="https://leetcode.com/problems/top-k-frequent-elements/" target="_blank" rel="noopener">Top K Frequent Elements</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Min-Heap</span></li>
+                    <li class="leetcode-item"><span class="lc-number">973</span><span class="lc-name"><a href="https://leetcode.com/problems/k-closest-points-to-origin/" target="_blank" rel="noopener">K Closest Points to Origin</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Max-Heap</span></li>
+                    <li class="leetcode-item"><span class="lc-number">295</span><span class="lc-name"><a href="https://leetcode.com/problems/find-median-from-data-stream/" target="_blank" rel="noopener">Find Median from Data Stream</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Two Heaps</span></li>
+                    <li class="leetcode-item"><span class="lc-number">23</span><span class="lc-name"><a href="https://leetcode.com/problems/merge-k-sorted-lists/" target="_blank" rel="noopener">Merge k Sorted Lists</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Min-Heap</span></li>
+                    <li class="leetcode-item"><span class="lc-number">621</span><span class="lc-name"><a href="https://leetcode.com/problems/task-scheduler/" target="_blank" rel="noopener">Task Scheduler</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Max-Heap + Queue</span></li>
+                    <li class="leetcode-item"><span class="lc-number">378</span><span class="lc-name"><a href="https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/" target="_blank" rel="noopener">Kth Smallest Element in a Sorted Matrix</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Min-Heap</span></li>
+                    <li class="leetcode-item"><span class="lc-number">767</span><span class="lc-name"><a href="https://leetcode.com/problems/reorganize-string/" target="_blank" rel="noopener">Reorganize String</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Max-Heap</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1337</span><span class="lc-name"><a href="https://leetcode.com/problems/the-k-weakest-rows-in-a-matrix/" target="_blank" rel="noopener">The K Weakest Rows in a Matrix</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Heap</span></li>
+                </ul>
+            </div>
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

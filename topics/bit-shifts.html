@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bit Shifts & Operations - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 14</a><span class="separator">›</span><span class="current">Bit Shifts & Operations</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Bit Shifts & Operations</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 14</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="bit-shifts">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What are Bit Shifts?</h2>
+                <p><strong>Bit shifting</strong> moves all bits of a number left or right by a specified number of positions. Left shift (<code>&lt;&lt;</code>) multiplies by 2, right shift (<code>&gt;&gt;</code>) divides by 2. These are the fastest arithmetic operations available — single CPU cycle.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p><code>n &lt;&lt; k</code> = n × 2^k. <code>n &gt;&gt; k</code> = ⌊n / 2^k⌋. Shifts are much faster than multiplication/division. They're used in binary search (finding midpoint), hash functions, and efficient arithmetic.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🔢 Decimal Place Shifting</div>
+                    <p>In decimal, adding a 0 to the right (123 → 1230) multiplies by 10. Removing from the right (1230 → 123) divides by 10. Bit shifting is the same concept in binary — left shift adds a 0 (multiply by 2), right shift removes a bit (divide by 2).</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Bit Shift Operations</h2>
+                <div class="viz-container">
+                    <div class="viz-title">Bit Shift Visual Guide</div>
+                    <div class="ascii-diagram">
+Left Shift (<<):               Right Shift (>>):
+  5 << 1 = 10                   20 >> 2 = 5
+  0101 → 1010                   10100 → 00101
+  5 × 2¹ = 10                   20 / 2² = 5
+
+  5 << 3 = 40                   Arithmetic >> (preserves sign):
+  0000101 → 0101000             -8 >> 1 = -4
+  5 × 2³ = 40                   11111000 → 11111100
+
+Unsigned Right Shift (>>>):     Practical uses:
+  -1 >>> 0 = 4294967295         mid = (lo + hi) >>> 1  (no overflow!)
+  All 1s treated as unsigned    n << 1 instead of n * 2
+                                n >> 1 instead of Math.floor(n / 2)
+                    </div>
+                </div>
+
+                <div class="code-header"><span>JavaScript — Bit Shift Patterns</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Multiply by power of 2
+const times8 = n => n << 3;  // n * 8
+
+// Divide by power of 2 (floor)
+const divBy4 = n => n >> 2;  // Math.floor(n / 4)
+
+// Safe midpoint (avoids integer overflow)
+const mid = (lo, hi) => (lo + hi) >>> 1;
+// Better than (lo + hi) / 2 which can overflow in other languages
+
+// Check if number is even/odd
+const isEven = n => (n & 1) === 0;  // Last bit = 0 means even
+const isOdd = n => (n & 1) === 1;
+
+// Reverse bits of a 32-bit integer
+function reverseBits(n) {
+    let result = 0;
+    for (let i = 0; i < 32; i++) {
+        result = (result << 1) | (n & 1);
+        n >>>= 1;
+    }
+    return result >>> 0; // Convert to unsigned
+}
+
+// Add two integers without + operator
+function getSum(a, b) {
+    while (b !== 0) {
+        const carry = (a & b) << 1;  // Carry bits
+        a = a ^ b;                    // Sum without carry
+        b = carry;
+    }
+    return a;
+}
+
+// Bitwise AND of range [left, right]
+function rangeBitwiseAnd(left, right) {
+    let shift = 0;
+    while (left !== right) {
+        left >>= 1;
+        right >>= 1;
+        shift++;
+    }
+    return left << shift; // Common prefix
+}</code></pre>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Add 5 + 3 without + operator</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">a=5 (101), b=3 (011). carry = (101 & 011) << 1 = (001) << 1 = 010. a = 101 ^ 011 = 110.</div><div class="step-state">a=6 (110), b=2 (010)</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">carry = (110 & 010) << 1 = (010) << 1 = 100. a = 110 ^ 010 = 100.</div><div class="step-state">a=4 (100), b=4 (100)</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">carry = (100 & 100) << 1 = (100) << 1 = 1000. a = 100 ^ 100 = 000.</div><div class="step-state">a=0 (000), b=8 (1000)</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">carry = (000 & 1000) << 1 = 0. a = 000 ^ 1000 = 1000. b=0 → done!</div><div class="step-state">Result: 8 ✅ (5 + 3 = 8)</div></div></div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Time</th><th>Note</th></tr></thead>
+                    <tbody>
+                        <tr><td>Shift left/right</td><td class="best">O(1)</td><td>Single CPU instruction</td></tr>
+                        <tr><td>Add without +</td><td>O(32)</td><td>Max 32 iterations for 32-bit int</td></tr>
+                        <tr><td>Reverse bits</td><td>O(32)</td><td>Process each bit</td></tr>
+                        <tr><td>Range AND</td><td>O(32)</td><td>Shift until equal</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing >> and >>></div>
+                    <p><code>>></code> is arithmetic right shift (preserves sign bit). <code>>>></code> is unsigned right shift (fills with 0s). For negative numbers, they give different results: <code>-8 >> 1 = -4</code> but <code>-8 >>> 1 = 2147483644</code>.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Shifting by more than 31 bits</div>
+                    <p>In JavaScript, bit shifts use modulo 32: <code>1 << 32</code> equals <code>1 << 0 = 1</code>, not 0! For shifts ≥ 32, the result wraps around.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Negative number right shift for division</div>
+                    <p><code>-7 >> 1 = -4</code> (rounds toward negative infinity), but <code>Math.floor(-7/2) = -4</code> too. However, <code>-7 / 2 = -3.5</code> truncates to -3 in some languages. Be aware of rounding behavior.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>"Add without +" (Sum of Two Integers, LC 371) is a classic — know the carry + XOR approach.</li>
+                    <li>Safe midpoint calculation: <code>(lo + hi) >>> 1</code> avoids integer overflow.</li>
+                    <li>Bit shifts are used in binary search, hash functions, and low-level optimization.</li>
+                    <li>Reverse Bits (LC 190) tests understanding of bit-by-bit processing.</li>
+                    <li>Range Bitwise AND: find common prefix of binary representations.</li>
+                </ul>
+            </div>
+
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>n << k = n × 2^k. n >> k = ⌊n / 2^k⌋.</li>
+                    <li>>> preserves sign, >>> fills with zeros.</li>
+                    <li>Add without +: carry = (a & b) << 1, sum = a ^ b. Repeat until carry = 0.</li>
+                    <li>Safe midpoint: (lo + hi) >>> 1.</li>
+                    <li>Even/odd check: n & 1 === 0 (even) or 1 (odd).</li>
+                </ul>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you add two numbers using only bit operations?</div>
+                            <div class="flashcard-back">Use XOR for sum-without-carry and AND+left-shift for carry: <code>sum = a ^ b</code>, <code>carry = (a & b) << 1</code>. Set a=sum, b=carry, repeat until carry is 0. Works because XOR adds without carrying, and AND finds positions that generate carries.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What's the difference between >> and >>> in JavaScript?</div>
+                            <div class="flashcard-back"><code>>></code> (arithmetic shift) preserves the sign bit — negative numbers stay negative. <code>>>></code> (unsigned shift) fills with 0s — treats the number as unsigned. Example: <code>-1 >> 1 = -1</code>, <code>-1 >>> 1 = 2147483647</code>.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">371</span><span class="lc-name"><a href="https://leetcode.com/problems/sum-of-two-integers/" target="_blank" rel="noopener">Sum of Two Integers</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Add without +</span></li>
+                    <li class="leetcode-item"><span class="lc-number">190</span><span class="lc-name"><a href="https://leetcode.com/problems/reverse-bits/" target="_blank" rel="noopener">Reverse Bits</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Bit-by-bit reversal</span></li>
+                    <li class="leetcode-item"><span class="lc-number">201</span><span class="lc-name"><a href="https://leetcode.com/problems/bitwise-and-of-numbers-range/" target="_blank" rel="noopener">Bitwise AND of Numbers Range</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Common prefix via shift</span></li>
+                    <li class="leetcode-item"><span class="lc-number">29</span><span class="lc-name"><a href="https://leetcode.com/problems/divide-two-integers/" target="_blank" rel="noopener">Divide Two Integers</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Division via shifts</span></li>
+                    <li class="leetcode-item"><span class="lc-number">342</span><span class="lc-name"><a href="https://leetcode.com/problems/power-of-four/" target="_blank" rel="noopener">Power of Four</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Bit pattern check</span></li>
+                    <li class="leetcode-item"><span class="lc-number">89</span><span class="lc-name"><a href="https://leetcode.com/problems/gray-code/" target="_blank" rel="noopener">Gray Code</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">XOR + shift pattern</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

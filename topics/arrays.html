@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arrays - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb">
+            <a href="../index.html">Home</a>
+            <span class="separator">›</span>
+            <a href="../index.html">Phase 2</a>
+            <span class="separator">›</span>
+            <span class="current">Arrays</span>
+        </div>
+
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Arrays</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 2</span>
+                    <span class="topic-badge difficulty-easy">Beginner Friendly</span>
+                    <button class="topic-complete-btn" data-topic-id="arrays">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is an Array?</h2>
+                <p>Imagine you have a <strong>row of lockers</strong> in a school hallway. Each locker has a <strong>number</strong> on it (0, 1, 2, 3...) and can store exactly <strong>one item</strong> inside. That's exactly what an array is in programming!</p>
+                
+                <p>An <strong>array</strong> is a collection of elements stored in <strong>contiguous (side-by-side) memory locations</strong>. Each element can be accessed directly using its <strong>index</strong> (position number).</p>
+
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Arrays are the <strong>most fundamental</strong> data structure. Almost every other data structure (stacks, queues, heaps, hash tables) can be built using arrays. Master arrays first — everything else builds on top.</p>
+                </div>
+
+                <div class="viz-container">
+                    <div class="viz-title">Array Visualization</div>
+                    <div class="array-viz" id="array-basic-viz">
+                        <div class="array-cell"><span class="index-label">0</span>10</div>
+                        <div class="array-cell"><span class="index-label">1</span>25</div>
+                        <div class="array-cell"><span class="index-label">2</span>40</div>
+                        <div class="array-cell"><span class="index-label">3</span>60</div>
+                        <div class="array-cell"><span class="index-label">4</span>15</div>
+                    </div>
+                    <p class="text-muted" style="font-size:0.85rem; margin-top:12px;">Each box is a memory slot. The number above is the index (position).</p>
+                </div>
+            </div>
+
+            <!-- Why Arrays? -->
+            <div class="section-card">
+                <h2><span class="section-icon">🤔</span> Why Do We Need Arrays?</h2>
+                <p>Let's say you want to store marks of 100 students. Without arrays, you'd need:</p>
+                <pre><code>int marks1 = 85;
+int marks2 = 92;
+int marks3 = 78;
+// ... 97 more variables! 😱</code></pre>
+                
+                <p>With an array, you just need <strong>one line</strong>:</p>
+                <pre><code>int marks[100]; // Done! All 100 values stored.</code></pre>
+
+                <p><strong>Arrays solve the problem of managing large collections of similar data.</strong></p>
+            </div>
+
+            <!-- Real-Life Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                
+                <div class="callout tip">
+                    <div class="callout-title">🏢 Hotel Rooms</div>
+                    <p>Think of a hotel floor with rooms numbered 101, 102, 103... Each room holds one guest. You can go directly to room 105 without checking rooms 101-104 first. That's <strong>random access</strong> — the superpower of arrays!</p>
+                </div>
+
+                <p>More real-world examples:</p>
+                <ul>
+                    <li><strong>Playlist on Spotify:</strong> Songs arranged in order — you can jump to song #5 directly</li>
+                    <li><strong>Seats in a cinema:</strong> Row of numbered seats, each holds one person</li>
+                    <li><strong>Egg carton:</strong> Fixed slots, each holds one egg</li>
+                    <li><strong>Parking lot:</strong> Numbered spots, each holds one car</li>
+                    <li><strong>Excel spreadsheet column:</strong> Cells A1, A2, A3... each stores a value</li>
+                </ul>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How Arrays Work in Memory</h2>
+                <p>When you create an array, the computer reserves a <strong>contiguous block of memory</strong>. If each integer takes 4 bytes:</p>
+                
+                <div class="ascii-diagram">
+Address:  1000    1004    1008    1012    1016
+        +-------+-------+-------+-------+-------+
+Value:  |  10   |  25   |  40   |  60   |  15   |
+        +-------+-------+-------+-------+-------+
+Index:     0       1       2       3       4
+                </div>
+
+                <p style="margin-top:16px;">To find element at index <code>i</code>, the computer calculates:</p>
+                <pre><code>address = base_address + (i × size_of_element)
+// Element at index 3: 1000 + (3 × 4) = 1012 ✓</code></pre>
+
+                <div class="callout info">
+                    <div class="callout-title">💡 This is why array access is O(1)</div>
+                    <p>The computer doesn't need to "walk through" the array. It calculates the exact memory address using simple math. This makes array access <strong>instant</strong> regardless of array size!</p>
+                </div>
+            </div>
+
+            <!-- Operations -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔧</span> Common Array Operations</h2>
+
+                <div class="tabs">
+                    <div class="tab-headers">
+                        <button class="tab-header active">Access</button>
+                        <button class="tab-header">Insert</button>
+                        <button class="tab-header">Delete</button>
+                        <button class="tab-header">Search</button>
+                        <button class="tab-header">Traverse</button>
+                    </div>
+
+                    <div class="tab-content active">
+                        <h4>Accessing an Element — O(1)</h4>
+                        <p>Jump directly to any position using the index.</p>
+                        <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                        <pre><code>let arr = [10, 25, 40, 60, 15];
+console.log(arr[0]);  // 10  (first element)
+console.log(arr[3]);  // 60  (fourth element)
+console.log(arr[arr.length - 1]); // 15 (last element)</code></pre>
+                    </div>
+
+                    <div class="tab-content">
+                        <h4>Inserting an Element</h4>
+                        <p><strong>At the end — O(1):</strong> Just add to the next slot.</p>
+                        <p><strong>At the beginning or middle — O(n):</strong> Must shift all subsequent elements.</p>
+                        <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                        <pre><code>let arr = [10, 25, 40];
+
+// Insert at end — O(1)
+arr.push(60);  // [10, 25, 40, 60]
+
+// Insert at beginning — O(n) ⚠️ shifts everything
+arr.unshift(5); // [5, 10, 25, 40, 60]
+
+// Insert at index 2 — O(n)
+arr.splice(2, 0, 99); // [5, 10, 99, 25, 40, 60]</code></pre>
+                    </div>
+
+                    <div class="tab-content">
+                        <h4>Deleting an Element</h4>
+                        <p><strong>From the end — O(1):</strong> Just remove the last slot.</p>
+                        <p><strong>From beginning/middle — O(n):</strong> Must shift elements to fill the gap.</p>
+                        <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                        <pre><code>let arr = [10, 25, 40, 60, 15];
+
+// Delete from end — O(1)
+arr.pop();  // [10, 25, 40, 60]
+
+// Delete from beginning — O(n) ⚠️
+arr.shift(); // [25, 40, 60]
+
+// Delete at index 1 — O(n)
+arr.splice(1, 1); // [25, 60]</code></pre>
+                    </div>
+
+                    <div class="tab-content">
+                        <h4>Searching — O(n)</h4>
+                        <p>In an unsorted array, you must check each element one by one.</p>
+                        <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                        <pre><code>function linearSearch(arr, target) {
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i] === target) return i;
+    }
+    return -1; // not found
+}
+
+linearSearch([10, 25, 40, 60], 40); // returns 2</code></pre>
+                        <p class="text-muted">For sorted arrays, use Binary Search — O(log n). We'll learn this in Phase 3!</p>
+                    </div>
+
+                    <div class="tab-content">
+                        <h4>Traversal — O(n)</h4>
+                        <p>Visit every element exactly once.</p>
+                        <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                        <pre><code>let arr = [10, 25, 40, 60, 15];
+
+// Method 1: for loop
+for (let i = 0; i < arr.length; i++) {
+    console.log(arr[i]);
+}
+
+// Method 2: for...of
+for (let val of arr) {
+    console.log(val);
+}
+
+// Method 3: forEach
+arr.forEach((val, index) => {
+    console.log(`Index ${index}: ${val}`);
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Finding Maximum Element</h2>
+                <p>Let's trace through finding the maximum value in <code>[3, 7, 2, 9, 4]</code>.</p>
+                
+                <div class="code-header"><span>Algorithm</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function findMax(arr) {
+    let max = arr[0]; // Start with first element
+    for (let i = 1; i < arr.length; i++) {
+        if (arr[i] > max) {
+            max = arr[i]; // Found a bigger one!
+        }
+    }
+    return max;
+}</code></pre>
+
+                <div class="dry-run">
+                    <div class="dry-run-step">
+                        <div class="step-num">1</div>
+                        <div class="step-content">
+                            <div class="step-desc">Initialize: <code>max = arr[0] = 3</code></div>
+                            <div class="step-state">max = 3, i = 1</div>
+                        </div>
+                    </div>
+                    <div class="dry-run-step">
+                        <div class="step-num">2</div>
+                        <div class="step-content">
+                            <div class="step-desc">i=1: arr[1]=7 > max=3? <strong>Yes!</strong> Update max = 7</div>
+                            <div class="step-state">max = 7, i = 2</div>
+                        </div>
+                    </div>
+                    <div class="dry-run-step">
+                        <div class="step-num">3</div>
+                        <div class="step-content">
+                            <div class="step-desc">i=2: arr[2]=2 > max=7? <strong>No.</strong> Skip.</div>
+                            <div class="step-state">max = 7, i = 3</div>
+                        </div>
+                    </div>
+                    <div class="dry-run-step">
+                        <div class="step-num">4</div>
+                        <div class="step-content">
+                            <div class="step-desc">i=3: arr[3]=9 > max=7? <strong>Yes!</strong> Update max = 9</div>
+                            <div class="step-state">max = 9, i = 4</div>
+                        </div>
+                    </div>
+                    <div class="dry-run-step">
+                        <div class="step-num">5</div>
+                        <div class="step-content">
+                            <div class="step-desc">i=4: arr[4]=4 > max=9? <strong>No.</strong> Skip. Loop ends.</div>
+                            <div class="step-state">max = 9 ✅ (Answer!)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kadane's Algorithm -->
+            <div class="section-card">
+                <h2><span class="section-icon">⭐</span> Famous Pattern: Kadane's Algorithm</h2>
+                <p><strong>Problem:</strong> Find the maximum sum of a contiguous subarray.</p>
+                <p><strong>Analogy:</strong> Imagine you're walking along a number line, collecting coins (+) or paying tolls (-). You want to find the stretch of road that gives you the <strong>most profit</strong>. If your running total drops below zero, it's better to start fresh!</p>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function maxSubarraySum(arr) {
+    let maxSum = arr[0];
+    let currentSum = arr[0];
+    
+    for (let i = 1; i < arr.length; i++) {
+        // Either extend the previous subarray or start fresh
+        currentSum = Math.max(arr[i], currentSum + arr[i]);
+        maxSum = Math.max(maxSum, currentSum);
+    }
+    return maxSum;
+}
+
+// Example: [-2, 1, -3, 4, -1, 2, 1, -5, 4]
+// Answer: 6 (subarray [4, -1, 2, 1])</code></pre>
+
+                <div class="callout tip">
+                    <div class="callout-title">🎯 Why O(n)?</div>
+                    <p>We visit each element exactly <strong>once</strong>. At each position, we make a simple decision: "Should I extend my current subarray, or start a new one here?" This single-pass approach is what makes it linear time.</p>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Time & Space Complexity</h2>
+                
+                <table class="complexity-table">
+                    <thead>
+                        <tr>
+                            <th>Operation</th>
+                            <th>Time</th>
+                            <th>Why?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Access by index</td><td class="best">O(1)</td><td>Direct address calculation</td></tr>
+                        <tr><td>Search (unsorted)</td><td class="avg">O(n)</td><td>May need to check every element</td></tr>
+                        <tr><td>Search (sorted)</td><td class="best">O(log n)</td><td>Binary search halves the range</td></tr>
+                        <tr><td>Insert at end</td><td class="best">O(1)</td><td>No shifting needed</td></tr>
+                        <tr><td>Insert at beginning</td><td class="worst">O(n)</td><td>Shift all n elements right</td></tr>
+                        <tr><td>Delete from end</td><td class="best">O(1)</td><td>No shifting needed</td></tr>
+                        <tr><td>Delete from beginning</td><td class="worst">O(n)</td><td>Shift all n elements left</td></tr>
+                    </tbody>
+                </table>
+
+                <p><strong>Space Complexity:</strong> O(n) — storing n elements requires n memory slots.</p>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Off-by-One Error (Most Common!)</div>
+                    <p>Arrays are <strong>0-indexed</strong>. An array of size 5 has indices 0, 1, 2, 3, 4.</p>
+                    <pre><code>let arr = [10, 20, 30, 40, 50];
+// ❌ WRONG: arr[5] → undefined (index out of bounds!)
+// ✅ RIGHT: arr[4] → 50 (last element)</code></pre>
+                </div>
+                
+                <div class="callout danger">
+                    <div class="callout-title">❌ Modifying Array While Iterating</div>
+                    <p>Removing elements during a forward loop skips elements.</p>
+                    <pre><code>// ❌ WRONG: Skips elements!
+for (let i = 0; i < arr.length; i++) {
+    if (arr[i] === target) arr.splice(i, 1);
+}
+
+// ✅ RIGHT: Iterate backwards
+for (let i = arr.length - 1; i >= 0; i--) {
+    if (arr[i] === target) arr.splice(i, 1);
+}</code></pre>
+                </div>
+
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing length with last index</div>
+                    <p><code>arr.length</code> gives count of elements. Last index = <code>arr.length - 1</code>.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li><strong>Arrays are the #1 topic</strong> in coding interviews. About 30-40% of all interview questions involve arrays.</li>
+                    <li><strong>Always ask:</strong> Is the array sorted? Can it have duplicates? Can values be negative?</li>
+                    <li><strong>Think about edge cases:</strong> Empty array, single element, all same elements, already sorted.</li>
+                    <li><strong>Common patterns to know:</strong> Two pointers, sliding window, prefix sum, hash map complement.</li>
+                    <li><strong>Optimization path:</strong> Brute force O(n²) → Hash map O(n) → Two pointers O(n) with O(1) space.</li>
+                </ul>
+
+                <div class="callout tip">
+                    <div class="callout-title">🎯 Interviewer's Perspective</div>
+                    <p>Interviewers want to see you recognize patterns quickly. When you see "find pair/triplet with target sum" → think Two Pointers or HashMap. When you see "contiguous subarray" → think Sliding Window or Prefix Sum.</p>
+                </div>
+            </div>
+
+            <!-- Where Used -->
+            <div class="section-card">
+                <h2><span class="section-icon">🏗️</span> Where Arrays Are Used in Real Projects</h2>
+                <ul>
+                    <li><strong>Netflix:</strong> List of movies/shows displayed in a row → array of content objects</li>
+                    <li><strong>Amazon:</strong> Shopping cart items stored as an array</li>
+                    <li><strong>Google Maps:</strong> Route as an array of coordinates</li>
+                    <li><strong>Instagram:</strong> Feed posts stored in an array, loaded in chunks</li>
+                    <li><strong>Games:</strong> Game board (2D array), leaderboard (sorted array)</li>
+                    <li><strong>Image Processing:</strong> Pixels stored as a 2D array of RGB values</li>
+                </ul>
+            </div>
+
+            <!-- Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Array = contiguous memory, fixed-size (in most languages), 0-indexed</li>
+                    <li>Access: O(1) | Search: O(n) unsorted, O(log n) sorted | Insert/Delete at ends: O(1)</li>
+                    <li>Key pattern: "Can I solve this with two pointers or a hash map to avoid O(n²)?"</li>
+                    <li>Always handle edge cases: empty array, single element, duplicates</li>
+                    <li>Kadane's Algorithm = max subarray sum in O(n)</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the time complexity of accessing array[i]?</div>
+                            <div class="flashcard-back">O(1) — constant time. The address is calculated directly: base + (i × element_size)</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why is inserting at the beginning of an array O(n)?</div>
+                            <div class="flashcard-back">Every existing element must shift one position to the right to make room. n elements = n shifts.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is Kadane's Algorithm used for?</div>
+                            <div class="flashcard-back">Finding the maximum sum contiguous subarray in O(n) time. Key idea: extend current subarray or start fresh.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode Problems -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item">
+                        <span class="lc-number">1</span>
+                        <span class="lc-name"><a href="https://leetcode.com/problems/two-sum/" target="_blank" rel="noopener">Two Sum</a></span>
+                        <span class="lc-difficulty easy">Easy</span>
+                        <span class="lc-pattern">HashMap</span>
+                    </li>
+                    <li class="leetcode-item">
+                        <span class="lc-number">121</span>
+                        <span class="lc-name"><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock/" target="_blank" rel="noopener">Best Time to Buy and Sell Stock</a></span>
+                        <span class="lc-difficulty easy">Easy</span>
+                        <span class="lc-pattern">Greedy</span>
+                    </li>
+                    <li class="leetcode-item">
+                        <span class="lc-number">217</span>
+                        <span class="lc-name"><a href="https://leetcode.com/problems/contains-duplicate/" target="_blank" rel="noopener">Contains Duplicate</a></span>
+                        <span class="lc-difficulty easy">Easy</span>
+                        <span class="lc-pattern">HashSet</span>
+                    </li>
+                    <li class="leetcode-item">
+                        <span class="lc-number">238</span>
+                        <span class="lc-name"><a href="https://leetcode.com/problems/product-of-array-except-self/" target="_blank" rel="noopener">Product of Array Except Self</a></span>
+                        <span class="lc-difficulty medium">Medium</span>
+                        <span class="lc-pattern">Prefix/Suffix</span>
+                    </li>
+                    <li class="leetcode-item">
+                        <span class="lc-number">53</span>
+                        <span class="lc-name"><a href="https://leetcode.com/problems/maximum-subarray/" target="_blank" rel="noopener">Maximum Subarray</a></span>
+                        <span class="lc-difficulty medium">Medium</span>
+                        <span class="lc-pattern">Kadane's</span>
+                    </li>
+                    <li class="leetcode-item">
+                        <span class="lc-number">15</span>
+                        <span class="lc-name"><a href="https://leetcode.com/problems/3sum/" target="_blank" rel="noopener">3Sum</a></span>
+                        <span class="lc-difficulty medium">Medium</span>
+                        <span class="lc-pattern">Two Pointers</span>
+                    </li>
+                    <li class="leetcode-item">
+                        <span class="lc-number">11</span>
+                        <span class="lc-name"><a href="https://leetcode.com/problems/container-with-most-water/" target="_blank" rel="noopener">Container With Most Water</a></span>
+                        <span class="lc-difficulty medium">Medium</span>
+                        <span class="lc-pattern">Two Pointers</span>
+                    </li>
+                    <li class="leetcode-item">
+                        <span class="lc-number">189</span>
+                        <span class="lc-name"><a href="https://leetcode.com/problems/rotate-array/" target="_blank" rel="noopener">Rotate Array</a></span>
+                        <span class="lc-difficulty medium">Medium</span>
+                        <span class="lc-pattern">Reverse</span>
+                    </li>
+                    <li class="leetcode-item">
+                        <span class="lc-number">56</span>
+                        <span class="lc-name"><a href="https://leetcode.com/problems/merge-intervals/" target="_blank" rel="noopener">Merge Intervals</a></span>
+                        <span class="lc-difficulty medium">Medium</span>
+                        <span class="lc-pattern">Sorting</span>
+                    </li>
+                    <li class="leetcode-item">
+                        <span class="lc-number">42</span>
+                        <span class="lc-name"><a href="https://leetcode.com/problems/trapping-rain-water/" target="_blank" rel="noopener">Trapping Rain Water</a></span>
+                        <span class="lc-difficulty hard">Hard</span>
+                        <span class="lc-pattern">Two Pointers</span>
+                    </li>
+                    <li class="leetcode-item">
+                        <span class="lc-number">41</span>
+                        <span class="lc-name"><a href="https://leetcode.com/problems/first-missing-positive/" target="_blank" rel="noopener">First Missing Positive</a></span>
+                        <span class="lc-difficulty hard">Hard</span>
+                        <span class="lc-pattern">Cyclic Sort</span>
+                    </li>
+                    <li class="leetcode-item">
+                        <span class="lc-number">128</span>
+                        <span class="lc-name"><a href="https://leetcode.com/problems/longest-consecutive-sequence/" target="_blank" rel="noopener">Longest Consecutive Sequence</a></span>
+                        <span class="lc-difficulty medium">Medium</span>
+                        <span class="lc-pattern">HashSet</span>
+                    </li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer">
+            <p>DSA Mastery — Built for learners, by learners.</p>
+        </footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

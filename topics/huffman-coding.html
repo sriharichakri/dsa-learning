@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Huffman Coding - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 11</a><span class="separator">›</span><span class="current">Huffman Coding</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Huffman Coding</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 11</span>
+                    <span class="topic-badge difficulty-hard">Hard</span>
+                    <button class="topic-complete-btn" data-topic-id="huffman-coding">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Huffman Coding?</h2>
+                <p><strong>Huffman Coding</strong> is a greedy algorithm for <strong>lossless data compression</strong>. It assigns variable-length binary codes to characters, where <strong>frequent characters get shorter codes</strong> and rare characters get longer codes.</p>
+                <p>The result is a <strong>prefix-free code</strong> — no code is a prefix of another — ensuring unambiguous decoding. This is the foundation of compression formats like ZIP, GZIP, JPEG, and MP3.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Fixed-length encoding (like ASCII with 8 bits per character) wastes bits on common characters. Huffman coding uses a <strong>greedy tree-building</strong> approach: repeatedly merge the two least frequent nodes into a new parent. The resulting binary tree assigns optimal prefix codes — provably the best possible for character-by-character encoding.</p>
+                </div>
+            </div>
+
+            <!-- Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">📱 Morse Code</div>
+                    <p>Morse code assigns shorter codes to common letters: E is "." (1 symbol) while Q is "--.-" (4 symbols). This is because E appears far more often in English. Huffman coding does the same thing optimally — it's like creating the perfect Morse code for any given text, guaranteed to use the fewest total symbols.</p>
+                </div>
+                <ul>
+                    <li><strong>Speed dial:</strong> Frequent contacts get 1-digit shortcuts, rare ones get longer numbers.</li>
+                    <li><strong>Abbreviations:</strong> Common words get short abbreviations (Dr., St.) while rare words are spelled out.</li>
+                </ul>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Building a Huffman Tree</h2>
+                <div class="viz-container">
+                    <div class="viz-title">Huffman Tree for "ABRACADABRA" (A:5, B:2, R:2, C:1, D:1)</div>
+                    <div class="ascii-diagram">
+Step 1: Start with frequency nodes: A(5) B(2) R(2) C(1) D(1)
+
+Step 2: Merge two smallest: C(1) + D(1) = CD(2)
+  Nodes: A(5) B(2) R(2) CD(2)
+
+Step 3: Merge two smallest: B(2) + R(2) = BR(4)  [or B + CD]
+  Nodes: A(5) BR(4) CD(2)
+
+Step 4: Merge: CD(2) + BR(4) = BRCD(6)
+  Nodes: A(5) BRCD(6)
+
+Step 5: Merge: A(5) + BRCD(6) = root(11)
+
+Huffman Tree:
+           (11)
+          /    \
+        A(5)  (6)
+             /    \
+          (4)    (2)
+         /   \   /  \
+       B(2) R(2) C(1) D(1)
+
+Codes (left=0, right=1):
+  A: 0       (1 bit)   ← most frequent!
+  B: 100     (3 bits)
+  R: 101     (3 bits)
+  C: 110     (3 bits)
+  D: 111     (3 bits)
+
+"ABRACADABRA" encoded:
+  0 100 101 0 110 0 111 0 100 101 0
+  = 23 bits (vs 88 bits with 8-bit ASCII = 74% compression!)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Implementation -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔧</span> Huffman Coding Implementation</h2>
+                <div class="code-header"><span>JavaScript — Huffman Coding</span><button class="copy-btn">Copy</button></div>
+                <pre><code>class HuffmanNode {
+    constructor(char, freq) {
+        this.char = char;
+        this.freq = freq;
+        this.left = null;
+        this.right = null;
+    }
+}
+
+function buildHuffmanTree(text) {
+    // Step 1: Count frequencies
+    const freq = {};
+    for (const ch of text) freq[ch] = (freq[ch] || 0) + 1;
+
+    // Step 2: Create priority queue (min-heap by frequency)
+    const pq = Object.entries(freq)
+        .map(([char, f]) => new HuffmanNode(char, f));
+
+    // Step 3: Build tree — merge two smallest nodes repeatedly
+    while (pq.length > 1) {
+        pq.sort((a, b) => a.freq - b.freq); // Simple sort as min-heap
+        const left = pq.shift();
+        const right = pq.shift();
+
+        const parent = new HuffmanNode(null, left.freq + right.freq);
+        parent.left = left;
+        parent.right = right;
+        pq.push(parent);
+    }
+
+    return pq[0]; // Root of Huffman tree
+}
+
+function generateCodes(root, prefix = '', codes = {}) {
+    if (!root) return codes;
+
+    if (root.char !== null) {
+        codes[root.char] = prefix || '0'; // Handle single-character case
+        return codes;
+    }
+
+    generateCodes(root.left, prefix + '0', codes);
+    generateCodes(root.right, prefix + '1', codes);
+    return codes;
+}
+
+function encode(text) {
+    const root = buildHuffmanTree(text);
+    const codes = generateCodes(root);
+
+    const encoded = text.split('').map(ch => codes[ch]).join('');
+    return { encoded, codes, root };
+}
+
+function decode(encoded, root) {
+    let result = '';
+    let node = root;
+
+    for (const bit of encoded) {
+        node = bit === '0' ? node.left : node.right;
+        if (node.char !== null) {
+            result += node.char;
+            node = root; // Reset to root for next character
+        }
+    }
+    return result;
+}
+
+// Usage
+const { encoded, codes } = encode("ABRACADABRA");
+console.log(codes);   // { A: '0', B: '100', R: '101', C: '110', D: '111' }
+console.log(encoded); // "010010101101110100101​0"</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Building Huffman Tree for "aabbc"</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Frequencies: a:2, b:2, c:1. Priority queue: [c(1), a(2), b(2)].</div><div class="step-state">PQ = [c:1, a:2, b:2]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Merge c(1) + a(2) = ca(3). PQ = [b:2, ca:3].</div><div class="step-state">PQ = [b:2, ca:3]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Merge b(2) + ca(3) = root(5).</div><div class="step-state">Tree built. b=0, c=10, a=11</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">"aabbc" → 11 11 0 0 10 = 10 bits. Fixed 8-bit: 40 bits. Savings: 75%!</div><div class="step-state">Encoded: "1111001​0" ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Count frequencies</td><td>O(n)</td><td>O(k)</td></tr>
+                        <tr><td>Build tree (with heap)</td><td>O(k log k)</td><td>O(k)</td></tr>
+                        <tr><td>Generate codes</td><td>O(k)</td><td>O(k)</td></tr>
+                        <tr><td>Encode text</td><td>O(n)</td><td>O(n)</td></tr>
+                        <tr><td>Decode text</td><td>O(n)</td><td>O(1)</td></tr>
+                    </tbody>
+                </table>
+                <p class="text-muted">n = text length, k = unique characters (alphabet size).</p>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not using a min-heap</div>
+                    <p>Using a sorted array and searching for minimums is O(k²). A proper min-heap reduces tree construction to O(k log k).</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing prefix-free with prefix codes</div>
+                    <p>Huffman codes are <strong>prefix-free</strong>: no code is a prefix of another. This ensures unambiguous decoding. If 'A' = '0' and 'B' = '01', the bitstring '01' is ambiguous.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting the single-character edge case</div>
+                    <p>If the text has only one unique character (e.g., "aaaa"), the tree has only one leaf. Assign it code '0' — don't leave it empty.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Huffman coding demonstrates <strong>greedy optimality</strong> — a favorite proof question in algorithm courses.</li>
+                    <li>The key operation is repeated extraction of the two minimums — a classic <strong>min-heap</strong> application.</li>
+                    <li>Real-world usage: GZIP, DEFLATE (HTTP compression), JPEG, MP3 all use Huffman or similar.</li>
+                    <li>Huffman is optimal for symbol-by-symbol encoding but not for overall compression (arithmetic coding is better).</li>
+                    <li>Related problem: "Minimum Cost to Merge Stones" uses a similar heap-based approach.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Huffman Coding: variable-length prefix-free codes. Frequent chars → short codes.</li>
+                    <li>Build tree: repeatedly merge two least-frequent nodes (greedy with min-heap).</li>
+                    <li>Codes: traverse tree — left=0, right=1. Leaf node = character code.</li>
+                    <li>Prefix-free: no code is a prefix of another → unambiguous decoding.</li>
+                    <li>Optimal for character-by-character encoding. O(k log k) to build, O(n) to encode/decode.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How is a Huffman tree built?</div>
+                            <div class="flashcard-back">1. Count character frequencies. 2. Create a leaf node for each character. 3. Put all nodes in a min-heap. 4. Repeatedly extract two minimum nodes, create a parent with their combined frequency, and insert it back. 5. The last remaining node is the root.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why are Huffman codes prefix-free?</div>
+                            <div class="flashcard-back">Because all characters are at <strong>leaf nodes</strong> of the binary tree. Since no leaf is an ancestor of another leaf, no code (root-to-leaf path) can be a prefix of another code. This ensures any encoded bitstring can be decoded unambiguously.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">1167</span><span class="lc-name"><a href="https://leetcode.com/problems/minimum-cost-to-connect-sticks/" target="_blank" rel="noopener">Minimum Cost to Connect Sticks</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Huffman-like merge</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1000</span><span class="lc-name"><a href="https://leetcode.com/problems/minimum-cost-to-merge-stones/" target="_blank" rel="noopener">Minimum Cost to Merge Stones</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Generalized merge</span></li>
+                    <li class="leetcode-item"><span class="lc-number">271</span><span class="lc-name"><a href="https://leetcode.com/problems/encode-and-decode-strings/" target="_blank" rel="noopener">Encode and Decode Strings</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Encoding design</span></li>
+                    <li class="leetcode-item"><span class="lc-number">297</span><span class="lc-name"><a href="https://leetcode.com/problems/serialize-and-deserialize-binary-tree/" target="_blank" rel="noopener">Serialize and Deserialize Binary Tree</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Tree encoding</span></li>
+                    <li class="leetcode-item"><span class="lc-number">347</span><span class="lc-name"><a href="https://leetcode.com/problems/top-k-frequent-elements/" target="_blank" rel="noopener">Top K Frequent Elements</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Frequency + heap</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

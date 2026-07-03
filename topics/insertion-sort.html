@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insertion Sort - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 4</a><span class="separator">›</span><span class="current">Insertion Sort</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Insertion Sort</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 4</span>
+                    <span class="topic-badge difficulty-easy">Easy</span>
+                    <button class="topic-complete-btn" data-topic-id="insertion-sort">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Insertion Sort?</h2>
+                <p><strong>Insertion Sort</strong> builds the sorted array one element at a time. It picks each element and <strong>inserts it into its correct position</strong> among the already-sorted elements to its left.</p>
+                <p>It's the most <strong>natural</strong> sorting algorithm — it's how most people sort playing cards in their hand.</p>
+                <div class="callout tip">
+                    <div class="callout-title">🌍 Real-Life Analogy</div>
+                    <p>You're holding a hand of cards, sorted left to right. You draw a new card. You scan from right to left in your hand to find where it fits, shift the bigger cards right, and <strong>insert</strong> the new card. That's exactly insertion sort! Each new card is "inserted" into the correct spot in the already-sorted portion.</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How It Works</h2>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function insertionSort(arr) {
+    const n = arr.length;
+    
+    for (let i = 1; i < n; i++) {
+        let key = arr[i];       // Element to insert
+        let j = i - 1;
+        
+        // Shift elements that are greater than key
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j]; // Shift right
+            j--;
+        }
+        arr[j + 1] = key;       // Insert at correct position
+    }
+    return arr;
+}
+
+// insertionSort([5, 2, 4, 6, 1, 3]) → [1, 2, 3, 4, 5, 6]</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run</h2>
+                <p>Sort <code>[5, 2, 4, 6, 1, 3]</code></p>
+
+                <div class="viz-container">
+                    <div class="viz-title">Insertion Sort — insert each element into sorted position</div>
+                    <div class="ascii-diagram">
+Initial: [5, 2, 4, 6, 1, 3]
+          ✅ sorted portion starts with just 5
+
+i=1: key=2  Insert 2 into [5]
+     [5, 5, 4, 6, 1, 3]  → shift 5 right
+     [2, 5, 4, 6, 1, 3]  → insert 2
+      ✅ ✅
+
+i=2: key=4  Insert 4 into [2, 5]
+     [2, 5, 5, 6, 1, 3]  → shift 5 right
+     [2, 4, 5, 6, 1, 3]  → insert 4
+      ✅ ✅ ✅
+
+i=3: key=6  Insert 6 into [2, 4, 5]
+     [2, 4, 5, 6, 1, 3]  → 6 > 5, already in place!
+      ✅ ✅ ✅ ✅
+
+i=4: key=1  Insert 1 into [2, 4, 5, 6]
+     [2, 4, 5, 6, 6, 3]  → shift 6
+     [2, 4, 5, 5, 6, 3]  → shift 5
+     [2, 4, 4, 5, 6, 3]  → shift 4
+     [2, 2, 4, 5, 6, 3]  → shift 2
+     [1, 2, 4, 5, 6, 3]  → insert 1
+      ✅ ✅ ✅ ✅ ✅
+
+i=5: key=3  Insert 3 into [1, 2, 4, 5, 6]
+     [1, 2, 4, 5, 6, 6]  → shift 6
+     [1, 2, 4, 5, 5, 6]  → shift 5
+     [1, 2, 4, 4, 5, 6]  → shift 4
+     [1, 2, 3, 4, 5, 6]  → insert 3 ✅
+                    </div>
+                </div>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">i=1, key=2: Shift 5 right, insert 2 at index 0</div><div class="step-state">[2, 5, 4, 6, 1, 3]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">i=2, key=4: Shift 5 right, insert 4 at index 1</div><div class="step-state">[2, 4, 5, 6, 1, 3]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">i=3, key=6: 6 > 5, no shift needed</div><div class="step-state">[2, 4, 5, 6, 1, 3]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">i=4, key=1: Shift 6,5,4,2 right, insert 1 at index 0</div><div class="step-state">[1, 2, 4, 5, 6, 3]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">i=5, key=3: Shift 6,5,4 right, insert 3 at index 2</div><div class="step-state">[1, 2, 3, 4, 5, 6] ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Case</th><th>Time</th><th>Space</th><th>When?</th></tr></thead>
+                    <tbody>
+                        <tr><td>Best Case</td><td class="best">O(n)</td><td class="best">O(1)</td><td>Array is already sorted</td></tr>
+                        <tr><td>Average Case</td><td class="worst">O(n²)</td><td class="best">O(1)</td><td>Random order</td></tr>
+                        <tr><td>Worst Case</td><td class="worst">O(n²)</td><td class="best">O(1)</td><td>Array is reverse sorted</td></tr>
+                    </tbody>
+                </table>
+                <div class="callout info">
+                    <div class="callout-title">💡 Why Insertion Sort Matters</div>
+                    <p>Despite being O(n²), insertion sort is <strong>optimal for nearly-sorted data</strong> and <strong>small arrays</strong>. In fact, languages like V8 (JavaScript engine) use insertion sort for arrays with ≤ 10 elements inside their Timsort implementation!</p>
+                </div>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Starting loop at i=0 instead of i=1</div>
+                    <p>The first element (i=0) is already "sorted" by itself. Start from i=1 and insert each element into the sorted portion [0..i-1].</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting to save the key</div>
+                    <pre><code>// ❌ key gets overwritten during shifting!
+for (let j = i - 1; j >= 0 && arr[j] > arr[i]; j--) {
+    arr[j + 1] = arr[j]; // arr[i] was overwritten!
+}
+
+// ✅ Save key BEFORE shifting
+let key = arr[i];
+let j = i - 1;
+while (j >= 0 && arr[j] > key) {
+    arr[j + 1] = arr[j];
+    j--;
+}
+arr[j + 1] = key;</code></pre>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Insertion sort is <strong>stable</strong> (equal elements maintain their order) — unlike selection sort.</li>
+                    <li>It's <strong>adaptive</strong> — O(n) for nearly sorted data. Best among O(n²) sorts for real-world use.</li>
+                    <li>It's <strong>online</strong> — can sort data as it arrives (streaming).</li>
+                    <li>Used as a subroutine in Timsort and for small partitions in quicksort.</li>
+                    <li>Compare with selection sort: insertion is better for nearly sorted; selection does fewer swaps.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Pick each element, insert into correct position in the sorted left portion.</li>
+                    <li>Best: O(n) when sorted. Worst/Avg: O(n²). Space: O(1).</li>
+                    <li>Stable, adaptive, online. Best O(n²) sort for practical use.</li>
+                    <li>Used inside Timsort for small subarrays.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why is insertion sort preferred over selection sort for nearly-sorted data?</div>
+                            <div class="flashcard-back">Insertion sort is <strong>adaptive</strong> — it does O(n) work on nearly-sorted data because the inner while loop barely runs. Selection sort always does O(n²) comparisons regardless of input order.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Is insertion sort stable? What about selection sort?</div>
+                            <div class="flashcard-back"><strong>Insertion sort is stable</strong> — it shifts elements, never jumping over equal ones. <strong>Selection sort is NOT stable</strong> — swapping can displace equal elements.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">147</span><span class="lc-name"><a href="https://leetcode.com/problems/insertion-sort-list/" target="_blank" rel="noopener">Insertion Sort List</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Insertion sort on linked list</span></li>
+                    <li class="leetcode-item"><span class="lc-number">912</span><span class="lc-name"><a href="https://leetcode.com/problems/sort-an-array/" target="_blank" rel="noopener">Sort an Array</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Implement sorting</span></li>
+                    <li class="leetcode-item"><span class="lc-number">88</span><span class="lc-name"><a href="https://leetcode.com/problems/merge-sorted-array/" target="_blank" rel="noopener">Merge Sorted Array</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Insertion-like merge</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1051</span><span class="lc-name"><a href="https://leetcode.com/problems/height-checker/" target="_blank" rel="noopener">Height Checker</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Compare sorted vs original</span></li>
+                    <li class="leetcode-item"><span class="lc-number">164</span><span class="lc-name"><a href="https://leetcode.com/problems/maximum-gap/" target="_blank" rel="noopener">Maximum Gap</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Sorting + gap analysis</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

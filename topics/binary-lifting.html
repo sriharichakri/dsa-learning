@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Lifting - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 15</a><span class="separator">›</span><span class="current">Binary Lifting</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Binary Lifting</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 15</span>
+                    <span class="topic-badge difficulty-hard">Hard</span>
+                    <button class="topic-complete-btn" data-topic-id="binary-lifting">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Binary Lifting?</h2>
+                <p><strong>Binary Lifting</strong> is a technique for efficiently finding the <strong>k-th ancestor</strong> of any node in a tree in <strong>O(log n)</strong> time. It also provides an elegant solution for <strong>Lowest Common Ancestor (LCA)</strong> queries in O(log n).</p>
+                <p>The idea is to precompute, for every node, its 1st, 2nd, 4th, 8th, ... (powers of 2) ancestor. Then, to jump k levels up, decompose k into binary and chain the precomputed jumps — just like binary representation of numbers.</p>
+                <div class="callout tip">
+                    <div class="callout-title">🏢 Real-Life Analogy: Express Elevator</div>
+                    <p>Imagine a skyscraper where regular elevators go 1 floor at a time, but express elevators jump 1, 2, 4, 8, 16... floors. To go up 13 floors, you take the 8-floor express, then the 4-floor express, then the 1-floor regular elevator (13 = 8 + 4 + 1). Instead of 13 individual hops, you make just 3 jumps. Binary Lifting uses the same trick in trees!</p>
+                </div>
+            </div>
+
+            <!-- Structure -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How Binary Lifting Works</h2>
+                <div class="viz-container">
+                    <div class="viz-title">Binary Lifting Table for a Tree (0-indexed)</div>
+                    <div class="ascii-diagram">
+Tree:         0
+            / | \
+           1  2  3
+          / \    |
+         4   5   6
+        /
+       7
+
+up[k][v] = 2^k-th ancestor of node v
+
+         v:  0   1   2   3   4   5   6   7
+up[0] (1):  -1   0  0   0   1   1   3   4    ← parent
+up[1] (2):  -1  -1  -1  -1   0   0   0   1    ← grandparent
+up[2] (4):  -1  -1  -1  -1  -1  -1  -1   0    ← 4th ancestor
+up[3] (8):  -1  -1  -1  -1  -1  -1  -1  -1    ← too far
+
+kth-ancestor(7, 3): k=3 → binary 011
+  Jump 2^0=1: up[0][7] = 4
+  Jump 2^1=2: up[1][4] = 0
+  Result: node 0 ✅ (7→4→1→0, 3 hops)
+
+LCA(7, 6):
+  Depths: depth[7]=3, depth[6]=2
+  Equalize: lift 7 by 1 → node 4. Now both at depth 2.
+  Binary search: up[1][4]=0, up[1][6]=0 → same, try smaller
+                 up[0][4]=1, up[0][6]=3 → different, lift both
+                 Now at nodes 1 and 3.
+  LCA = parent of 1 (or 3) = 0 ✅
+                    </div>
+                </div>
+            </div>
+
+            <!-- Implementation -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔧</span> Implementation</h2>
+                <div class="code-header"><span>JavaScript — Binary Lifting (Kth Ancestor + LCA)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>class BinaryLifting {
+    constructor(n, edges, root = 0) {
+        this.n = n;
+        this.LOG = Math.ceil(Math.log2(n)) + 1;
+        this.depth = new Array(n).fill(0);
+        // up[k][v] = 2^k-th ancestor of v (-1 if none)
+        this.up = Array.from({ length: this.LOG }, () => new Array(n).fill(-1));
+
+        // Build adjacency list
+        const adj = Array.from({ length: n }, () => []);
+        for (const [u, v] of edges) {
+            adj[u].push(v);
+            adj[v].push(u);
+        }
+
+        // BFS to set parent and depth
+        const visited = new Array(n).fill(false);
+        const queue = [root];
+        visited[root] = true;
+        while (queue.length > 0) {
+            const u = queue.shift();
+            for (const v of adj[u]) {
+                if (!visited[v]) {
+                    visited[v] = true;
+                    this.up[0][v] = u;       // Parent
+                    this.depth[v] = this.depth[u] + 1;
+                    queue.push(v);
+                }
+            }
+        }
+
+        // Fill binary lifting table
+        for (let k = 1; k < this.LOG; k++) {
+            for (let v = 0; v < n; v++) {
+                const mid = this.up[k - 1][v];
+                this.up[k][v] = mid === -1 ? -1 : this.up[k - 1][mid];
+            }
+        }
+    }
+
+    // Find k-th ancestor of node v — O(log n)
+    kthAncestor(v, k) {
+        for (let i = 0; i < this.LOG && v !== -1; i++) {
+            if ((k >> i) & 1) {
+                v = this.up[i][v];
+            }
+        }
+        return v;
+    }
+
+    // Find LCA of nodes u and v — O(log n)
+    lca(u, v) {
+        // Ensure u is deeper
+        if (this.depth[u] < this.depth[v]) [u, v] = [v, u];
+
+        // Equalize depths
+        let diff = this.depth[u] - this.depth[v];
+        for (let i = 0; i < this.LOG; i++) {
+            if ((diff >> i) & 1) u = this.up[i][u];
+        }
+
+        if (u === v) return u;
+
+        // Binary lift both until just below LCA
+        for (let i = this.LOG - 1; i >= 0; i--) {
+            if (this.up[i][u] !== this.up[i][v]) {
+                u = this.up[i][u];
+                v = this.up[i][v];
+            }
+        }
+        return this.up[0][u]; // Parent is LCA
+    }
+}
+
+// Usage
+const edges = [[0,1],[0,2],[0,3],[1,4],[1,5],[3,6],[4,7]];
+const bl = new BinaryLifting(8, edges, 0);
+console.log(bl.kthAncestor(7, 3)); // 0 (7→4→1→0)
+console.log(bl.lca(7, 6));          // 0
+console.log(bl.lca(7, 5));          // 1</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: lca(7, 6)</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">depth[7]=3, depth[6]=2. Node 7 is deeper, diff = 1.</div><div class="step-state">u=7, v=6</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Equalize: diff=1 (binary 01). Jump 2^0: u = up[0][7] = 4.</div><div class="step-state">u=4, v=6, both at depth 2</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">u≠v, so binary search for LCA. k=2: up[2][4]=-1, up[2][6]=-1 → same, skip.</div><div class="step-state">No lift</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">k=1: up[1][4]=0, up[1][6]=0 → same, skip. k=0: up[0][4]=1, up[0][6]=3 → different! Lift both.</div><div class="step-state">u=1, v=3</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">LCA = up[0][1] = 0.</div><div class="step-state">Result: 0 ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Preprocessing</td><td>O(n log n)</td><td>O(n log n)</td></tr>
+                        <tr><td>Kth Ancestor</td><td class="best">O(log n)</td><td>-</td></tr>
+                        <tr><td>LCA Query</td><td class="best">O(log n)</td><td>-</td></tr>
+                    </tbody>
+                </table>
+                <p>Compare: Naive LCA is O(n) per query. Binary Lifting achieves O(log n) per query with O(n log n) preprocessing.</p>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not equalizing depths before LCA binary search</div>
+                    <p>The binary search phase assumes u and v are at the same depth. If you skip the equalization step, the algorithm produces wrong answers.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Wrong LOG value</div>
+                    <p>LOG should be ceil(log2(n)) + 1 to handle all possible ancestor jumps. Using floor(log2(n)) may miss the highest jump needed.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting the u === v check after equalization</div>
+                    <p>After equalizing depths, if u === v, the LCA is u itself. Skipping this check and proceeding to binary search causes incorrect results.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Binary Lifting is the standard technique for <strong>LCA queries</strong> in coding interviews and competitive programming.</li>
+                    <li>LeetCode 1483 "Kth Ancestor of a Tree Node" directly tests binary lifting.</li>
+                    <li>Also useful for path queries: distance(u,v) = depth[u] + depth[v] − 2×depth[LCA(u,v)].</li>
+                    <li>Alternative LCA methods: Euler Tour + Sparse Table (O(1) query), Tarjan's offline LCA.</li>
+                    <li>The same "power of 2 jumps" idea appears in skip lists and binary indexed trees.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>up[k][v] = 2^k-th ancestor of v. up[k][v] = up[k-1][up[k-1][v]].</li>
+                    <li>Kth ancestor: decompose k in binary, chain power-of-2 jumps.</li>
+                    <li>LCA: equalize depths, then binary search upward until ancestors match.</li>
+                    <li>Preprocessing O(n log n), queries O(log n).</li>
+                    <li>Space: O(n log n) for the lifting table.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How is the binary lifting table built?</div>
+                            <div class="flashcard-back"><strong>up[0][v] = parent(v)</strong> (base case). For k ≥ 1: <strong>up[k][v] = up[k-1][up[k-1][v]]</strong>. Jump 2^k = two jumps of 2^(k-1). Like squaring in fast exponentiation.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What are the two phases of LCA via binary lifting?</div>
+                            <div class="flashcard-back"><strong>Phase 1:</strong> Equalize depths — lift the deeper node up until both nodes are at the same level. <strong>Phase 2:</strong> Binary search — try jumps from largest to smallest; if ancestors differ, take the jump; at the end, the LCA is the parent of the current positions.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">1483</span><span class="lc-name"><a href="https://leetcode.com/problems/kth-ancestor-of-a-tree-node/" target="_blank" rel="noopener">Kth Ancestor of a Tree Node</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Binary Lifting (direct application)</span></li>
+                    <li class="leetcode-item"><span class="lc-number">236</span><span class="lc-name"><a href="https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/" target="_blank" rel="noopener">Lowest Common Ancestor of a Binary Tree</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">LCA (can use Binary Lifting)</span></li>
+                    <li class="leetcode-item"><span class="lc-number">2846</span><span class="lc-name"><a href="https://leetcode.com/problems/minimum-edge-weight-equilibrium-queries-in-a-tree/" target="_blank" rel="noopener">Min Edge Weight Equilibrium Queries in a Tree</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">LCA + Binary Lifting</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1740</span><span class="lc-name"><a href="https://leetcode.com/problems/find-distance-in-a-binary-tree/" target="_blank" rel="noopener">Find Distance in a Binary Tree</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">LCA + Depth Calculation</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

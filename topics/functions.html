@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Functions - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 1</a><span class="separator">›</span><span class="current">Functions</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Functions</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 1</span>
+                    <span class="topic-badge difficulty-easy">Beginner Friendly</span>
+                    <button class="topic-complete-btn" data-topic-id="functions">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What Are Functions?</h2>
+                <p>A <strong>function</strong> is a reusable block of code that performs a specific task. You give it <strong>input</strong> (parameters), it does some work, and gives you back <strong>output</strong> (return value).</p>
+                <p>Functions are the building blocks of organized, readable, and maintainable code. Without them, your programs would be long, repetitive, and impossible to debug.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>In DSA, every algorithm you write will be a function. Sorting? A function. Searching? A function. Every LeetCode problem? You're writing a function. Master how functions work — parameters, return values, scope — and everything else becomes easier.</p>
+                </div>
+            </div>
+
+            <!-- Real-Life Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🥤 Vending Machine</div>
+                    <p>A vending machine is a perfect function: you <strong>insert coins</strong> (input/parameters), <strong>press a button</strong> (call the function), and it <strong>dispenses a drink</strong> (return value). You don't need to know how the machine works internally — you just use the interface. That's <strong>abstraction</strong>!</p>
+                </div>
+                <ul>
+                    <li><strong>Recipe:</strong> A recipe is a function — it takes ingredients (parameters) and produces a dish (return value). You can follow the same recipe many times.</li>
+                    <li><strong>Calculator:</strong> Press the √ button with input 16 → get output 4. The sqrt() function.</li>
+                    <li><strong>ATM:</strong> Insert card + PIN (inputs) → get cash (output). The withdraw() function.</li>
+                    <li><strong>Google Translate:</strong> Input text in English → output text in Spanish. The translate() function.</li>
+                </ul>
+            </div>
+
+            <!-- Function Syntax -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Function Syntax</h2>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Function Declaration
+function greet(name) {         // "name" is a PARAMETER
+    return "Hello, " + name;   // Return value
+}
+greet("Alice");  // "Alice" is an ARGUMENT → returns "Hello, Alice"
+
+// Function Expression
+const add = function(a, b) {
+    return a + b;
+};
+
+// Arrow Function (modern JS)
+const multiply = (a, b) => a * b;
+
+// Default Parameters
+function power(base, exp = 2) {
+    return Math.pow(base, exp);
+}
+power(3);     // 9  (exp defaults to 2)
+power(3, 3);  // 27</code></pre>
+
+                <div class="viz-container">
+                    <div class="viz-title">Anatomy of a Function</div>
+                    <div class="ascii-diagram">
+        keyword    name    parameters
+           │        │      ┌──┴──┐
+       function   add   ( a ,  b )  {
+           return a + b;  ← return value
+       }
+       │
+       └── function body (the logic)
+
+       add(3, 5);   ← function CALL with ARGUMENTS
+           └── returns 8
+                    </div>
+                </div>
+            </div>
+
+            <!-- Parameters vs Arguments -->
+            <div class="section-card">
+                <h2><span class="section-icon">📋</span> Parameters vs Arguments</h2>
+                <p>These terms are often confused but have distinct meanings:</p>
+                <ul>
+                    <li><strong>Parameters:</strong> Variables listed in the function <em>definition</em>. They're placeholders.</li>
+                    <li><strong>Arguments:</strong> Actual values passed when you <em>call</em> the function.</li>
+                </ul>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function greet(name, age) {  // name, age = PARAMETERS
+    return `Hi ${name}, you're ${age}!`;
+}
+
+greet("Bob", 25);  // "Bob", 25 = ARGUMENTS</code></pre>
+            </div>
+
+            <!-- Scope -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔒</span> Scope: Where Variables Live</h2>
+                <p>Scope determines where a variable can be accessed. This is critical for avoiding bugs.</p>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>let globalVar = "I'm global";  // Accessible everywhere
+
+function myFunc() {
+    let localVar = "I'm local";  // Only inside myFunc
+    console.log(globalVar);  // ✅ Can access global
+    console.log(localVar);   // ✅ Can access local
+}
+
+console.log(globalVar);  // ✅ Works
+// console.log(localVar); // ❌ ReferenceError! Not accessible</code></pre>
+
+                <div class="ascii-diagram">
+┌─────────────────────────────────┐
+│  GLOBAL SCOPE                   │
+│  globalVar = "I'm global"       │
+│                                 │
+│  ┌───────────────────────────┐  │
+│  │  FUNCTION SCOPE (myFunc)  │  │
+│  │  localVar = "I'm local"   │  │
+│  │  Can see: globalVar ✅     │  │
+│  └───────────────────────────┘  │
+│                                 │
+│  Can see localVar? ❌            │
+└─────────────────────────────────┘
+                </div>
+
+                <div class="callout warning">
+                    <div class="callout-title">⚡ Closure: Functions Remember Their Scope</div>
+                    <pre><code>function outer() {
+    let count = 0;
+    return function inner() {
+        count++;
+        return count;
+    };
+}
+const counter = outer();
+counter(); // 1
+counter(); // 2 — remembers count!</code></pre>
+                </div>
+            </div>
+
+            <!-- Pure Functions -->
+            <div class="section-card">
+                <h2><span class="section-icon">✨</span> Pure Functions</h2>
+                <p>A <strong>pure function</strong> has two properties:</p>
+                <ol>
+                    <li>Same input always produces the <strong>same output</strong></li>
+                    <li>No <strong>side effects</strong> (doesn't modify external state)</li>
+                </ol>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// ✅ Pure function — same input → same output, no side effects
+function add(a, b) {
+    return a + b;
+}
+
+// ❌ Impure — modifies external state
+let total = 0;
+function addToTotal(n) {
+    total += n;  // Side effect: changes external variable
+    return total;
+}
+
+// ❌ Impure — different outputs for same input
+function getRandom(max) {
+    return Math.floor(Math.random() * max);
+}</code></pre>
+
+                <div class="callout tip">
+                    <div class="callout-title">🎯 Why Pure Functions Matter</div>
+                    <p>Pure functions are easier to <strong>test</strong>, <strong>debug</strong>, and <strong>reason about</strong>. In DSA problems, your solution function should almost always be pure — take input, return output, don't touch anything else.</p>
+                </div>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Function Call Execution</h2>
+                <p>Let's trace how a function call works internally.</p>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function square(n) {
+    return n * n;
+}
+
+function sumOfSquares(a, b) {
+    let sq1 = square(a);
+    let sq2 = square(b);
+    return sq1 + sq2;
+}
+
+let result = sumOfSquares(3, 4);</code></pre>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Call <code>sumOfSquares(3, 4)</code> → a=3, b=4. Push frame onto call stack.</div><div class="step-state">Stack: [sumOfSquares]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Inside: call <code>square(3)</code> → n=3, returns 3*3=9. Pop frame.</div><div class="step-state">sq1 = 9, Stack: [sumOfSquares]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Inside: call <code>square(4)</code> → n=4, returns 4*4=16. Pop frame.</div><div class="step-state">sq2 = 16, Stack: [sumOfSquares]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Return <code>sq1 + sq2</code> = 9 + 16 = 25. Pop sumOfSquares frame.</div><div class="step-state">result = 25 ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Concept</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Function call overhead</td><td class="best">O(1)</td><td class="best">O(1) per frame</td></tr>
+                        <tr><td>Recursive calls (depth d)</td><td>Depends on logic</td><td class="avg">O(d) stack space</td></tr>
+                        <tr><td>Passing primitive argument</td><td class="best">O(1)</td><td class="best">O(1) — copied</td></tr>
+                        <tr><td>Passing array/object</td><td class="best">O(1)</td><td class="best">O(1) — reference</td></tr>
+                    </tbody>
+                </table>
+                <div class="callout info">
+                    <div class="callout-title">💡 Passing an Array is O(1)</div>
+                    <p>When you pass an array to a function, only the <strong>reference (address)</strong> is copied, not the entire array. So even a million-element array is passed in O(1). But if you copy the array inside the function, that's O(n).</p>
+                </div>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting to return a value</div>
+                    <pre><code>// ❌ No return statement — returns undefined!
+function add(a, b) {
+    let sum = a + b;
+    // forgot: return sum;
+}
+let result = add(3, 5); // undefined!
+
+// ✅ Always return the result
+function add(a, b) {
+    return a + b;
+}</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Modifying input array unintentionally</div>
+                    <pre><code>// ❌ Mutates the original array!
+function sortArray(arr) {
+    return arr.sort(); // .sort() mutates in-place
+}
+let original = [3, 1, 2];
+sortArray(original);
+console.log(original); // [1, 2, 3] — changed!
+
+// ✅ Create a copy first
+function sortArray(arr) {
+    return [...arr].sort();
+}</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing function reference with function call</div>
+                    <pre><code>function greet() { return "Hi"; }
+
+let a = greet;   // a holds the FUNCTION itself
+let b = greet(); // b holds "Hi" (the RETURN VALUE)</code></pre>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Every LeetCode solution is a function — know how to <strong>define, call, and test</strong> them quickly.</li>
+                    <li>Understand <strong>pass by value vs pass by reference</strong> — interviewers test this with tricky problems.</li>
+                    <li>Know the concept of <strong>callback functions</strong> and <strong>higher-order functions</strong> (functions that take/return functions).</li>
+                    <li>Be able to explain <strong>closures</strong> in one sentence: "A function that remembers variables from its outer scope."</li>
+                    <li>Helper functions are your friend — break complex problems into smaller functions during interviews.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Function = reusable code block. Takes parameters, returns a value.</li>
+                    <li>Parameters = placeholders in definition. Arguments = actual values in call.</li>
+                    <li>Scope = where variables are accessible. Inner scope can see outer, not vice versa.</li>
+                    <li>Pure functions: same input → same output, no side effects.</li>
+                    <li>Arrays/objects are passed by reference (shared). Primitives are passed by value (copied).</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the difference between parameters and arguments?</div>
+                            <div class="flashcard-back">Parameters are variables in the function definition (placeholders). Arguments are the actual values passed when calling the function.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is a pure function?</div>
+                            <div class="flashcard-back">A function that (1) always returns the same output for the same input, and (2) has no side effects (doesn't modify external state). Example: <code>add(a, b) → a + b</code></div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is a closure?</div>
+                            <div class="flashcard-back">A function that "remembers" variables from its enclosing scope, even after the outer function has returned. Used for data privacy, counters, and callbacks.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">2235</span><span class="lc-name"><a href="https://leetcode.com/problems/add-two-integers/" target="_blank" rel="noopener">Add Two Integers</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Basic Function</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1281</span><span class="lc-name"><a href="https://leetcode.com/problems/subtract-the-product-and-sum-of-digits-of-an-integer/" target="_blank" rel="noopener">Subtract the Product and Sum of Digits</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Math + Functions</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

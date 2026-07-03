@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heap Sort - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 4</a><span class="separator">›</span><span class="current">Heap Sort</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Heap Sort</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 4</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="heap-sort">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Heap Sort?</h2>
+                <p><strong>Heap Sort</strong> leverages the <strong>max-heap</strong> data structure to sort an array. It first builds a max-heap from the data, then repeatedly extracts the maximum element and places it at the end of the array.</p>
+                <p>It guarantees <strong>O(n log n)</strong> in ALL cases — no worst-case degradation like quicksort.</p>
+                <div class="callout tip">
+                    <div class="callout-title">🌍 Real-Life Analogy</div>
+                    <p>Imagine a tournament bracket. The winner (largest) always floats to the top. You crown the champion (extract max), remove them, run the tournament again to find the runner-up, and repeat. Each "tournament" takes O(log n) rounds because the bracket is a binary tree. After n tournaments, everyone is ranked!</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How It Works</h2>
+                <ol>
+                    <li><strong>Build a max-heap</strong> from the array (in-place).</li>
+                    <li><strong>Swap</strong> the root (max element) with the last element.</li>
+                    <li><strong>Reduce</strong> heap size by 1 (last element is now sorted).</li>
+                    <li><strong>Heapify</strong> the root to restore the max-heap property.</li>
+                    <li>Repeat steps 2-4 until heap size is 1.</li>
+                </ol>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function heapSort(arr) {
+    const n = arr.length;
+    
+    // Step 1: Build max-heap (start from last non-leaf)
+    for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+        heapify(arr, n, i);
+    }
+    
+    // Step 2: Extract max one by one
+    for (let i = n - 1; i > 0; i--) {
+        [arr[0], arr[i]] = [arr[i], arr[0]]; // Swap max to end
+        heapify(arr, i, 0);                   // Restore heap
+    }
+    return arr;
+}
+
+function heapify(arr, size, root) {
+    let largest = root;
+    let left = 2 * root + 1;
+    let right = 2 * root + 2;
+    
+    if (left < size && arr[left] > arr[largest]) {
+        largest = left;
+    }
+    if (right < size && arr[right] > arr[largest]) {
+        largest = right;
+    }
+    
+    if (largest !== root) {
+        [arr[root], arr[largest]] = [arr[largest], arr[root]];
+        heapify(arr, size, largest); // Recursively fix subtree
+    }
+}
+
+// heapSort([4, 10, 3, 5, 1]) → [1, 3, 4, 5, 10]</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run</h2>
+                <p>Sort <code>[4, 10, 3, 5, 1]</code></p>
+
+                <div class="viz-container">
+                    <div class="viz-title">Heap Sort — build max-heap, then extract max</div>
+                    <div class="ascii-diagram">
+Step 1: Build Max-Heap from [4, 10, 3, 5, 1]
+
+       4                  4                 10
+      / \      →        / \       →        / \
+    10    3           10    3             5    3
+    / \              / \                 / \
+   5   1            5   1              4   1
+ (heapify 10)    (heapify 4→10)    Max-Heap built!
+
+Step 2: Extract Max repeatedly
+
+  [10, 5, 3, 4, 1]  swap 10↔1  → [1, 5, 3, 4 | 10]
+  heapify → [5, 4, 3, 1 | 10]
+
+  [5, 4, 3, 1 | 10]  swap 5↔1  → [1, 4, 3 | 5, 10]
+  heapify → [4, 1, 3 | 5, 10]
+
+  [4, 1, 3 | 5, 10]  swap 4↔3  → [3, 1 | 3, 5, 10]
+  heapify → [3, 1 | 4, 5, 10]
+
+  [3, 1 | 4, 5, 10]  swap 3↔1  → [1 | 3, 4, 5, 10]
+
+Result: [1, 3, 4, 5, 10] ✅
+                    </div>
+                </div>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Build max-heap: heapify from index 1 down to 0</div><div class="step-state">[10, 5, 3, 4, 1] — max-heap built</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Swap arr[0]=10 with arr[4]=1. Heapify root.</div><div class="step-state">[5, 4, 3, 1 | 10]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Swap arr[0]=5 with arr[3]=1. Heapify root.</div><div class="step-state">[4, 1, 3 | 5, 10]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Swap arr[0]=4 with arr[2]=3. Heapify root.</div><div class="step-state">[3, 1 | 4, 5, 10]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">Swap arr[0]=3 with arr[1]=1. Done!</div><div class="step-state">[1, 3, 4, 5, 10] ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Case</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Build Heap</td><td class="best">O(n)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Best Case</td><td class="avg">O(n log n)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Average Case</td><td class="avg">O(n log n)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Worst Case</td><td class="avg">O(n log n)</td><td class="best">O(1)</td></tr>
+                    </tbody>
+                </table>
+                <div class="callout info">
+                    <div class="callout-title">💡 Heap Sort vs Quick Sort</div>
+                    <p>Heap sort guarantees O(n log n) always. Quick sort averages O(n log n) but degrades to O(n²). However, quicksort is usually <strong>faster in practice</strong> due to better cache performance. Heap sort wins when you need a <strong>guaranteed</strong> worst-case bound.</p>
+                </div>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Wrong starting index for build-heap</div>
+                    <p>Start heapify from <code>Math.floor(n/2) - 1</code> (last non-leaf node), not from n-1 or 0. Leaf nodes don't need heapifying.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting to reduce heap size after each extraction</div>
+                    <p>After swapping max to position i, call <code>heapify(arr, i, 0)</code> not <code>heapify(arr, n, 0)</code>. The size parameter must shrink each iteration!</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Building min-heap for ascending sort</div>
+                    <p>To sort in ascending order, build a <strong>max-heap</strong> (not min-heap). Extract max → place at end → builds sorted array from right to left.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Heap sort is <strong>NOT stable</strong> — swapping elements can change relative order.</li>
+                    <li>O(n log n) <strong>guaranteed</strong> — no worst-case degradation unlike quicksort.</li>
+                    <li>In-place with O(1) extra space — unlike merge sort's O(n).</li>
+                    <li>Build-heap is O(n), not O(n log n) — this is a common interview question!</li>
+                    <li>Know when to use: when you need guaranteed O(n log n) and O(1) space.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Build max-heap → swap root with last → shrink heap → heapify → repeat.</li>
+                    <li>Time: O(n log n) always. Space: O(1). NOT stable.</li>
+                    <li>Build-heap is O(n). Each extraction is O(log n). Total: O(n log n).</li>
+                    <li>Heapify: compare root with children, swap with larger, recurse down.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why is build-heap O(n) and not O(n log n)?</div>
+                            <div class="flashcard-back">Most nodes are near the bottom (leaves). Leaves need 0 work, nodes one level up need 1 swap, etc. The sum is: n/2·0 + n/4·1 + n/8·2 + ... = O(n). More nodes do less work!</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">For ascending sort, do you build a max-heap or min-heap?</div>
+                            <div class="flashcard-back"><strong>Max-heap.</strong> You extract the maximum, place it at the end. Then extract next max, place before it. This builds the sorted array from right to left in ascending order.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">912</span><span class="lc-name"><a href="https://leetcode.com/problems/sort-an-array/" target="_blank" rel="noopener">Sort an Array</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Implement heap sort</span></li>
+                    <li class="leetcode-item"><span class="lc-number">215</span><span class="lc-name"><a href="https://leetcode.com/problems/kth-largest-element-in-an-array/" target="_blank" rel="noopener">Kth Largest Element</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Partial heap sort / heap select</span></li>
+                    <li class="leetcode-item"><span class="lc-number">347</span><span class="lc-name"><a href="https://leetcode.com/problems/top-k-frequent-elements/" target="_blank" rel="noopener">Top K Frequent Elements</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Heap-based selection</span></li>
+                    <li class="leetcode-item"><span class="lc-number">23</span><span class="lc-name"><a href="https://leetcode.com/problems/merge-k-sorted-lists/" target="_blank" rel="noopener">Merge k Sorted Lists</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Min-heap for merging</span></li>
+                    <li class="leetcode-item"><span class="lc-number">973</span><span class="lc-name"><a href="https://leetcode.com/problems/k-closest-points-to-origin/" target="_blank" rel="noopener">K Closest Points to Origin</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Heap / partial sort</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

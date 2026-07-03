@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counting Sort - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 4</a><span class="separator">›</span><span class="current">Counting Sort</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Counting Sort</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 4</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="counting-sort">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Counting Sort?</h2>
+                <p><strong>Counting Sort</strong> is a non-comparison sort that works by <strong>counting occurrences</strong> of each value, then placing elements in the correct position based on those counts. It sorts in <strong>O(n + k)</strong> time where k is the range of values.</p>
+                <p>It doesn't compare elements at all — it breaks the O(n log n) lower bound of comparison-based sorts!</p>
+                <div class="callout tip">
+                    <div class="callout-title">🌍 Real-Life Analogy</div>
+                    <p>Imagine sorting exam papers by grade (A, B, C, D, F). You don't compare papers against each other. Instead, you set up 5 piles labeled A through F. Walk through all papers, placing each in its pile. Then collect piles in order: all F's, then D's, C's, B's, A's. Done! You <strong>counted</strong> where each goes without comparing.</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How It Works</h2>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function countingSort(arr) {
+    if (arr.length === 0) return arr;
+    
+    const max = Math.max(...arr);
+    const min = Math.min(...arr);
+    const range = max - min + 1;
+    
+    // Step 1: Count occurrences
+    const count = new Array(range).fill(0);
+    for (let num of arr) {
+        count[num - min]++;
+    }
+    
+    // Step 2: Build sorted output
+    let idx = 0;
+    for (let i = 0; i < range; i++) {
+        while (count[i] > 0) {
+            arr[idx++] = i + min;
+            count[i]--;
+        }
+    }
+    return arr;
+}
+
+// countingSort([4, 2, 2, 8, 3, 3, 1]) → [1, 2, 2, 3, 3, 4, 8]</code></pre>
+
+                <h3>Stable Version (preserves order of equal elements)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function countingSortStable(arr) {
+    const max = Math.max(...arr);
+    const min = Math.min(...arr);
+    const range = max - min + 1;
+    
+    const count = new Array(range).fill(0);
+    const output = new Array(arr.length);
+    
+    // Count occurrences
+    for (let num of arr) count[num - min]++;
+    
+    // Cumulative count (prefix sum)
+    for (let i = 1; i < range; i++) count[i] += count[i - 1];
+    
+    // Build output (traverse RIGHT to LEFT for stability)
+    for (let i = arr.length - 1; i >= 0; i--) {
+        output[count[arr[i] - min] - 1] = arr[i];
+        count[arr[i] - min]--;
+    }
+    return output;
+}</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run</h2>
+                <p>Sort <code>[4, 2, 2, 8, 3, 3, 1]</code></p>
+
+                <div class="viz-container">
+                    <div class="viz-title">Counting Sort step by step</div>
+                    <div class="ascii-diagram">
+Input: [4, 2, 2, 8, 3, 3, 1]   min=1, max=8, range=8
+
+Step 1: Count occurrences
+Value:  1  2  3  4  5  6  7  8
+Count: [1, 2, 2, 1, 0, 0, 0, 1]
+        ↑  ↑↑ ↑↑ ↑           ↑
+        1  2,2 3,3 4          8
+
+Step 2: Place elements in order
+Count[0]=1 → place one 1     → [1, _, _, _, _, _, _]
+Count[1]=2 → place two 2s    → [1, 2, 2, _, _, _, _]
+Count[2]=2 → place two 3s    → [1, 2, 2, 3, 3, _, _]
+Count[3]=1 → place one 4     → [1, 2, 2, 3, 3, 4, _]
+Count[4-6]=0 → skip 5,6,7
+Count[7]=1 → place one 8     → [1, 2, 2, 3, 3, 4, 8] ✅
+                    </div>
+                </div>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Find min=1, max=8, range=8. Create count array of size 8.</div><div class="step-state">count = [0,0,0,0,0,0,0,0]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Count each element: 4→count[3]++, 2→count[1]++, etc.</div><div class="step-state">count = [1,2,2,1,0,0,0,1]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Write back: 1×1, 2×2, 2×3, 1×4, 1×8</div><div class="step-state">[1, 2, 2, 3, 3, 4, 8] ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Aspect</th><th>Complexity</th><th>Note</th></tr></thead>
+                    <tbody>
+                        <tr><td>Time</td><td class="best">O(n + k)</td><td>n = elements, k = range of values</td></tr>
+                        <tr><td>Space</td><td class="avg">O(n + k)</td><td>Count array + output array</td></tr>
+                        <tr><td>Stable?</td><td class="best">Yes (with stable version)</td><td>Must traverse backwards</td></tr>
+                    </tbody>
+                </table>
+                <div class="callout info">
+                    <div class="callout-title">💡 When is counting sort efficient?</div>
+                    <p>When k (range) is O(n) or smaller. If values range from 0 to 1,000,000 but you only have 10 elements, counting sort wastes memory. Use it for small-range integers like ages, grades, or ASCII characters.</p>
+                </div>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not handling negative numbers</div>
+                    <p>If the array has negatives, shift all values by <code>-min</code> to make them non-negative. The range is <code>max - min + 1</code>, not just <code>max + 1</code>.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Using counting sort on large ranges</div>
+                    <p>Array of [1, 1000000000] — the count array would need a billion entries! Only use counting sort when the range k is reasonable (k ≈ O(n)).</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Counting sort is O(n+k) — faster than O(n log n) comparison sorts when k is small.</li>
+                    <li>It's a <strong>non-comparison</strong> sort — doesn't use &lt;, &gt;, or comparisons at all.</li>
+                    <li>Used as a subroutine in <strong>radix sort</strong>.</li>
+                    <li>Can only sort <strong>integers</strong> (or items that map to integers). Not for floating-point or strings directly.</li>
+                    <li>Stability matters when counting sort is used inside radix sort.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Count occurrences → write back in order. No comparisons needed.</li>
+                    <li>Time: O(n + k). Space: O(n + k). Stable (with proper implementation).</li>
+                    <li>Best for small-range integers (ages, grades, ASCII chars).</li>
+                    <li>Not suitable when range k ≫ n.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What's the time complexity of counting sort and when does it beat O(n log n)?</div>
+                            <div class="flashcard-back"><strong>O(n + k)</strong> where k is the range of values. It beats O(n log n) when k = O(n) or smaller. For example, sorting ages (k=150) of a million people: O(n) vs O(n log n).</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why is counting sort called a "non-comparison" sort?</div>
+                            <div class="flashcard-back">It never compares two elements against each other. It works by <strong>counting</strong> how many times each value appears, then placing them in order. This breaks the Ω(n log n) lower bound of comparison sorts.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">75</span><span class="lc-name"><a href="https://leetcode.com/problems/sort-colors/" target="_blank" rel="noopener">Sort Colors</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Counting sort with k=3</span></li>
+                    <li class="leetcode-item"><span class="lc-number">274</span><span class="lc-name"><a href="https://leetcode.com/problems/h-index/" target="_blank" rel="noopener">H-Index</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Counting sort approach</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1122</span><span class="lc-name"><a href="https://leetcode.com/problems/relative-sort-array/" target="_blank" rel="noopener">Relative Sort Array</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Counting-based ordering</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1636</span><span class="lc-name"><a href="https://leetcode.com/problems/sort-array-by-increasing-frequency/" target="_blank" rel="noopener">Sort Array by Increasing Frequency</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Counting + custom sort</span></li>
+                    <li class="leetcode-item"><span class="lc-number">912</span><span class="lc-name"><a href="https://leetcode.com/problems/sort-an-array/" target="_blank" rel="noopener">Sort an Array</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Counting sort if range is small</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

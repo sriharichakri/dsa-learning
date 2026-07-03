@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stack - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 7</a><span class="separator">›</span><span class="current">Stack</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Stack Fundamentals</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 7</span>
+                    <span class="topic-badge difficulty-easy">Beginner Friendly</span>
+                    <button class="topic-complete-btn" data-topic-id="stack">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is a Stack?</h2>
+                <p>A <strong>Stack</strong> is a linear data structure that follows the <strong>LIFO</strong> principle — <strong>Last In, First Out</strong>. The last element added is the first one removed. You can only add or remove elements from the <strong>top</strong>.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Stacks are deceptively simple but incredibly powerful. They're the secret behind <strong>function calls</strong> (call stack), <strong>undo/redo</strong>, <strong>browser history</strong>, <strong>expression evaluation</strong>, and <strong>DFS traversal</strong>. If you see "matching" or "nesting" in a problem, think stack!</p>
+                </div>
+            </div>
+
+            <!-- Real-Life Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🍽️ Stack of Plates</div>
+                    <p>Imagine a stack of plates in a cafeteria. You can only take the <strong>top plate</strong> (pop) and can only add a new plate <strong>on top</strong> (push). You can't pull a plate from the middle without removing everything above it first. That's LIFO!</p>
+                </div>
+                <ul>
+                    <li><strong>Undo button (Ctrl+Z):</strong> Each action is pushed onto a stack. Undo pops the last action.</li>
+                    <li><strong>Browser back button:</strong> Each visited page is pushed. Clicking back pops the current page.</li>
+                    <li><strong>Pringles can:</strong> First chip in, last chip out!</li>
+                    <li><strong>Stacking books:</strong> You always take the top book first.</li>
+                </ul>
+            </div>
+
+            <!-- Stack Visualization -->
+            <div class="section-card">
+                <h2><span class="section-icon">👁️</span> Stack Visualization</h2>
+
+                <div class="viz-container">
+                    <div class="viz-title">Stack Operations</div>
+                    <div class="ascii-diagram">
+  push(10)    push(20)    push(30)      pop()       peek()
+                                     
+  ┌─────┐    ┌─────┐    ┌─────┐    ┌─────┐    ┌─────┐
+  │     │    │     │    │ 30  │←top│     │    │     │
+  │     │    │ 20  │←top│ 20  │    │ 20  │←top│ 20  │←top (returns 20)
+  │ 10  │←top│ 10  │    │ 10  │    │ 10  │    │ 10  │
+  └─────┘    └─────┘    └─────┘    └─────┘    └─────┘
+  size: 1    size: 2    size: 3    size: 2    size: 2
+                                   removed:30 returned:20
+                    </div>
+                </div>
+
+                <div class="stack-viz">
+                    <div class="stack-item" style="background: #4CAF50; color: white;">30 ← top</div>
+                    <div class="stack-item" style="background: #2196F3; color: white;">20</div>
+                    <div class="stack-item" style="background: #FF9800; color: white;">10</div>
+                </div>
+            </div>
+
+            <!-- Implementation -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Implementation</h2>
+
+                <div class="code-header"><span>JavaScript — Using Array</span><button class="copy-btn">Copy</button></div>
+                <pre><code>class Stack {
+    constructor() {
+        this.items = [];
+    }
+    
+    push(val) {
+        this.items.push(val);      // Add to top
+    }
+    
+    pop() {
+        if (this.isEmpty()) return undefined;
+        return this.items.pop();    // Remove from top
+    }
+    
+    peek() {
+        if (this.isEmpty()) return undefined;
+        return this.items[this.items.length - 1]; // Look at top
+    }
+    
+    isEmpty() {
+        return this.items.length === 0;
+    }
+    
+    size() {
+        return this.items.length;
+    }
+}
+
+// Usage
+const stack = new Stack();
+stack.push(10);  // [10]
+stack.push(20);  // [10, 20]
+stack.push(30);  // [10, 20, 30]
+stack.peek();    // 30 (doesn't remove)
+stack.pop();     // 30 (removes and returns)
+stack.size();    // 2</code></pre>
+
+                <div class="callout info">
+                    <div class="callout-title">💡 In interviews, just use an array as a stack</div>
+                    <p>In JavaScript/Python, arrays already have <code>push()</code> and <code>pop()</code>. In Java, use <code>Deque&lt;Integer&gt; stack = new ArrayDeque&lt;&gt;();</code> (preferred over the legacy <code>Stack</code> class).</p>
+                </div>
+            </div>
+
+            <!-- Classic Problem: Valid Parentheses -->
+            <div class="section-card">
+                <h2><span class="section-icon">⭐</span> Classic: Valid Parentheses</h2>
+                <p>The most famous stack problem — check if brackets are properly matched and nested.</p>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function isValid(s) {
+    const stack = [];
+    const map = { ')': '(', '}': '{', ']': '[' };
+    
+    for (let char of s) {
+        if (char === '(' || char === '{' || char === '[') {
+            stack.push(char);  // Opening bracket → push
+        } else {
+            if (stack.pop() !== map[char]) return false;
+            // Closing bracket → pop and check match
+        }
+    }
+    return stack.length === 0; // Stack should be empty
+}
+
+isValid("({[]})"); // true
+isValid("([)]");   // false</code></pre>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">char='(' → Opening bracket, push.</div><div class="step-state">Stack: ['(']</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">char='{' → Opening bracket, push.</div><div class="step-state">Stack: ['(', '{']</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">char='[' → Opening bracket, push.</div><div class="step-state">Stack: ['(', '{', '[']</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">char=']' → Pop '['. map[']']='['. Match? ✅</div><div class="step-state">Stack: ['(', '{']</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">char='}' → Pop '{'. map['}']='<code>{</code>'. Match? ✅</div><div class="step-state">Stack: ['(']</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">6</div><div class="step-content"><div class="step-desc">char=')' → Pop '('. map[')']='('. Match? ✅. Stack empty → <strong>Valid!</strong></div><div class="step-state">Stack: [] ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Monotonic Stack -->
+            <div class="section-card">
+                <h2><span class="section-icon">📊</span> Pattern: Next Greater Element (Monotonic Stack)</h2>
+                <p>Find the next greater element for each element in the array.</p>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function nextGreaterElement(arr) {
+    const result = new Array(arr.length).fill(-1);
+    const stack = []; // Stores indices
+    
+    for (let i = 0; i < arr.length; i++) {
+        // Pop all elements smaller than current
+        while (stack.length && arr[stack[stack.length - 1]] < arr[i]) {
+            result[stack.pop()] = arr[i];
+        }
+        stack.push(i);
+    }
+    return result;
+}
+
+nextGreaterElement([4, 5, 2, 10, 8]);
+// [5, 10, 10, -1, -1]</code></pre>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>push()</td><td class="best">O(1)</td><td class="best">O(1)</td></tr>
+                        <tr><td>pop()</td><td class="best">O(1)</td><td class="best">O(1)</td></tr>
+                        <tr><td>peek() / top()</td><td class="best">O(1)</td><td class="best">O(1)</td></tr>
+                        <tr><td>isEmpty()</td><td class="best">O(1)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Search</td><td class="avg">O(n)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Overall space</td><td>—</td><td class="avg">O(n)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Popping from an empty stack</div>
+                    <pre><code>// ❌ Stack underflow!
+stack.pop(); // What if stack is empty?
+
+// ✅ Always check before popping
+if (!stack.isEmpty()) stack.pop();</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting to check stack is empty after processing</div>
+                    <p>In Valid Parentheses, an input like <code>"((("</code> has unmatched opening brackets. You must check <code>stack.length === 0</code> at the end.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Using a Queue when you need a Stack (or vice versa)</div>
+                    <p>Stack = LIFO (most recent first). Queue = FIFO (oldest first). Matching brackets needs LIFO → Stack. Processing in arrival order needs FIFO → Queue.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li><strong>Matching/nesting problems</strong> (brackets, HTML tags) → Stack.</li>
+                    <li><strong>Next greater/smaller element</strong> → Monotonic Stack.</li>
+                    <li><strong>Expression evaluation</strong> (infix, postfix, prefix) → Stack.</li>
+                    <li><strong>Undo/redo functionality</strong> → Two stacks.</li>
+                    <li>The <strong>call stack</strong> is literally a stack — understand how recursion uses it.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Stack = LIFO. Operations: push (add to top), pop (remove from top), peek (look at top).</li>
+                    <li>All operations are O(1). Space is O(n).</li>
+                    <li>Use cases: parenthesis matching, undo/redo, DFS, function call tracking.</li>
+                    <li>Monotonic stack: maintain stack in sorted order to find next greater/smaller element in O(n).</li>
+                    <li>In JS: use array with push() and pop(). In Java: use ArrayDeque, not Stack class.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What does LIFO stand for?</div>
+                            <div class="flashcard-back">Last In, First Out. The most recently added element is removed first. Think of a stack of plates — you take the top plate (last placed) first.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you solve the Valid Parentheses problem?</div>
+                            <div class="flashcard-back">Push opening brackets onto a stack. When you encounter a closing bracket, pop from the stack and check if it matches. At the end, the stack must be empty. O(n) time, O(n) space.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is a monotonic stack?</div>
+                            <div class="flashcard-back">A stack that maintains elements in sorted (increasing or decreasing) order. When adding an element, pop all elements that violate the order. Used for "next greater/smaller element" problems. O(n) amortized.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">20</span><span class="lc-name"><a href="https://leetcode.com/problems/valid-parentheses/" target="_blank" rel="noopener">Valid Parentheses</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Stack Matching</span></li>
+                    <li class="leetcode-item"><span class="lc-number">155</span><span class="lc-name"><a href="https://leetcode.com/problems/min-stack/" target="_blank" rel="noopener">Min Stack</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Auxiliary Stack</span></li>
+                    <li class="leetcode-item"><span class="lc-number">150</span><span class="lc-name"><a href="https://leetcode.com/problems/evaluate-reverse-polish-notation/" target="_blank" rel="noopener">Evaluate Reverse Polish Notation</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Stack Evaluation</span></li>
+                    <li class="leetcode-item"><span class="lc-number">739</span><span class="lc-name"><a href="https://leetcode.com/problems/daily-temperatures/" target="_blank" rel="noopener">Daily Temperatures</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Monotonic Stack</span></li>
+                    <li class="leetcode-item"><span class="lc-number">496</span><span class="lc-name"><a href="https://leetcode.com/problems/next-greater-element-i/" target="_blank" rel="noopener">Next Greater Element I</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Monotonic Stack</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

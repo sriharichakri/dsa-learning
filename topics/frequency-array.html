@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frequency Array - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 2</a><span class="separator">›</span><span class="current">Frequency Array</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Frequency Array</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 2</span>
+                    <span class="topic-badge difficulty-easy">Easy</span>
+                    <button class="topic-complete-btn" data-topic-id="frequency-array">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is a Frequency Array?</h2>
+                <p>A <strong>Frequency Array</strong> (also called a count array) tracks <strong>how many times each value appears</strong> in a dataset. It uses an array where the index represents the value and the stored number represents the count. It's the simplest form of hashing — mapping values to their frequencies.</p>
+                <div class="callout tip">
+                    <div class="callout-title">🌍 Real-Life Analogy</div>
+                    <p>Imagine a teacher counting how many students scored each grade. Instead of listing "A, B, A, C, A, B, A," she makes a tally chart: A = 4, B = 2, C = 1. That tally chart IS a frequency array! Each "bucket" (grade) holds a count of how many times it appeared.</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How It Works</h2>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Basic frequency array for values 0..max
+function buildFrequencyArray(arr) {
+    const max = Math.max(...arr);
+    const freq = new Array(max + 1).fill(0);
+    
+    for (let num of arr) {
+        freq[num]++;
+    }
+    return freq;
+}
+
+// buildFrequencyArray([1, 3, 2, 1, 4, 1, 3, 2])
+// → [0, 3, 2, 2, 1]  meaning: 0 appears 0 times, 1 appears 3 times, etc.
+
+// Using a Map for any values (including negatives, strings)
+function frequencyMap(arr) {
+    const freq = new Map();
+    for (let item of arr) {
+        freq.set(item, (freq.get(item) || 0) + 1);
+    }
+    return freq;
+}
+
+// Character frequency for strings
+function charFrequency(str) {
+    const freq = new Array(26).fill(0);  // a-z
+    for (let ch of str) {
+        freq[ch.charCodeAt(0) - 97]++;
+    }
+    return freq;
+}</code></pre>
+
+                <h3>Common Applications</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// 1. Check if two strings are anagrams
+function isAnagram(s, t) {
+    if (s.length !== t.length) return false;
+    const freq = new Array(26).fill(0);
+    for (let i = 0; i < s.length; i++) {
+        freq[s.charCodeAt(i) - 97]++;
+        freq[t.charCodeAt(i) - 97]--;
+    }
+    return freq.every(count => count === 0);
+}
+
+// 2. Find the majority element (appears > n/2 times)
+function majorityElement(nums) {
+    const freq = new Map();
+    for (let num of nums) {
+        freq.set(num, (freq.get(num) || 0) + 1);
+        if (freq.get(num) > nums.length / 2) return num;
+    }
+}
+
+// 3. First non-repeating character
+function firstUniqChar(s) {
+    const freq = new Array(26).fill(0);
+    for (let ch of s) freq[ch.charCodeAt(0) - 97]++;
+    for (let i = 0; i < s.length; i++) {
+        if (freq[s.charCodeAt(i) - 97] === 1) return i;
+    }
+    return -1;
+}
+
+// 4. Sort by frequency
+function frequencySort(s) {
+    const freq = new Map();
+    for (let ch of s) freq.set(ch, (freq.get(ch) || 0) + 1);
+    return [...s].sort((a, b) => freq.get(b) - freq.get(a) || a.localeCompare(b)).join('');
+}</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run</h2>
+                <p>Build frequency array for <code>[1, 3, 2, 1, 4, 1, 3, 2]</code></p>
+
+                <div class="viz-container">
+                    <div class="viz-title">Building a frequency array</div>
+                    <div class="ascii-diagram">
+Input: [1, 3, 2, 1, 4, 1, 3, 2]
+
+Index:  0   1   2   3   4
+       ┌───┬───┬───┬───┬───┐
+freq:  │ 0 │ 0 │ 0 │ 0 │ 0 │  ← initial
+       └───┴───┴───┴───┴───┘
+
+Process 1: freq[1]++     → [0, 1, 0, 0, 0]
+Process 3: freq[3]++     → [0, 1, 0, 1, 0]
+Process 2: freq[2]++     → [0, 1, 1, 1, 0]
+Process 1: freq[1]++     → [0, 2, 1, 1, 0]
+Process 4: freq[4]++     → [0, 2, 1, 1, 1]
+Process 1: freq[1]++     → [0, 3, 1, 1, 1]
+Process 3: freq[3]++     → [0, 3, 1, 2, 1]
+Process 2: freq[2]++     → [0, 3, 2, 2, 1]
+
+Result: 1 appears 3 times, 2 appears 2 times,
+        3 appears 2 times, 4 appears 1 time ✅
+                    </div>
+                </div>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Initialize freq array of size max+1 = 5, all zeros</div><div class="step-state">freq = [0, 0, 0, 0, 0]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Process 1, 3, 2: increment their indices</div><div class="step-state">freq = [0, 1, 1, 1, 0]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Process 1, 4, 1: more increments</div><div class="step-state">freq = [0, 3, 1, 1, 1]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Process 3, 2: final increments</div><div class="step-state">freq = [0, 3, 2, 2, 1] ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Build frequency array</td><td class="best">O(n)</td><td class="avg">O(k)</td></tr>
+                        <tr><td>Build frequency map</td><td class="best">O(n)</td><td class="avg">O(k)</td></tr>
+                        <tr><td>Query single frequency</td><td class="best">O(1)</td><td>—</td></tr>
+                        <tr><td>Check anagram</td><td class="best">O(n)</td><td class="best">O(1)*</td></tr>
+                    </tbody>
+                </table>
+                <p class="text-muted">k = number of distinct values. * O(26) = O(1) for lowercase English letters.</p>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Using frequency array for large/negative values</div>
+                    <p>Frequency arrays use the <strong>value as index</strong>. This only works for small non-negative integers. For large numbers, negatives, or strings, use a <strong>Map/Object</strong> instead.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Array too small</div>
+                    <pre><code>// ❌ If max value is 100, array of size 100 misses index 100!
+const freq = new Array(max).fill(0);  // Index 0..99
+
+// ✅ Size should be max + 1
+const freq = new Array(max + 1).fill(0);  // Index 0..100</code></pre>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Frequency arrays are the foundation of <strong>counting sort</strong> and <strong>bucket sort</strong>.</li>
+                    <li>For strings: use <code>new Array(26).fill(0)</code> — it's O(1) space and avoids hash overhead.</li>
+                    <li>"Anagram" problems almost always need frequency comparison.</li>
+                    <li>For sliding window problems, maintain a frequency map and update as the window moves.</li>
+                    <li>Frequency array → prefix sum of frequency array = cumulative count (useful in counting sort).</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Frequency array: index = value, stored number = count. O(n) build, O(1) query.</li>
+                    <li>For small non-negative integers: use array. For anything else: use Map.</li>
+                    <li>Strings: 26-element array for lowercase letters. Character code - 97 = index.</li>
+                    <li>Anagram check: build freq from both strings, compare (or increment/decrement with one array).</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">When should you use a frequency array vs a hash map?</div>
+                            <div class="flashcard-back"><strong>Frequency array</strong>: when values are small non-negative integers (0 to k). Fast, cache-friendly, no hash overhead. <strong>Hash map</strong>: when values are large, negative, strings, or sparse. More flexible but slower.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you check if two strings are anagrams using a frequency array?</div>
+                            <div class="flashcard-back">Use one 26-element array. <strong>Increment</strong> for each character in string 1, <strong>decrement</strong> for each character in string 2. If all counts are 0 at the end → anagrams. O(n) time, O(1) space.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">242</span><span class="lc-name"><a href="https://leetcode.com/problems/valid-anagram/" target="_blank" rel="noopener">Valid Anagram</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Frequency comparison</span></li>
+                    <li class="leetcode-item"><span class="lc-number">387</span><span class="lc-name"><a href="https://leetcode.com/problems/first-unique-character-in-a-string/" target="_blank" rel="noopener">First Unique Character</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Frequency + scan</span></li>
+                    <li class="leetcode-item"><span class="lc-number">169</span><span class="lc-name"><a href="https://leetcode.com/problems/majority-element/" target="_blank" rel="noopener">Majority Element</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Frequency count</span></li>
+                    <li class="leetcode-item"><span class="lc-number">451</span><span class="lc-name"><a href="https://leetcode.com/problems/sort-characters-by-frequency/" target="_blank" rel="noopener">Sort Characters By Frequency</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Frequency + sort</span></li>
+                    <li class="leetcode-item"><span class="lc-number">49</span><span class="lc-name"><a href="https://leetcode.com/problems/group-anagrams/" target="_blank" rel="noopener">Group Anagrams</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Frequency as key</span></li>
+                    <li class="leetcode-item"><span class="lc-number">438</span><span class="lc-name"><a href="https://leetcode.com/problems/find-all-anagrams-in-a-string/" target="_blank" rel="noopener">Find All Anagrams in a String</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Sliding window + frequency</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

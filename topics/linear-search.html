@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linear Search - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 3</a><span class="separator">›</span><span class="current">Linear Search</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Linear Search</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 3</span>
+                    <span class="topic-badge difficulty-easy">Easy</span>
+                    <button class="topic-complete-btn" data-topic-id="linear-search">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Linear Search?</h2>
+                <p><strong>Linear Search</strong> is the simplest searching algorithm. You start from the first element and check <strong>every single element</strong> one by one until you find what you're looking for — or until you've checked everything.</p>
+                <p>It works on <strong>any</strong> array — sorted or unsorted. No preconditions needed. It's the "brute force" approach to searching.</p>
+                <div class="callout tip">
+                    <div class="callout-title">🌍 Real-Life Analogy</div>
+                    <p>Imagine you lost your keys in a messy room. You don't have any system — you just start looking at the first spot, then the next, then the next, until you find them. That's linear search! You check every possible location one at a time. No shortcuts, no assumptions about where they might be.</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How It Works</h2>
+                <ol>
+                    <li>Start from the <strong>first element</strong> (index 0).</li>
+                    <li>Compare the current element with the <strong>target</strong>.</li>
+                    <li>If it matches → return the index. Found it!</li>
+                    <li>If it doesn't → move to the next element.</li>
+                    <li>If you've checked all elements and none matched → return -1 (not found).</li>
+                </ol>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function linearSearch(arr, target) {
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i] === target) {
+            return i;  // Found! Return the index
+        }
+    }
+    return -1;  // Not found
+}
+
+// Example
+linearSearch([10, 23, 45, 70, 11, 15], 70);  // → 3
+linearSearch([10, 23, 45, 70, 11, 15], 99);  // → -1</code></pre>
+
+                <h3>Variations</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Find ALL occurrences
+function linearSearchAll(arr, target) {
+    const indices = [];
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i] === target) indices.push(i);
+    }
+    return indices;
+}
+
+// Search in a string
+function linearSearchString(str, char) {
+    for (let i = 0; i < str.length; i++) {
+        if (str[i] === char) return i;
+    }
+    return -1;
+}
+
+// Find minimum element (linear scan)
+function findMin(arr) {
+    let min = arr[0];
+    for (let i = 1; i < arr.length; i++) {
+        if (arr[i] < min) min = arr[i];
+    }
+    return min;
+}</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run</h2>
+                <p>Search for <strong>70</strong> in <code>[10, 23, 45, 70, 11, 15]</code></p>
+
+                <div class="viz-container">
+                    <div class="viz-title">Visual: Scanning through the array</div>
+                    <div class="ascii-diagram">
+Array: [10, 23, 45, 70, 11, 15]
+         ↑
+        i=0   10 === 70? ❌ No, move on
+
+Array: [10, 23, 45, 70, 11, 15]
+             ↑
+            i=1   23 === 70? ❌ No, move on
+
+Array: [10, 23, 45, 70, 11, 15]
+                 ↑
+                i=2   45 === 70? ❌ No, move on
+
+Array: [10, 23, 45, 70, 11, 15]
+                     ↑
+                    i=3   70 === 70? ✅ YES! Return 3
+                    </div>
+                </div>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">i=0: Compare arr[0]=10 with target=70</div><div class="step-state">10 ≠ 70 → continue</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">i=1: Compare arr[1]=23 with target=70</div><div class="step-state">23 ≠ 70 → continue</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">i=2: Compare arr[2]=45 with target=70</div><div class="step-state">45 ≠ 70 → continue</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">i=3: Compare arr[3]=70 with target=70</div><div class="step-state">70 === 70 → FOUND! Return index 3 ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Case</th><th>Time</th><th>Space</th><th>When?</th></tr></thead>
+                    <tbody>
+                        <tr><td>Best Case</td><td class="best">O(1)</td><td class="best">O(1)</td><td>Target is the first element</td></tr>
+                        <tr><td>Average Case</td><td class="avg">O(n)</td><td class="best">O(1)</td><td>Target is somewhere in the middle</td></tr>
+                        <tr><td>Worst Case</td><td class="worst">O(n)</td><td class="best">O(1)</td><td>Target is last or not present</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Using linear search on sorted data</div>
+                    <p>If the array is sorted, use <strong>binary search</strong> (O(log n)) instead. Linear search wastes the sorted property and is unnecessarily slow.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting to return -1</div>
+                    <pre><code>// ❌ Returns undefined if not found
+function search(arr, target) {
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i] === target) return i;
+    }
+    // Missing return -1!
+}
+
+// ✅ Always handle the "not found" case
+function search(arr, target) {
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i] === target) return i;
+    }
+    return -1;
+}</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Off-by-one in loop bounds</div>
+                    <p>Use <code>i &lt; arr.length</code>, not <code>i &lt;= arr.length</code>. The last valid index is <code>arr.length - 1</code>.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Linear search is rarely asked directly — but it's the <strong>baseline</strong> that interviewers expect you to improve upon.</li>
+                    <li>When you propose linear search, immediately ask: "Is the array sorted?" If yes, switch to binary search.</li>
+                    <li>Linear search is used <strong>inside</strong> many algorithms: finding min/max, checking existence, counting occurrences.</li>
+                    <li>For unsorted data with frequent searches, suggest using a <strong>hash set</strong> for O(1) lookups instead.</li>
+                    <li>Know when linear search is <strong>optimal</strong>: unsorted data, one-time search, small arrays, linked lists.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Linear search: check every element one by one. O(n) time, O(1) space.</li>
+                    <li>Works on sorted AND unsorted arrays. No prerequisites.</li>
+                    <li>Best for small arrays, unsorted data, or one-time searches.</li>
+                    <li>For sorted arrays → use binary search. For frequent lookups → use hash set.</li>
+                    <li>Always return -1 (or null) when element is not found.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the time complexity of linear search?</div>
+                            <div class="flashcard-back"><strong>O(n)</strong> in the worst and average case. O(1) best case (target is first element). It must potentially check every element.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">When should you NOT use linear search?</div>
+                            <div class="flashcard-back">When the data is <strong>sorted</strong> (use binary search O(log n) instead) or when you need <strong>frequent lookups</strong> (use a hash set for O(1)).</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Does linear search require the array to be sorted?</div>
+                            <div class="flashcard-back"><strong>No!</strong> That's its main advantage — it works on any array, sorted or unsorted. It's the only option for unsorted data (without preprocessing).</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">1</span><span class="lc-name"><a href="https://leetcode.com/problems/two-sum/" target="_blank" rel="noopener">Two Sum</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Brute force uses linear search</span></li>
+                    <li class="leetcode-item"><span class="lc-number">217</span><span class="lc-name"><a href="https://leetcode.com/problems/contains-duplicate/" target="_blank" rel="noopener">Contains Duplicate</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Linear scan / Hash Set</span></li>
+                    <li class="leetcode-item"><span class="lc-number">268</span><span class="lc-name"><a href="https://leetcode.com/problems/missing-number/" target="_blank" rel="noopener">Missing Number</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Linear scan</span></li>
+                    <li class="leetcode-item"><span class="lc-number">448</span><span class="lc-name"><a href="https://leetcode.com/problems/find-all-numbers-disappeared-in-an-array/" target="_blank" rel="noopener">Find All Numbers Disappeared in an Array</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Linear scan + marking</span></li>
+                    <li class="leetcode-item"><span class="lc-number">414</span><span class="lc-name"><a href="https://leetcode.com/problems/third-maximum-number/" target="_blank" rel="noopener">Third Maximum Number</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Linear scan tracking top 3</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

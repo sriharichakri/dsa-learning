@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Variables &amp; Data Types - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 1</a><span class="separator">›</span><span class="current">Variables &amp; Data Types</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Variables &amp; Data Types</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 1</span>
+                    <span class="topic-badge difficulty-easy">Beginner Friendly</span>
+                    <button class="topic-complete-btn" data-topic-id="variables">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What Are Variables?</h2>
+                <p>A <strong>variable</strong> is a named container that stores a value in your computer's memory. Think of it as a <strong>labeled box</strong> — the label is the variable name, and whatever you put inside the box is the value.</p>
+                <p>Every program needs to store and manipulate data. Variables give you a way to name that data so you can refer to it later — read it, update it, or pass it around.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Variables are the <strong>atoms</strong> of programming. Every algorithm, every data structure, every line of code ultimately operates on variables. Understanding how they work in memory is the first step to understanding everything else in DSA.</p>
+                </div>
+            </div>
+
+            <!-- Real-Life Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">📦 Labeled Boxes in a Warehouse</div>
+                    <p>Imagine a warehouse full of boxes. Each box has a <strong>label</strong> (variable name), a <strong>size</strong> (data type), and <strong>contents</strong> (value). A small box labeled "age" holds the number 25. A bigger box labeled "name" holds the text "Alice". You can't fit a couch (huge data) in a shoe box (small type) — that's <strong>type mismatch</strong>!</p>
+                </div>
+                <ul>
+                    <li><strong>Sticky note on a whiteboard:</strong> The note says "score" and the value written is 95. You can erase and write a new value anytime.</li>
+                    <li><strong>Hotel room key card:</strong> The card (variable) is linked to room 405 (memory address). Swipe it to access what's inside.</li>
+                    <li><strong>Contacts in your phone:</strong> "Mom" is the name (variable), the phone number is the value. You can update the number, but the name stays.</li>
+                </ul>
+            </div>
+
+            <!-- Primitive Types -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Primitive Data Types</h2>
+                <p>Primitive types store <strong>simple, single values</strong> directly in memory. They are the building blocks.</p>
+
+                <table class="complexity-table">
+                    <thead><tr><th>Type</th><th>Description</th><th>Example</th><th>Size (typical)</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>int</code></td><td>Whole numbers</td><td>42, -7, 0</td><td>4 bytes</td></tr>
+                        <tr><td><code>float/double</code></td><td>Decimal numbers</td><td>3.14, -0.5</td><td>4-8 bytes</td></tr>
+                        <tr><td><code>boolean</code></td><td>True or false</td><td>true, false</td><td>1 byte</td></tr>
+                        <tr><td><code>char</code></td><td>Single character</td><td>'A', '9', '$'</td><td>2 bytes</td></tr>
+                        <tr><td><code>string</code></td><td>Sequence of characters</td><td>"hello"</td><td>Varies</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Primitive types in JavaScript
+let age = 25;           // Number (integer)
+let price = 9.99;       // Number (float)
+let isActive = true;    // Boolean
+let grade = 'A';        // String (JS has no char type)
+let name = "Alice";     // String
+let nothing = null;     // Null — intentionally empty
+let mystery;            // Undefined — declared but no value</code></pre>
+
+                <div class="code-header"><span>Java / C++</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Strongly typed languages require explicit types
+int age = 25;
+double price = 9.99;
+boolean isActive = true;   // bool in C++
+char grade = 'A';
+String name = "Alice";     // std::string in C++</code></pre>
+            </div>
+
+            <!-- Reference Types -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔗</span> Reference Types</h2>
+                <p>Reference types don't store the value directly. Instead, they store a <strong>reference (address)</strong> pointing to where the actual data lives in memory.</p>
+
+                <div class="viz-container">
+                    <div class="viz-title">Primitive vs Reference in Memory</div>
+                    <div class="ascii-diagram">
+PRIMITIVE (value stored directly):
+  Variable    Memory
+  ┌──────┐   ┌──────┐
+  │ age  │──→│  25  │
+  └──────┘   └──────┘
+
+REFERENCE (address stored, points to object):
+  Variable    Memory         Heap
+  ┌──────┐   ┌──────┐      ┌──────────────────┐
+  │ arr  │──→│ @4F2 │─────→│ [10, 20, 30, 40] │
+  └──────┘   └──────┘      └──────────────────┘
+                    </div>
+                </div>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Reference types: arrays, objects, functions
+let arr = [1, 2, 3];           // Array
+let person = { name: "Bob" };  // Object
+
+// IMPORTANT: Copying a reference copies the ADDRESS, not the data!
+let a = [1, 2, 3];
+let b = a;       // b points to the SAME array
+b.push(4);
+console.log(a);  // [1, 2, 3, 4] ← a changed too!
+
+// To make a real copy:
+let c = [...a];  // Spread operator — new array
+let d = a.slice(); // Another way to copy</code></pre>
+
+                <div class="callout warning">
+                    <div class="callout-title">⚡ The Copy Trap</div>
+                    <p>With primitives, <code>let b = a</code> creates an independent copy. With reference types, it creates <strong>another pointer to the same data</strong>. This is the #1 source of bugs for beginners!</p>
+                </div>
+            </div>
+
+            <!-- Memory Allocation -->
+            <div class="section-card">
+                <h2><span class="section-icon">🧠</span> How Memory Works: Stack vs Heap</h2>
+                <p>Your program uses two regions of memory:</p>
+
+                <div class="ascii-diagram">
+┌──────────────────────────────────────────┐
+│                MEMORY                     │
+│                                           │
+│  ┌─────────────┐    ┌─────────────────┐  │
+│  │   STACK      │    │     HEAP        │  │
+│  │ (fast, small)│    │ (large, slower) │  │
+│  │              │    │                 │  │
+│  │ • Primitives │    │ • Objects       │  │
+│  │ • References │    │ • Arrays        │  │
+│  │ • Function   │    │ • Strings*      │  │
+│  │   call frames│    │ • Dynamic data  │  │
+│  │              │    │                 │  │
+│  │ Auto-cleaned │    │ Garbage         │  │
+│  │ when function│    │ Collected       │  │
+│  │ returns      │    │                 │  │
+│  └─────────────┘    └─────────────────┘  │
+└──────────────────────────────────────────┘
+                </div>
+
+                <ul>
+                    <li><strong>Stack:</strong> Stores local variables and function calls. Fast (LIFO). Fixed-size. Automatically cleaned up.</li>
+                    <li><strong>Heap:</strong> Stores dynamically allocated objects. Larger but slower. Cleaned by garbage collector (JS, Java, Python) or manually (C/C++).</li>
+                </ul>
+            </div>
+
+            <!-- Variable Declaration -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Variable Declaration: var, let, const</h2>
+                <p>In JavaScript, you have three ways to declare variables. Understanding the difference matters for interviews.</p>
+
+                <table class="complexity-table">
+                    <thead><tr><th>Feature</th><th><code>var</code></th><th><code>let</code></th><th><code>const</code></th></tr></thead>
+                    <tbody>
+                        <tr><td>Scope</td><td class="worst">Function</td><td class="best">Block</td><td class="best">Block</td></tr>
+                        <tr><td>Re-assignable</td><td>Yes</td><td>Yes</td><td class="avg">No</td></tr>
+                        <tr><td>Re-declarable</td><td class="worst">Yes</td><td>No</td><td>No</td></tr>
+                        <tr><td>Hoisted</td><td class="worst">Yes (undefined)</td><td class="best">TDZ*</td><td class="best">TDZ*</td></tr>
+                    </tbody>
+                </table>
+                <p class="text-muted">*TDZ = Temporal Dead Zone — accessing before declaration throws an error.</p>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// var — function scoped, hoisted (avoid in modern JS)
+var x = 10;
+var x = 20; // No error! Re-declaration allowed 😬
+
+// let — block scoped, not re-declarable
+let y = 10;
+// let y = 20; // ❌ SyntaxError
+
+// const — block scoped, cannot be reassigned
+const PI = 3.14159;
+// PI = 3; // ❌ TypeError
+
+// BUT const objects can be mutated!
+const arr = [1, 2, 3];
+arr.push(4);     // ✅ This works! The reference is constant, not the data.
+// arr = [5, 6]; // ❌ Can't reassign the reference</code></pre>
+
+                <div class="callout tip">
+                    <div class="callout-title">🎯 Best Practice</div>
+                    <p>Use <code>const</code> by default. Use <code>let</code> only when you need to reassign. Never use <code>var</code>.</p>
+                </div>
+            </div>
+
+            <!-- Type Coercion -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔄</span> Type Coercion &amp; Conversion</h2>
+                <p>JavaScript is <strong>dynamically typed</strong> — it automatically converts between types, which can cause surprises.</p>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Implicit coercion (automatic — be careful!)
+"5" + 3    // "53"  (string concatenation!)
+"5" - 3    // 2     (numeric subtraction)
+true + 1   // 2     (true → 1)
+"" == false // true  (both are "falsy")
+
+// Explicit conversion (you control it)
+Number("42")     // 42
+String(42)       // "42"
+parseInt("3.14") // 3
+parseFloat("3.14") // 3.14
+Boolean(0)       // false
+Boolean("hello") // true</code></pre>
+
+                <div class="callout danger">
+                    <div class="callout-title">❌ The == vs === Trap</div>
+                    <pre><code>0 == ""     // true  (coercion!) ❌ Confusing
+0 === ""    // false (strict, no coercion) ✅ Clear
+
+null == undefined  // true
+null === undefined // false
+
+// Always use === in interviews and production code!</code></pre>
+                </div>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Variable Swapping</h2>
+                <p>Let's trace through swapping two variables — a classic interview question.</p>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>let a = 5, b = 10;
+
+// Method 1: Using a temporary variable
+let temp = a;  // temp = 5
+a = b;         // a = 10
+b = temp;      // b = 5
+
+// Method 2: Destructuring (modern JS)
+[a, b] = [b, a];
+
+// Method 3: Math trick (no extra variable)
+a = a + b;  // a = 15
+b = a - b;  // b = 5
+a = a - b;  // a = 10</code></pre>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Initial state: <code>a = 5</code>, <code>b = 10</code></div><div class="step-state">a=5, b=10</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc"><code>temp = a</code> → Save a's value in temp</div><div class="step-state">a=5, b=10, temp=5</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc"><code>a = b</code> → Copy b's value to a</div><div class="step-state">a=10, b=10, temp=5</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc"><code>b = temp</code> → Copy saved value to b</div><div class="step-state">a=10, b=5, temp=5 ✅ Swapped!</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Variable assignment</td><td class="best">O(1)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Variable access (read)</td><td class="best">O(1)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Arithmetic operations</td><td class="best">O(1)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Comparison operations</td><td class="best">O(1)</td><td class="best">O(1)</td></tr>
+                        <tr><td>String concatenation</td><td class="avg">O(n)</td><td class="avg">O(n)</td></tr>
+                    </tbody>
+                </table>
+                <div class="callout info">
+                    <div class="callout-title">💡 Why String Concatenation is O(n)</div>
+                    <p>Strings are immutable. Concatenating two strings creates a <strong>brand new string</strong> and copies all characters. Concatenating in a loop can become O(n²) — use arrays and <code>join()</code> instead.</p>
+                </div>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing = (assignment) with == (comparison)</div>
+                    <pre><code>// ❌ BUG: This assigns, not compares!
+if (x = 5) { ... } // Always true!
+
+// ✅ CORRECT
+if (x === 5) { ... }</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Using uninitialized variables</div>
+                    <pre><code>let total;
+total += 10;  // NaN! Because undefined + 10 = NaN
+
+// ✅ Always initialize
+let total = 0;
+total += 10;  // 10 ✅</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Integer overflow (in typed languages)</div>
+                    <pre><code>// In Java/C++:
+int maxInt = 2147483647;  // Max 32-bit int
+maxInt + 1;  // -2147483648! (overflow wraps around)
+
+// Fix: use long (64-bit) for large numbers</code></pre>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Know the difference between <strong>primitive vs reference</strong> types — interviewers test this with trick questions.</li>
+                    <li>Understand <strong>pass by value vs pass by reference</strong> — primitives are copied, objects are shared.</li>
+                    <li>Be able to explain <strong>stack vs heap</strong> memory in one sentence each.</li>
+                    <li>Know the <strong>size limits</strong> of integer types (32-bit int max = 2³¹ - 1 ≈ 2.1 billion).</li>
+                    <li>In JavaScript interviews, expect questions about <strong>hoisting, scope, and const vs let</strong>.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Variable = named memory container. Has a name, type, and value.</li>
+                    <li>Primitives (int, float, bool, char) store values directly on the stack.</li>
+                    <li>Reference types (arrays, objects) store a pointer on the stack to data on the heap.</li>
+                    <li>Copying primitives creates independent copies. Copying references shares the same data.</li>
+                    <li>Use <code>const</code> by default, <code>let</code> when reassignment needed, never <code>var</code>.</li>
+                    <li>Always use <code>===</code> (strict equality) in JavaScript.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the difference between primitive and reference types?</div>
+                            <div class="flashcard-back">Primitives store values directly (stack). Reference types store a memory address pointing to data on the heap. Copying a primitive copies the value; copying a reference copies the pointer (both point to same data).</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the difference between stack and heap memory?</div>
+                            <div class="flashcard-back">Stack: fast, fixed-size, stores local variables &amp; function calls, auto-cleaned (LIFO). Heap: larger, slower, stores dynamic objects, cleaned by garbage collector.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why should you avoid <code>var</code> in modern JavaScript?</div>
+                            <div class="flashcard-back"><code>var</code> is function-scoped (not block-scoped), can be re-declared, and is hoisted as <code>undefined</code>. <code>let</code> and <code>const</code> are block-scoped and safer. Use <code>const</code> by default.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What happens when you do <code>let b = a</code> where <code>a</code> is an array?</div>
+                            <div class="flashcard-back"><code>b</code> gets a copy of the reference (address), NOT a copy of the array. Both <code>a</code> and <code>b</code> point to the same array. Modifying one affects the other. Use <code>[...a]</code> or <code>a.slice()</code> for a real copy.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode Problems -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">1480</span><span class="lc-name"><a href="https://leetcode.com/problems/running-sum-of-1d-array/" target="_blank" rel="noopener">Running Sum of 1D Array</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Prefix Sum</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1672</span><span class="lc-name"><a href="https://leetcode.com/problems/richest-customer-wealth/" target="_blank" rel="noopener">Richest Customer Wealth</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Matrix Traversal</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1512</span><span class="lc-name"><a href="https://leetcode.com/problems/number-of-good-pairs/" target="_blank" rel="noopener">Number of Good Pairs</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Counting</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

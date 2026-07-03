@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>0/1 Knapsack - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 12</a><span class="separator">›</span><span class="current">0/1 Knapsack</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>0/1 Knapsack</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 12</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="knapsack">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is the 0/1 Knapsack Problem?</h2>
+                <p>Given a set of items, each with a <strong>weight</strong> and a <strong>value</strong>, determine the maximum value you can carry in a knapsack with a <strong>weight capacity</strong>. Each item can either be taken whole (1) or left (0) — no fractions allowed.</p>
+                <p>This is the <strong>foundational Dynamic Programming problem</strong>. Understanding it unlocks a whole family of DP problems: subset sum, partition, coin change, and many more.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>For each item, you have exactly two choices: <strong>include it</strong> or <strong>exclude it</strong>. The optimal solution is the better of these two choices. This "include/exclude" pattern is the essence of the 0/1 Knapsack and appears in countless DP problems.</p>
+                </div>
+            </div>
+
+            <!-- Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🧳 Packing a Suitcase with Weight Limit</div>
+                    <p>You're going on a trip with a suitcase that can hold <strong>at most 15 kg</strong>. You have a laptop (3kg, value 9), camera (4kg, value 7), books (5kg, value 4), clothes (2kg, value 5), and shoes (6kg, value 6). You can't take everything — which combination gives you the most value without exceeding 15 kg?</p>
+                </div>
+                <ul>
+                    <li><strong>Investment portfolio:</strong> Limited budget, different returns — choose the best combination</li>
+                    <li><strong>Cargo shipping:</strong> Truck capacity limit, maximize the value of goods shipped</li>
+                    <li><strong>Course selection:</strong> Limited time slots (weight), different credit values</li>
+                </ul>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> State Definition and Transition</h2>
+                <p><strong>State:</strong> <code>dp[i][w]</code> = maximum value achievable using items 0 to i with capacity w.</p>
+                <p><strong>Transition:</strong></p>
+                <pre><code>If item i is too heavy (weight[i] > w):
+    dp[i][w] = dp[i-1][w]              // Can't include item i
+
+Otherwise, take the better of:
+    dp[i][w] = max(
+        dp[i-1][w],                     // Exclude item i
+        dp[i-1][w - weight[i]] + value[i]  // Include item i
+    )</code></pre>
+
+                <div class="viz-container">
+                    <div class="viz-title">DP Table: Items [(wt:2, val:3), (wt:3, val:4), (wt:4, val:5), (wt:5, val:6)], Capacity = 5</div>
+                    <div class="ascii-diagram">
+         Capacity →  0    1    2    3    4    5
+Item 0 (w=2, v=3)  [ 0,   0,   3,   3,   3,   3]
+Item 1 (w=3, v=4)  [ 0,   0,   3,   4,   4,   7]  ← max(3, 0+4)=4 at w=3
+Item 2 (w=4, v=5)  [ 0,   0,   3,   4,   5,   7]     max(3, dp[0][2]+4)=7 at w=5
+Item 3 (w=5, v=6)  [ 0,   0,   3,   4,   5,   7]
+
+Answer: dp[3][5] = 7
+  (Take items 0 and 1: weight=2+3=5, value=3+4=7) ✅
+                    </div>
+                </div>
+
+                <div class="code-header"><span>JavaScript — 0/1 Knapsack (2D DP)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function knapsack(weights, values, capacity) {
+    const n = weights.length;
+    // dp[i][w] = max value using items 0..i with capacity w
+    const dp = Array.from({ length: n + 1 }, () => new Array(capacity + 1).fill(0));
+    
+    for (let i = 1; i <= n; i++) {
+        for (let w = 0; w <= capacity; w++) {
+            dp[i][w] = dp[i - 1][w]; // Don't take item i-1
+            
+            if (weights[i - 1] <= w) {
+                dp[i][w] = Math.max(
+                    dp[i][w],
+                    dp[i - 1][w - weights[i - 1]] + values[i - 1]  // Take item i-1
+                );
+            }
+        }
+    }
+    return dp[n][capacity];
+}</code></pre>
+            </div>
+
+            <!-- Space Optimized -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚡</span> Space-Optimized (1D Array)</h2>
+                <p>Since each row only depends on the previous row, we can use a <strong>single 1D array</strong>. But we must iterate capacity in <strong>reverse</strong> to avoid using updated values.</p>
+                <div class="code-header"><span>JavaScript — Space-Optimized O(capacity)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function knapsackOptimized(weights, values, capacity) {
+    const dp = new Array(capacity + 1).fill(0);
+    
+    for (let i = 0; i < weights.length; i++) {
+        // Iterate BACKWARDS to avoid using item i twice!
+        for (let w = capacity; w >= weights[i]; w--) {
+            dp[w] = Math.max(dp[w], dp[w - weights[i]] + values[i]);
+        }
+    }
+    return dp[capacity];
+}</code></pre>
+                <div class="callout info">
+                    <div class="callout-title">💡 Why Iterate Backwards?</div>
+                    <p>If we iterate forwards, <code>dp[w - weight[i]]</code> might already be updated in this round, effectively allowing us to use item i multiple times (that's the <strong>Unbounded Knapsack</strong> variant). Backwards ensures each item is used at most once.</p>
+                </div>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: weights=[1, 2, 3], values=[6, 10, 12], capacity=5</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Init: dp = [0, 0, 0, 0, 0, 0]</div><div class="step-state">No items considered yet</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Item 0 (w=1, v=6): w=5→max(0,dp[4]+6)=6, w=4→6, w=3→6, w=2→6, w=1→6</div><div class="step-state">dp = [0, 6, 6, 6, 6, 6]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Item 1 (w=2, v=10): w=5→max(6,dp[3]+10)=16, w=4→max(6,dp[2]+10)=16, w=3→max(6,dp[1]+10)=16, w=2→max(6,dp[0]+10)=10</div><div class="step-state">dp = [0, 6, 10, 16, 16, 16]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Item 2 (w=3, v=12): w=5→max(16,dp[2]+12)=22, w=4→max(16,dp[1]+12)=18, w=3→max(16,dp[0]+12)=16</div><div class="step-state">dp = [0, 6, 10, 16, 18, 22]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">Answer: dp[5] = 22 (take items 1 and 2: weight=2+3=5, value=10+12=22)</div><div class="step-state">Maximum value = 22 ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Time & Space Complexity</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Approach</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Brute Force (all subsets)</td><td class="worst">O(2ⁿ)</td><td class="best">O(n)</td></tr>
+                        <tr><td>2D DP table</td><td class="best">O(n × W)</td><td class="worst">O(n × W)</td></tr>
+                        <tr><td>1D DP (optimized)</td><td class="best">O(n × W)</td><td class="best">O(W)</td></tr>
+                    </tbody>
+                </table>
+                <div class="callout info">
+                    <div class="callout-title">💡 Pseudo-polynomial Time</div>
+                    <p>O(n × W) is called "pseudo-polynomial" because W is not the input size but the input <strong>value</strong>. If W is huge (like 10⁹), DP is too slow and you might need approximation algorithms.</p>
+                </div>
+            </div>
+
+            <!-- Knapsack Variants -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔀</span> Knapsack Variants</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Variant</th><th>Key Difference</th><th>Inner Loop Direction</th></tr></thead>
+                    <tbody>
+                        <tr><td>0/1 Knapsack</td><td>Each item used at most once</td><td>Backwards (w: capacity → weight[i])</td></tr>
+                        <tr><td>Unbounded Knapsack</td><td>Each item used unlimited times</td><td>Forwards (w: weight[i] → capacity)</td></tr>
+                        <tr><td>Subset Sum</td><td>Knapsack where value = weight</td><td>Same as 0/1</td></tr>
+                        <tr><td>Partition Equal Subset</td><td>Can we split into two equal halves?</td><td>Subset sum with target = sum/2</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Iterating Forward in 1D 0/1 Knapsack</div>
+                    <p>Forward iteration reuses updated values, turning it into <strong>Unbounded Knapsack</strong>. For 0/1, always iterate capacity <strong>backwards</strong>.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Off-by-One in Table Indices</div>
+                    <p>dp has n+1 rows and W+1 columns. Item i in the table corresponds to <code>weights[i-1]</code> and <code>values[i-1]</code> in the input arrays.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing 0/1 with Unbounded Knapsack</div>
+                    <p>If items can be reused → Unbounded (inner loop forward). If each item used once → 0/1 (inner loop backward). This is the #1 source of bugs.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Tips</h2>
+                <ul>
+                    <li><strong>Recognize the pattern:</strong> "Choose/don't choose", "subset with constraint", "partition into groups" → 0/1 Knapsack variant</li>
+                    <li><strong>State clearly:</strong> Define what dp[i][w] represents before coding</li>
+                    <li><strong>Optimize space:</strong> Always mention the 1D optimization — shows depth of understanding</li>
+                    <li><strong>Subset Sum = Knapsack:</strong> "Can we find a subset with sum X?" is knapsack with values = weights</li>
+                    <li><strong>Target Sum:</strong> Count of ways = change dp transition from max to sum</li>
+                </ul>
+            </div>
+
+            <!-- Real-world -->
+            <div class="section-card">
+                <h2><span class="section-icon">🏗️</span> Where Knapsack Is Used</h2>
+                <ul>
+                    <li><strong>Resource allocation:</strong> Allocate budget across projects for maximum return</li>
+                    <li><strong>Cargo loading:</strong> Maximize value of goods in a container with weight limit</li>
+                    <li><strong>Portfolio optimization:</strong> Select investments within budget for best returns</li>
+                    <li><strong>Cutting stock:</strong> Cut material to fill orders with minimum waste</li>
+                    <li><strong>Cryptography:</strong> Knapsack-based encryption schemes</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>0/1 Knapsack: for each item, include or exclude. dp[i][w] = max value</li>
+                    <li>Transition: dp[i][w] = max(dp[i-1][w], dp[i-1][w-wt[i]] + val[i])</li>
+                    <li>Time: O(n × W) | Space: O(W) with 1D optimization</li>
+                    <li>1D optimization: iterate capacity BACKWARDS for 0/1, FORWARDS for unbounded</li>
+                    <li>Subset Sum = Knapsack where value equals weight, target = desired sum</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why must we iterate capacity backwards in 1D 0/1 Knapsack?</div>
+                            <div class="flashcard-back">To prevent using an item multiple times. Forward iteration would use already-updated dp values (from the current item's row), effectively allowing reuse. Backwards ensures we use values from the "previous row" (before current item).</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How is Partition Equal Subset Sum related to Knapsack?</div>
+                            <div class="flashcard-back">Calculate total sum. If odd, return false. If even, it becomes: "Can we find a subset with sum = totalSum/2?" — which is exactly the Subset Sum problem (a 0/1 Knapsack variant with boolean dp).</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the transition formula for 0/1 Knapsack?</div>
+                            <div class="flashcard-back">dp[i][w] = max(dp[i-1][w], dp[i-1][w-weight[i]] + value[i]). First term: skip item i. Second term: take item i (subtract its weight, add its value). Pick the maximum.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode Problems -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">416</span><span class="lc-name"><a href="https://leetcode.com/problems/partition-equal-subset-sum/" target="_blank" rel="noopener">Partition Equal Subset Sum</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Subset Sum</span></li>
+                    <li class="leetcode-item"><span class="lc-number">494</span><span class="lc-name"><a href="https://leetcode.com/problems/target-sum/" target="_blank" rel="noopener">Target Sum</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">0/1 Knapsack Count</span></li>
+                    <li class="leetcode-item"><span class="lc-number">518</span><span class="lc-name"><a href="https://leetcode.com/problems/coin-change-ii/" target="_blank" rel="noopener">Coin Change 2</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Unbounded Knapsack</span></li>
+                    <li class="leetcode-item"><span class="lc-number">322</span><span class="lc-name"><a href="https://leetcode.com/problems/coin-change/" target="_blank" rel="noopener">Coin Change</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Unbounded Knapsack</span></li>
+                    <li class="leetcode-item"><span class="lc-number">474</span><span class="lc-name"><a href="https://leetcode.com/problems/ones-and-zeroes/" target="_blank" rel="noopener">Ones and Zeroes</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">2D Knapsack</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1049</span><span class="lc-name"><a href="https://leetcode.com/problems/last-stone-weight-ii/" target="_blank" rel="noopener">Last Stone Weight II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Partition Variant</span></li>
+                    <li class="leetcode-item"><span class="lc-number">377</span><span class="lc-name"><a href="https://leetcode.com/problems/combination-sum-iv/" target="_blank" rel="noopener">Combination Sum IV</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Unbounded + Order</span></li>
+                    <li class="leetcode-item"><span class="lc-number">879</span><span class="lc-name"><a href="https://leetcode.com/problems/profitable-schemes/" target="_blank" rel="noopener">Profitable Schemes</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">3D Knapsack</span></li>
+                    <li class="leetcode-item"><span class="lc-number">698</span><span class="lc-name"><a href="https://leetcode.com/problems/partition-to-k-equal-sum-subsets/" target="_blank" rel="noopener">Partition to K Equal Sum Subsets</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Backtracking + Partition</span></li>
+                    <li class="leetcode-item"><span class="lc-number">2218</span><span class="lc-name"><a href="https://leetcode.com/problems/maximum-value-of-k-coins-from-piles/" target="_blank" rel="noopener">Maximum Value of K Coins From Piles</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Knapsack DP</span></li>
+                </ul>
+            </div>
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

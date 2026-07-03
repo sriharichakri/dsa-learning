@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitmask Techniques - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 14</a><span class="separator">›</span><span class="current">Bitmask Techniques</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Bitmask Techniques</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 14</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="bitmask">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What are Bitmask Techniques?</h2>
+                <p><strong>Bitmask techniques</strong> use binary representations of integers to efficiently encode sets, flags, and states. Common operations include checking, setting, clearing, and toggling individual bits — all in O(1) time.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>An integer with n bits can represent a set of n elements. Bit operations (AND, OR, XOR, NOT, shifts) replace loops and conditionals with single CPU instructions — making code faster and more compact.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🎛️ Control Panel Switches</div>
+                    <p>A bitmask is like a row of switches — each switch represents a feature or flag. You can flip any switch independently, check which switches are on, or toggle groups of switches simultaneously. Hardware engineers use this exact concept for control registers.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Essential Bitmask Operations</h2>
+                <div class="viz-container">
+                    <div class="viz-title">Bitmask Cheat Sheet</div>
+                    <div class="ascii-diagram">
+Operation               Code                Example (n=5, bit 2)
+─────────────────────────────────────────────────────────────────
+Check bit i             n & (1 << i)        5(101) & 4(100) = 4 (truthy)
+Set bit i               n | (1 << i)        5(101) | 2(010) = 7(111)
+Clear bit i             n & ~(1 << i)       7(111) & ~4(100) = 3(011)
+Toggle bit i            n ^ (1 << i)        5(101) ^ 4(100) = 1(001)
+Check if power of 2     n & (n-1) === 0     8(1000) & 7(0111) = 0 ✅
+Count set bits          popcount             5(101) → 2 bits
+Lowest set bit          n & (-n)            12(1100) & -12 = 4(100)
+Clear lowest set bit    n & (n-1)           12(1100) & 11(1011) = 8(1000)
+All bits set (n bits)   (1 << n) - 1        (1<<3)-1 = 7(111)
+Iterate subsets         for(s=m;s;s=(s-1)&m) iterate all subsets of mask m
+                    </div>
+                </div>
+
+                <div class="code-header"><span>JavaScript — Common Bitmask Patterns</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Count number of 1 bits (Hamming Weight)
+function hammingWeight(n) {
+    let count = 0;
+    while (n) {
+        n &= (n - 1); // Clear lowest set bit
+        count++;
+    }
+    return count;
+}
+// hammingWeight(11) → 11 = 1011 → 3 bits
+
+// Check if n is a power of 2
+function isPowerOfTwo(n) {
+    return n > 0 && (n & (n - 1)) === 0;
+}
+// 8(1000) & 7(0111) = 0 → true. 6(110) & 5(101) = 4 → false
+
+// Generate all subsets of a bitmask
+function allSubsets(mask) {
+    const subsets = [];
+    for (let sub = mask; sub > 0; sub = (sub - 1) & mask) {
+        subsets.push(sub);
+    }
+    subsets.push(0); // Empty subset
+    return subsets;
+}
+
+// Use bitmask as a set (e.g., track seen lowercase letters)
+function hasAllUniqueChars(str) {
+    let seen = 0;
+    for (const ch of str) {
+        const bit = 1 << (ch.charCodeAt(0) - 97); // 'a'=bit 0, 'b'=bit 1, ...
+        if (seen & bit) return false; // Already seen!
+        seen |= bit;
+    }
+    return true;
+}
+
+// Swap two numbers without temp variable
+function swap(a, b) {
+    a ^= b;
+    b ^= a;
+    a ^= b;
+    return [a, b];
+}</code></pre>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Count set bits in 13 (1101)</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">n=13 (1101). n & (n-1) = 1101 & 1100 = 1100 = 12. count++.</div><div class="step-state">n=12, count=1</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">n=12 (1100). n & (n-1) = 1100 & 1011 = 1000 = 8. count++.</div><div class="step-state">n=8, count=2</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">n=8 (1000). n & (n-1) = 1000 & 0111 = 0 = 0. count++.</div><div class="step-state">n=0, count=3 ✅ (13 has 3 set bits)</div></div></div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Time</th><th>Note</th></tr></thead>
+                    <tbody>
+                        <tr><td>Check/Set/Clear/Toggle bit</td><td class="best">O(1)</td><td>Single CPU instruction</td></tr>
+                        <tr><td>Count set bits</td><td class="best">O(k)</td><td>k = number of set bits</td></tr>
+                        <tr><td>Iterate all subsets of mask</td><td>O(2^k)</td><td>k = bits set in mask</td></tr>
+                        <tr><td>Check power of 2</td><td class="best">O(1)</td><td>n & (n-1) === 0</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ JavaScript 32-bit limitation</div>
+                    <p>Bitwise operators in JS work on 32-bit signed integers. For bits > 31, use BigInt. Also, <code>1 << 31</code> gives a negative number (sign bit).</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing & with &&</div>
+                    <p><code>&</code> is bitwise AND (operates on bits). <code>&&</code> is logical AND (operates on truthiness). <code>5 & 3 = 1</code> but <code>5 && 3 = 3</code>.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting operator precedence</div>
+                    <p>Bitwise operators have LOW precedence. <code>if (n & (1 << i) !== 0)</code> is wrong! Use <code>if ((n & (1 << i)) !== 0)</code> with extra parentheses.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Know the core operations cold: check, set, clear, toggle, count bits, power of 2.</li>
+                    <li><code>n & (n-1)</code> clears the lowest set bit — appears in MANY problems.</li>
+                    <li>Bitmasks as sets: track character frequencies, visited states, subsets.</li>
+                    <li>Common interview problems: Number of 1 Bits, Power of Two, Single Number.</li>
+                </ul>
+            </div>
+
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Check bit: n & (1<<i). Set: n | (1<<i). Clear: n & ~(1<<i). Toggle: n ^ (1<<i).</li>
+                    <li>n & (n-1): clears lowest set bit. Used for counting bits and power-of-2 check.</li>
+                    <li>n & (-n): isolates lowest set bit.</li>
+                    <li>Power of 2: n > 0 && (n & (n-1)) === 0.</li>
+                    <li>JS limitation: 32-bit signed integers for bitwise ops.</li>
+                </ul>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What does n & (n-1) do?</div>
+                            <div class="flashcard-back">It <strong>clears the lowest set bit</strong> of n. Example: 12 (1100) & 11 (1011) = 8 (1000). Used for: counting set bits (repeat until 0), checking power of 2 (result is 0 for powers of 2).</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you check if the i-th bit is set?</div>
+                            <div class="flashcard-back"><code>if (n & (1 << i))</code>. This creates a mask with only bit i set, then ANDs with n. If the result is non-zero, bit i is set. Remember to add parentheses due to operator precedence!</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">191</span><span class="lc-name"><a href="https://leetcode.com/problems/number-of-1-bits/" target="_blank" rel="noopener">Number of 1 Bits</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Count set bits</span></li>
+                    <li class="leetcode-item"><span class="lc-number">231</span><span class="lc-name"><a href="https://leetcode.com/problems/power-of-two/" target="_blank" rel="noopener">Power of Two</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">n & (n-1)</span></li>
+                    <li class="leetcode-item"><span class="lc-number">338</span><span class="lc-name"><a href="https://leetcode.com/problems/counting-bits/" target="_blank" rel="noopener">Counting Bits</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">DP + bit manipulation</span></li>
+                    <li class="leetcode-item"><span class="lc-number">190</span><span class="lc-name"><a href="https://leetcode.com/problems/reverse-bits/" target="_blank" rel="noopener">Reverse Bits</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Bit reversal</span></li>
+                    <li class="leetcode-item"><span class="lc-number">461</span><span class="lc-name"><a href="https://leetcode.com/problems/hamming-distance/" target="_blank" rel="noopener">Hamming Distance</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">XOR + count bits</span></li>
+                    <li class="leetcode-item"><span class="lc-number">201</span><span class="lc-name"><a href="https://leetcode.com/problems/bitwise-and-of-numbers-range/" target="_blank" rel="noopener">Bitwise AND of Numbers Range</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Common prefix</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

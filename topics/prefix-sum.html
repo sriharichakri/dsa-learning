@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prefix Sum - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 2</a><span class="separator">›</span><span class="current">Prefix Sum</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Prefix Sum</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 2</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="prefix-sum">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Prefix Sum?</h2>
+                <p>A <strong>prefix sum</strong> (also called <strong>cumulative sum</strong>) is an array where each element at index <code>i</code> stores the sum of all elements from the start up to index <code>i</code> in the original array.</p>
+                <p>It's a <strong>preprocessing technique</strong> that trades O(n) setup time and O(n) space for <strong>O(1) range sum queries</strong>. Instead of summing elements each time, you compute the answer instantly using subtraction.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Sum of elements from index <code>l</code> to <code>r</code> = <code>prefix[r+1] - prefix[l]</code>. This formula turns an O(n) operation into O(1). If you have many range sum queries, prefix sum is a game-changer!</p>
+                </div>
+            </div>
+
+            <!-- Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">💰 Running Total of Expenses</div>
+                    <p>Imagine tracking your daily expenses: Mon=$10, Tue=$20, Wed=$15, Thu=$25. Your <strong>running total</strong> is: $10, $30, $45, $70. To find how much you spent from Tuesday to Thursday: Total through Thursday ($70) minus Total through Monday ($10) = <strong>$60</strong>. That's the prefix sum technique — precompute running totals for instant range queries!</p>
+                </div>
+                <ul>
+                    <li><strong>Odometer reading:</strong> Distance between two cities = odometer at city B minus odometer at city A</li>
+                    <li><strong>Bank balance:</strong> Running balance after each transaction — subtract to find net deposits in a range</li>
+                    <li><strong>Sports stats:</strong> Cumulative points — subtract to find points scored in a specific quarter</li>
+                </ul>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How Prefix Sum Works</h2>
+                <div class="viz-container">
+                    <div class="viz-title">Building a Prefix Sum Array</div>
+                    <div class="ascii-diagram">
+Original:    [2,  4,  1,  3,  5]
+              ↓
+Index:        0   1   2   3   4
+
+Prefix Sum:  [0,  2,  6,  7, 10, 15]
+              ↑   ↑       ↑           ↑
+             (0) (0+2) (0+2+4+1) (0+2+4+1+3+5)
+              
+prefix[0] = 0  (empty sum)
+prefix[1] = 2  (sum of first 1 element)
+prefix[2] = 6  (sum of first 2 elements)
+prefix[3] = 7  (sum of first 3 elements)
+prefix[4] = 10 (sum of first 4 elements)
+prefix[5] = 15 (sum of all 5 elements)
+
+Range Sum Query: sum(index 1 to 3) = ?
+  = prefix[4] - prefix[1]
+  = 10 - 2 = 8  ✅  (4 + 1 + 3 = 8) 
+                    </div>
+                </div>
+
+                <div class="code-header"><span>JavaScript — Prefix Sum</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Build prefix sum array
+function buildPrefixSum(arr) {
+    const prefix = new Array(arr.length + 1).fill(0);
+    for (let i = 0; i < arr.length; i++) {
+        prefix[i + 1] = prefix[i] + arr[i];
+    }
+    return prefix;
+}
+
+// Query: sum from index l to r (inclusive)
+function rangeSum(prefix, l, r) {
+    return prefix[r + 1] - prefix[l];
+}
+
+// Example
+const arr = [2, 4, 1, 3, 5];
+const prefix = buildPrefixSum(arr);  // [0, 2, 6, 7, 10, 15]
+rangeSum(prefix, 1, 3);  // 8  (4 + 1 + 3)</code></pre>
+            </div>
+
+            <!-- Subarray Sum Equals K -->
+            <div class="section-card">
+                <h2><span class="section-icon">⭐</span> Pattern: Subarray Sum Equals K</h2>
+                <p>Find the number of subarrays with sum equal to K. This combines prefix sum with a <strong>HashMap</strong>.</p>
+                <div class="code-header"><span>JavaScript — Subarray Sum Equals K</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function subarraySum(nums, k) {
+    const prefixCount = new Map();
+    prefixCount.set(0, 1);  // Empty subarray has sum 0
+    
+    let sum = 0;
+    let count = 0;
+    
+    for (const num of nums) {
+        sum += num;
+        
+        // If (sum - k) was a prefix sum before, then the subarray
+        // from that point to here has sum k
+        if (prefixCount.has(sum - k)) {
+            count += prefixCount.get(sum - k);
+        }
+        
+        prefixCount.set(sum, (prefixCount.get(sum) || 0) + 1);
+    }
+    return count;
+}
+
+// [1, 2, 3], k=3 → subarrays [1,2] and [3] → count = 2</code></pre>
+
+                <div class="viz-container">
+                    <div class="viz-title">Why sum - k Works</div>
+                    <div class="ascii-diagram">
+Array: [1, 2, 3], k = 3
+
+Index:     0    1    2
+Running:   1    3    6
+
+At index 1: sum=3, sum-k=0. We saw prefix 0 once (start) → subarray [1,2]=3 ✅
+At index 2: sum=6, sum-k=3. We saw prefix 3 once (index 1) → subarray [3]=3 ✅
+
+Total count = 2
+
+Logic: If prefix[j] - prefix[i] = k, then subarray (i, j] sums to k.
+       So we look for prefix[i] = prefix[j] - k in our HashMap.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Except Self -->
+            <div class="section-card">
+                <h2><span class="section-icon">⭐</span> Pattern: Product of Array Except Self</h2>
+                <div class="code-header"><span>JavaScript — Using Prefix and Suffix Products</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function productExceptSelf(nums) {
+    const n = nums.length;
+    const result = new Array(n).fill(1);
+    
+    // Prefix products (left to right)
+    let prefix = 1;
+    for (let i = 0; i < n; i++) {
+        result[i] = prefix;
+        prefix *= nums[i];
+    }
+    
+    // Suffix products (right to left)
+    let suffix = 1;
+    for (let i = n - 1; i >= 0; i--) {
+        result[i] *= suffix;
+        suffix *= nums[i];
+    }
+    
+    return result;
+}
+
+// [1, 2, 3, 4] → [24, 12, 8, 6]
+// Without division, O(n) time, O(1) extra space!</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Range Sum Query on [3, -1, 4, 2, -5, 6]</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Build prefix: [0, 3, 2, 6, 8, 3, 9]</div><div class="step-state">prefix[i+1] = prefix[i] + arr[i]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Query: sum(1, 3) = prefix[4] - prefix[1] = 8 - 3 = 5</div><div class="step-state">Check: -1 + 4 + 2 = 5 ✅</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Query: sum(2, 5) = prefix[6] - prefix[2] = 9 - 2 = 7</div><div class="step-state">Check: 4 + 2 + (-5) + 6 = 7 ✅</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Query: sum(0, 5) = prefix[6] - prefix[0] = 9 - 0 = 9</div><div class="step-state">Check: 3+(-1)+4+2+(-5)+6 = 9 ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Time & Space Complexity</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Time</th><th>Space</th><th>Why?</th></tr></thead>
+                    <tbody>
+                        <tr><td>Build prefix array</td><td class="best">O(n)</td><td class="best">O(n)</td><td>One pass to compute running sums</td></tr>
+                        <tr><td>Range sum query</td><td class="best">O(1)</td><td class="best">O(1)</td><td>Just a subtraction: prefix[r+1] - prefix[l]</td></tr>
+                        <tr><td>Subarray Sum = K</td><td class="best">O(n)</td><td class="best">O(n)</td><td>One pass with HashMap</td></tr>
+                        <tr><td>Without prefix (brute force query)</td><td class="worst">O(n) per query</td><td class="best">O(1)</td><td>Sum n elements each time</td></tr>
+                    </tbody>
+                </table>
+                <div class="callout info">
+                    <div class="callout-title">💡 When is Prefix Sum Worth It?</div>
+                    <p>If you have Q range sum queries on an array of size n, brute force is O(Q × n). With prefix sum: O(n) build + O(Q × 1) queries = O(n + Q). Worth it when Q > 1!</p>
+                </div>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Off-by-One in Prefix Array Size</div>
+                    <p>Prefix array should be size <code>n + 1</code> with <code>prefix[0] = 0</code>. This handles the case where the range starts at index 0. Without it, you need special cases.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting to Initialize HashMap with (0, 1)</div>
+                    <p>For "subarray sum = k" problems, you MUST initialize with <code>map.set(0, 1)</code> to handle subarrays starting from index 0.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing Prefix Sum with Sliding Window</div>
+                    <p>Prefix sum handles <strong>any range query</strong>. Sliding window handles <strong>fixed-size or variable-size contiguous</strong> subarrays with specific properties. They solve different problems!</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not Considering Negative Numbers</div>
+                    <p>Prefix sums work with negative numbers! The running total can decrease. This is why "subarray sum = k" needs a HashMap, not just two pointers.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Tips</h2>
+                <ul>
+                    <li><strong>Trigger words:</strong> "range sum," "subarray sum," "cumulative," "running total" → Prefix Sum</li>
+                    <li><strong>Prefix Sum + HashMap:</strong> The combination solves "count subarrays with sum = k" in O(n)</li>
+                    <li><strong>2D Prefix Sum:</strong> Extend to 2D for rectangle sum queries. Uses inclusion-exclusion principle.</li>
+                    <li><strong>Difference Array:</strong> Related technique for range update queries. Inverse of prefix sum.</li>
+                    <li><strong>XOR Prefix:</strong> Replace sum with XOR for "subarray with XOR = k" problems</li>
+                </ul>
+            </div>
+
+            <!-- Real-world -->
+            <div class="section-card">
+                <h2><span class="section-icon">🏗️</span> Where Prefix Sum Is Used</h2>
+                <ul>
+                    <li><strong>Database queries:</strong> Aggregate functions (SUM, AVG) over ranges use prefix sums internally</li>
+                    <li><strong>Image processing:</strong> Summed-area tables (2D prefix sums) for fast blur and convolution</li>
+                    <li><strong>Finance:</strong> Cumulative returns, running averages of stock prices</li>
+                    <li><strong>Gaming:</strong> Damage calculations over regions, cumulative score tracking</li>
+                    <li><strong>Network traffic:</strong> Cumulative byte counts for bandwidth monitoring</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Prefix sum: prefix[i+1] = prefix[i] + arr[i]. prefix[0] = 0.</li>
+                    <li>Range sum (l, r) = prefix[r+1] - prefix[l] → O(1)</li>
+                    <li>Build time: O(n) | Query time: O(1) | Space: O(n)</li>
+                    <li>Subarray Sum = K: use HashMap storing (prefixSum → count). Look for sum - k.</li>
+                    <li>Always init HashMap with {0: 1} for subarrays starting at index 0</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you get the sum of elements from index l to r using prefix sum?</div>
+                            <div class="flashcard-back">sum(l, r) = prefix[r + 1] - prefix[l]. The prefix array has size n+1 with prefix[0] = 0. This subtracts the sum before l from the sum through r.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How does the HashMap technique find subarrays with sum = k?</div>
+                            <div class="flashcard-back">Track running prefix sum. If (currentSum - k) exists in the HashMap, a subarray with sum k exists between that earlier prefix and now. Count how many times (currentSum - k) appeared. Init map with {0: 1}.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the difference between Prefix Sum and Sliding Window?</div>
+                            <div class="flashcard-back">Prefix Sum: precompute cumulative sums for O(1) range queries. Works for ANY range. Sliding Window: maintains a window that expands/shrinks to find optimal contiguous subarray. Best for fixed-size or monotonic conditions.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why must you initialize the HashMap with {0: 1} in subarray sum problems?</div>
+                            <div class="flashcard-back">It handles the case where a subarray starting from index 0 has sum = k. At that point, currentSum = k, and we look for currentSum - k = 0 in the map. Without the initial entry, we'd miss this subarray.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode Problems -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">303</span><span class="lc-name"><a href="https://leetcode.com/problems/range-sum-query-immutable/" target="_blank" rel="noopener">Range Sum Query - Immutable</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Basic Prefix Sum</span></li>
+                    <li class="leetcode-item"><span class="lc-number">560</span><span class="lc-name"><a href="https://leetcode.com/problems/subarray-sum-equals-k/" target="_blank" rel="noopener">Subarray Sum Equals K</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Prefix + HashMap</span></li>
+                    <li class="leetcode-item"><span class="lc-number">525</span><span class="lc-name"><a href="https://leetcode.com/problems/contiguous-array/" target="_blank" rel="noopener">Contiguous Array</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Prefix + HashMap</span></li>
+                    <li class="leetcode-item"><span class="lc-number">238</span><span class="lc-name"><a href="https://leetcode.com/problems/product-of-array-except-self/" target="_blank" rel="noopener">Product of Array Except Self</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Prefix/Suffix Product</span></li>
+                    <li class="leetcode-item"><span class="lc-number">304</span><span class="lc-name"><a href="https://leetcode.com/problems/range-sum-query-2d-immutable/" target="_blank" rel="noopener">Range Sum Query 2D - Immutable</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">2D Prefix Sum</span></li>
+                    <li class="leetcode-item"><span class="lc-number">724</span><span class="lc-name"><a href="https://leetcode.com/problems/find-pivot-index/" target="_blank" rel="noopener">Find Pivot Index</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Prefix Sum</span></li>
+                    <li class="leetcode-item"><span class="lc-number">930</span><span class="lc-name"><a href="https://leetcode.com/problems/binary-subarrays-with-sum/" target="_blank" rel="noopener">Binary Subarrays With Sum</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Prefix + HashMap</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1248</span><span class="lc-name"><a href="https://leetcode.com/problems/count-number-of-nice-subarrays/" target="_blank" rel="noopener">Count Number of Nice Subarrays</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Prefix + HashMap</span></li>
+                    <li class="leetcode-item"><span class="lc-number">974</span><span class="lc-name"><a href="https://leetcode.com/problems/subarray-sums-divisible-by-k/" target="_blank" rel="noopener">Subarray Sums Divisible by K</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Prefix + Modulo</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1524</span><span class="lc-name"><a href="https://leetcode.com/problems/number-of-sub-arrays-with-odd-sum/" target="_blank" rel="noopener">Subarrays With Odd Sum</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Prefix Parity</span></li>
+                </ul>
+            </div>
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

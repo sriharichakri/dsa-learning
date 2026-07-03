@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Difference Array - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 2</a><span class="separator">›</span><span class="current">Difference Array</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Difference Array</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 2</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="difference-array">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is a Difference Array?</h2>
+                <p>A <strong>Difference Array</strong> is a technique for performing <strong>multiple range update operations</strong> efficiently. Instead of updating every element in a range, you mark only the <strong>start and end+1</strong> of the range, then reconstruct the final array with a prefix sum.</p>
+                <p>It turns O(n) per range update into <strong>O(1) per update</strong>, with one O(n) pass at the end.</p>
+                <div class="callout tip">
+                    <div class="callout-title">🌍 Real-Life Analogy</div>
+                    <p>Imagine a bus route with stops 0 to n. When someone boards at stop 3 and exits at stop 7, instead of marking every stop 3-7 as "+1 passenger," you just note: "+1 at stop 3" and "-1 at stop 8." After processing all passengers, sweep through the notes to find the number at each stop. Much faster when there are thousands of passengers!</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How It Works</h2>
+
+                <div class="viz-container">
+                    <div class="viz-title">Difference Array Concept</div>
+                    <div class="ascii-diagram">
+Range Update: Add 5 to indices [1, 3]
+
+Brute Force:        Difference Array:
+arr:  [0, 0, 0, 0, 0]    diff: [0, 0, 0, 0, 0, 0]
+      [0, 5, 5, 5, 0]          [0,+5, 0, 0,-5, 0]
+      O(n) per update           O(1) per update!
+
+Then prefix sum of diff → [0, 5, 5, 5, 0] ✅
+                    </div>
+                </div>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Range update: add val to arr[left..right]
+function rangeUpdate(diff, left, right, val) {
+    diff[left] += val;
+    if (right + 1 < diff.length) {
+        diff[right + 1] -= val;
+    }
+}
+
+// Reconstruct final array from difference array
+function reconstruct(diff) {
+    const result = [diff[0]];
+    for (let i = 1; i < diff.length; i++) {
+        result.push(result[i - 1] + diff[i]);
+    }
+    return result;
+}
+
+// Example: Corporate Flight Bookings (LC 1109)
+function corpFlightBookings(bookings, n) {
+    const diff = new Array(n + 1).fill(0);
+    
+    for (let [first, last, seats] of bookings) {
+        diff[first - 1] += seats;       // 1-indexed to 0-indexed
+        if (last < n) diff[last] -= seats;
+    }
+    
+    // Prefix sum to get final counts
+    const result = [diff[0]];
+    for (let i = 1; i < n; i++) {
+        result.push(result[i - 1] + diff[i]);
+    }
+    return result;
+}
+
+// bookings = [[1,2,10],[2,3,20],[2,5,25]], n = 5
+// → [10, 55, 45, 25, 25]</code></pre>
+
+                <h3>2D Difference Array</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Add val to submatrix [r1,c1] to [r2,c2]
+function rangeUpdate2D(diff, r1, c1, r2, c2, val) {
+    diff[r1][c1] += val;
+    if (r2 + 1 < diff.length) diff[r2 + 1][c1] -= val;
+    if (c2 + 1 < diff[0].length) diff[r1][c2 + 1] -= val;
+    if (r2 + 1 < diff.length && c2 + 1 < diff[0].length) {
+        diff[r2 + 1][c2 + 1] += val;
+    }
+}</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run</h2>
+                <p>Apply: add 3 to [1,3], add 2 to [2,4] on array of size 5</p>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Initialize diff array of size 6 (n+1)</div><div class="step-state">diff = [0, 0, 0, 0, 0, 0]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Add 3 to [1,3]: diff[1]+=3, diff[4]-=3</div><div class="step-state">diff = [0, 3, 0, 0, -3, 0]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Add 2 to [2,4]: diff[2]+=2, diff[5]-=2</div><div class="step-state">diff = [0, 3, 2, 0, -3, -2]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Prefix sum: 0, 0+3=3, 3+2=5, 5+0=5, 5-3=2</div><div class="step-state">result = [0, 3, 5, 5, 2] ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Brute Force</th><th>Difference Array</th></tr></thead>
+                    <tbody>
+                        <tr><td>Single range update</td><td class="worst">O(n)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Q range updates</td><td class="worst">O(Q × n)</td><td class="best">O(Q + n)</td></tr>
+                        <tr><td>Reconstruction</td><td>—</td><td class="avg">O(n)</td></tr>
+                        <tr><td>Space</td><td class="best">O(1)</td><td class="avg">O(n)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Off-by-one: subtracting at right instead of right+1</div>
+                    <pre><code>// ❌ Subtracts one position too early
+diff[right] -= val;  // This excludes the last index!
+
+// ✅ Subtract at right + 1
+diff[right + 1] -= val;  // Range is inclusive [left, right]</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not handling boundary (right+1 out of bounds)</div>
+                    <p>If right is the last index, right+1 is out of bounds. Either make the diff array one element larger (size n+1) or check bounds before subtracting.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Difference array is the <strong>inverse</strong> of prefix sum. Prefix sum: range query. Difference array: range update.</li>
+                    <li>Key signal: "multiple range updates, then query final state" → difference array.</li>
+                    <li>Corporate Flight Bookings (LC 1109) is the classic problem.</li>
+                    <li>Can be extended to 2D for matrix range updates.</li>
+                    <li>For both range queries AND range updates, you need a Segment Tree or BIT.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Range update [l, r] by val: diff[l] += val, diff[r+1] -= val. O(1) per update.</li>
+                    <li>Reconstruct with prefix sum: O(n).</li>
+                    <li>Total for Q updates: O(Q + n) vs brute force O(Q × n).</li>
+                    <li>Inverse of prefix sum. Prefix sum = range query. Difference array = range update.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How does a difference array turn O(n) range updates into O(1)?</div>
+                            <div class="flashcard-back">Instead of updating every element in [l, r], mark only two points: <code>diff[l] += val</code> (start the effect) and <code>diff[r+1] -= val</code> (end the effect). When you take the prefix sum, the effect propagates correctly across the range.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the relationship between difference array and prefix sum?</div>
+                            <div class="flashcard-back">They are <strong>inverses</strong>. Prefix sum of a difference array gives back the original array. Difference of a prefix sum array gives back the original. Prefix sum is for range QUERIES; difference array is for range UPDATES.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">1109</span><span class="lc-name"><a href="https://leetcode.com/problems/corporate-flight-bookings/" target="_blank" rel="noopener">Corporate Flight Bookings</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Classic difference array</span></li>
+                    <li class="leetcode-item"><span class="lc-number">370</span><span class="lc-name"><a href="https://leetcode.com/problems/range-addition/" target="_blank" rel="noopener">Range Addition</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Difference array</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1094</span><span class="lc-name"><a href="https://leetcode.com/problems/car-pooling/" target="_blank" rel="noopener">Car Pooling</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Difference array + capacity check</span></li>
+                    <li class="leetcode-item"><span class="lc-number">253</span><span class="lc-name"><a href="https://leetcode.com/problems/meeting-rooms-ii/" target="_blank" rel="noopener">Meeting Rooms II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Sweep line / difference array</span></li>
+                    <li class="leetcode-item"><span class="lc-number">2381</span><span class="lc-name"><a href="https://leetcode.com/problems/shifting-letters-ii/" target="_blank" rel="noopener">Shifting Letters II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Difference array on string</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

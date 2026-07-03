@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Combinations - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 13</a><span class="separator">›</span><span class="current">Combinations</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Combinations</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 13</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="combinations">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What are Combinations?</h2>
+                <p><strong>Combinations</strong> select k elements from n elements where <strong>order doesn't matter</strong>. Unlike permutations (order matters), {1,2} and {2,1} are the same combination. There are C(n,k) = n! / (k!(n-k)!) combinations.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>To avoid duplicates, always iterate forward from the current start index. In combinations, the loop starts from <code>start</code> (not 0), ensuring we never pick an earlier element — this naturally prevents duplicate combinations.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🎰 Lottery Numbers</div>
+                    <p>Picking 6 numbers from 49 for a lottery ticket — order doesn't matter (1-2-3 is the same ticket as 3-2-1). That's a combination: C(49,6) = 13,983,816 possible tickets.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Combination Problems</h2>
+
+                <h3>Combinations (Choose k from 1..n)</h3>
+                <div class="code-header"><span>JavaScript — Combinations (LC 77)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function combine(n, k) {
+    const result = [];
+
+    function backtrack(start, path) {
+        if (path.length === k) {
+            result.push([...path]);
+            return;
+        }
+
+        // Pruning: need k-path.length more elements, so stop early
+        for (let i = start; i <= n - (k - path.length) + 1; i++) {
+            path.push(i);
+            backtrack(i + 1, path); // i+1: don't reuse
+            path.pop();
+        }
+    }
+
+    backtrack(1, []);
+    return result;
+}</code></pre>
+
+                <h3>Combination Sum (reuse allowed)</h3>
+                <div class="code-header"><span>JavaScript — Combination Sum (LC 39)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function combinationSum(candidates, target) {
+    const result = [];
+
+    function backtrack(start, path, remaining) {
+        if (remaining === 0) { result.push([...path]); return; }
+        if (remaining < 0) return;
+
+        for (let i = start; i < candidates.length; i++) {
+            path.push(candidates[i]);
+            backtrack(i, path, remaining - candidates[i]); // i (not i+1): can reuse
+            path.pop();
+        }
+    }
+
+    backtrack(0, [], target);
+    return result;
+}</code></pre>
+
+                <h3>Combination Sum II (no reuse, has duplicates)</h3>
+                <div class="code-header"><span>JavaScript — Combination Sum II (LC 40)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function combinationSum2(candidates, target) {
+    const result = [];
+    candidates.sort((a, b) => a - b);
+
+    function backtrack(start, path, remaining) {
+        if (remaining === 0) { result.push([...path]); return; }
+        if (remaining < 0) return;
+
+        for (let i = start; i < candidates.length; i++) {
+            if (i > start && candidates[i] === candidates[i - 1]) continue; // Skip dupes
+            path.push(candidates[i]);
+            backtrack(i + 1, path, remaining - candidates[i]); // i+1: no reuse
+            path.pop();
+        }
+    }
+
+    backtrack(0, [], target);
+    return result;
+}</code></pre>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: combine(4, 2)</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">start=1: pick 1, then recurse from 2. Pick 2→[1,2]✅. Pick 3→[1,3]✅. Pick 4→[1,4]✅.</div><div class="step-state">result=[[1,2],[1,3],[1,4]]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">start=2: pick 2, then from 3. [2,3]✅. [2,4]✅.</div><div class="step-state">result=[...,[2,3],[2,4]]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">start=3: pick 3, then from 4. [3,4]✅. start=4: need 2 more but only 1 left → pruned.</div><div class="step-state">result=[[1,2],[1,3],[1,4],[2,3],[2,4],[3,4]] ✅ C(4,2)=6</div></div></div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Problem</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Combinations (n choose k)</td><td>O(k × C(n,k))</td><td>O(k)</td></tr>
+                        <tr><td>Combination Sum</td><td>O(n^(T/M))</td><td>O(T/M)</td></tr>
+                        <tr><td>Combination Sum II</td><td>O(2ⁿ)</td><td>O(n)</td></tr>
+                    </tbody>
+                </table>
+                <p class="text-muted">T = target, M = minimum candidate value.</p>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Using i+1 when elements can be reused</div>
+                    <p>Combination Sum allows reuse → recurse with <code>i</code>. Combination Sum II doesn't → recurse with <code>i+1</code>.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not pruning in combinations</div>
+                    <p>In C(n,k), if you need k-path.length more elements, stop the loop at <code>n-(k-path.length)+1</code>. This prunes many unnecessary branches.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Combinations vs Permutations: combinations start loop from <code>start</code>, permutations from <code>0</code> with used array.</li>
+                    <li>Know all three: Combination Sum (reuse), Combination Sum II (no reuse, dupes), Combinations (fixed k).</li>
+                    <li>The duplicate-skipping pattern <code>if (i > start && nums[i] === nums[i-1]) continue</code> is reused everywhere.</li>
+                </ul>
+            </div>
+
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Combinations: order doesn't matter. Use start index to avoid duplicates.</li>
+                    <li>Reuse allowed: recurse with i. No reuse: recurse with i+1.</li>
+                    <li>Handle duplicate elements: sort + skip if nums[i] === nums[i-1] && i > start.</li>
+                    <li>Pruning: stop loop early when not enough elements remain.</li>
+                </ul>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do combinations differ from permutations in backtracking?</div>
+                            <div class="flashcard-back"><strong>Combinations:</strong> loop from <code>start</code> to n, pass <code>start=i+1</code> (only pick forward). Order doesn't matter.<br><strong>Permutations:</strong> loop from 0 to n with a <code>used[]</code> array. Order matters. Each element can appear at any position.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you handle duplicate candidates in Combination Sum II?</div>
+                            <div class="flashcard-back">1. Sort the candidates. 2. At each recursion level, skip candidate i if <code>i > start && candidates[i] === candidates[i-1]</code>. This prevents picking the same value multiple times at the same decision level.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">77</span><span class="lc-name"><a href="https://leetcode.com/problems/combinations/" target="_blank" rel="noopener">Combinations</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Choose k from n</span></li>
+                    <li class="leetcode-item"><span class="lc-number">39</span><span class="lc-name"><a href="https://leetcode.com/problems/combination-sum/" target="_blank" rel="noopener">Combination Sum</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Reuse allowed</span></li>
+                    <li class="leetcode-item"><span class="lc-number">40</span><span class="lc-name"><a href="https://leetcode.com/problems/combination-sum-ii/" target="_blank" rel="noopener">Combination Sum II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">No reuse + duplicates</span></li>
+                    <li class="leetcode-item"><span class="lc-number">216</span><span class="lc-name"><a href="https://leetcode.com/problems/combination-sum-iii/" target="_blank" rel="noopener">Combination Sum III</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Fixed count + target</span></li>
+                    <li class="leetcode-item"><span class="lc-number">377</span><span class="lc-name"><a href="https://leetcode.com/problems/combination-sum-iv/" target="_blank" rel="noopener">Combination Sum IV</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Order matters (actually permutation)</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

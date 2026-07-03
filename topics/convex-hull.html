@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convex Hull - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 15</a><span class="separator">›</span><span class="current">Convex Hull</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Convex Hull</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 15</span>
+                    <span class="topic-badge difficulty-hard">Hard</span>
+                    <button class="topic-complete-btn" data-topic-id="convex-hull">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is a Convex Hull?</h2>
+                <p>The <strong>Convex Hull</strong> of a set of points is the smallest convex polygon that contains all the points. It's like stretching a rubber band around all the points — the shape it forms is the convex hull. Only the outermost points form the hull; interior points are enclosed.</p>
+                <p>Two classic algorithms solve this: <strong>Graham Scan</strong> (O(n log n)) and <strong>Gift Wrapping / Jarvis March</strong> (O(nh), where h = number of hull points). Graham Scan is preferred for general use.</p>
+                <div class="callout tip">
+                    <div class="callout-title">🔩 Real-Life Analogy: Rubber Band Around Nails</div>
+                    <p>Imagine a board with nails hammered at random positions. Stretch a rubber band around all the nails and let it snap tight. The rubber band only touches the outermost nails, forming a convex shape. The nails it touches are the convex hull vertices, and the interior nails are enclosed but not part of the hull. Finding the convex hull is equivalent to finding which nails the rubber band touches!</p>
+                </div>
+            </div>
+
+            <!-- Cross Product -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Key Concept: Cross Product</h2>
+                <div class="viz-container">
+                    <div class="viz-title">Cross Product and Turn Direction</div>
+                    <div class="ascii-diagram">
+Cross product of vectors OA and OB:
+  cross(O, A, B) = (A.x - O.x) × (B.y - O.y) - (A.y - O.y) × (B.x - O.x)
+
+  cross > 0 → Counter-clockwise turn (left turn)
+  cross = 0 → Collinear (straight line)
+  cross < 0 → Clockwise turn (right turn)
+
+  B                    B
+   \                  /
+    \  cross > 0     /  cross < 0
+     O————A         O————A
+  LEFT TURN         RIGHT TURN
+
+Graham Scan uses this to decide:
+- If we make a LEFT turn (or straight) → point is on the hull boundary
+- If we make a RIGHT turn → previous point is interior, remove it
+
+Points: (0,0) (1,0) (2,1) (1,2) (0,1) (-1,1)
+
+Convex Hull:
+    (1,2)
+   /     \
+(-1,1)   (2,1)
+   \     /
+    (0,0)——(1,0)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Implementation -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔧</span> Implementation</h2>
+                <div class="code-header"><span>JavaScript — Graham Scan (Convex Hull)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Cross product of vectors OA and OB
+function cross(O, A, B) {
+    return (A[0] - O[0]) * (B[1] - O[1]) - (A[1] - O[1]) * (B[0] - O[0]);
+}
+
+// Graham Scan — O(n log n)
+function convexHull(points) {
+    const n = points.length;
+    if (n <= 1) return [...points];
+
+    // Sort by x-coordinate, then y-coordinate
+    points.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+
+    // Build lower hull
+    const lower = [];
+    for (const p of points) {
+        while (lower.length >= 2 &&
+               cross(lower[lower.length - 2], lower[lower.length - 1], p) <= 0) {
+            lower.pop(); // Remove point that makes a clockwise turn
+        }
+        lower.push(p);
+    }
+
+    // Build upper hull
+    const upper = [];
+    for (let i = points.length - 1; i >= 0; i--) {
+        const p = points[i];
+        while (upper.length >= 2 &&
+               cross(upper[upper.length - 2], upper[upper.length - 1], p) <= 0) {
+            upper.pop();
+        }
+        upper.push(p);
+    }
+
+    // Remove last point of each half (it's the first of the other)
+    lower.pop();
+    upper.pop();
+
+    return lower.concat(upper);
+}
+
+// Gift Wrapping / Jarvis March — O(nh)
+function jarvisMarch(points) {
+    const n = points.length;
+    if (n <= 1) return [...points];
+
+    // Start from leftmost point
+    let start = 0;
+    for (let i = 1; i < n; i++) {
+        if (points[i][0] < points[start][0] ||
+            (points[i][0] === points[start][0] && points[i][1] < points[start][1])) {
+            start = i;
+        }
+    }
+
+    const hull = [];
+    let current = start;
+    do {
+        hull.push(points[current]);
+        let next = 0;
+        for (let i = 1; i < n; i++) {
+            if (i === current) continue;
+            const c = cross(points[current], points[next], points[i]);
+            if (next === current || c > 0 ||
+                (c === 0 && dist(points[current], points[i]) >
+                             dist(points[current], points[next]))) {
+                next = i;
+            }
+        }
+        current = next;
+    } while (current !== start);
+
+    return hull;
+}
+
+function dist(a, b) {
+    return (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2;
+}
+
+// Usage
+const points = [[0,0], [1,0], [2,1], [1,2], [0,1], [-1,1], [1,1]];
+const hull = convexHull(points);
+console.log(hull);
+// [[-1,1], [0,0], [1,0], [2,1], [1,2]] — counter-clockwise order</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Graham Scan on [(0,0), (1,0), (2,1), (1,2), (0,1)]</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Sort by x then y: [(0,0), (0,1), (1,0), (1,2), (2,1)].</div><div class="step-state">Sorted points</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Lower hull: add (0,0), (0,1). Cross((0,0),(0,1),(1,0)) = 0×0 - 1×1 = -1 < 0 → right turn! Pop (0,1). Add (1,0).</div><div class="step-state">lower = [(0,0), (1,0)]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Add (1,2): cross((0,0),(1,0),(1,2)) = 1×2 - 0×1 = 2 > 0 → left turn ✓. Add (2,1): cross((1,0),(1,2),(2,1)) = 0×1 - 2×1 = -2 < 0 → right turn! Pop (1,2). cross((0,0),(1,0),(2,1)) = 1 > 0 ✓.</div><div class="step-state">lower = [(0,0), (1,0), (2,1)]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Upper hull (reverse): start from (2,1). Add (2,1), (1,2). cross OK. Add (0,1): cross OK. Add (0,0): cross((0,1),(0,0)) — check and keep valid points.</div><div class="step-state">upper = [(2,1), (1,2), (0,1), (0,0)]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">Remove last of each, concatenate: lower = [(0,0),(1,0)] + upper = [(2,1),(1,2),(0,1)].</div><div class="step-state">Hull: [(0,0),(1,0),(2,1),(1,2),(0,1)] ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Algorithm</th><th>Time</th><th>Space</th><th>Best When</th></tr></thead>
+                    <tbody>
+                        <tr><td>Graham Scan</td><td class="best">O(n log n)</td><td>O(n)</td><td>General purpose</td></tr>
+                        <tr><td>Jarvis March</td><td class="avg">O(nh)</td><td>O(h)</td><td>h << n (few hull points)</td></tr>
+                        <tr><td>Andrew's Monotone Chain</td><td class="best">O(n log n)</td><td>O(n)</td><td>Same as Graham, simpler code</td></tr>
+                    </tbody>
+                </table>
+                <p>n = number of points, h = number of hull vertices. Graham Scan is O(n log n) regardless of h. Jarvis March is better when h is very small.</p>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Wrong cross product sign convention</div>
+                    <p>The cross product's sign determines turn direction. If you swap the order of subtraction, left and right turns are reversed. Double-check: cross > 0 = counter-clockwise (left turn) for standard x-right, y-up orientation.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not handling collinear points</div>
+                    <p>When cross product = 0, points are collinear. Decide whether to include or exclude collinear boundary points. Using <code>&lt;= 0</code> excludes them (most common); using <code>&lt; 0</code> includes them.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting to process both upper and lower hulls</div>
+                    <p>Graham Scan (monotone chain variant) builds the hull in two halves. Forgetting the upper hull gives only the bottom boundary. Both passes are needed for a complete convex hull.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Convex hull is a <strong>computational geometry classic</strong>. Know at least one algorithm (Graham Scan or Monotone Chain).</li>
+                    <li>The cross product is fundamental — it determines turn direction and is used in many geometry problems.</li>
+                    <li>Applications: collision detection, image processing, GIS, robotics path planning.</li>
+                    <li>If asked "given n points, find the smallest enclosing polygon," the answer is convex hull.</li>
+                    <li>Convex hull can also optimize DP problems (convex hull trick) — a different but related concept.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Convex Hull: smallest convex polygon enclosing all points.</li>
+                    <li>Cross product: determines left turn (>0), right turn (<0), or collinear (=0).</li>
+                    <li>Graham Scan: sort by x, build lower hull + upper hull. O(n log n).</li>
+                    <li>Jarvis March: start from leftmost, repeatedly find next CCW point. O(nh).</li>
+                    <li>Monotone Chain (Andrew's) is a simpler variant of Graham Scan.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What does the cross product tell you about three points?</div>
+                            <div class="flashcard-back">For points O, A, B: <code>cross(O, A, B) = (A-O) × (B-O)</code>. <strong>Positive:</strong> O→A→B makes a counter-clockwise (left) turn. <strong>Negative:</strong> clockwise (right) turn. <strong>Zero:</strong> points are collinear. This is the fundamental operation in convex hull algorithms.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How does Graham Scan decide which points to remove?</div>
+                            <div class="flashcard-back">As points are added to the hull, if the last three points make a <strong>clockwise (right) turn</strong> (cross product ≤ 0), the middle point is interior — pop it from the stack. Keep popping until a left turn is made. This ensures only convex vertices remain.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">When is Jarvis March better than Graham Scan?</div>
+                            <div class="flashcard-back">Jarvis March is O(nh) where h = hull vertices. When h is very small (e.g., 3-4 hull points out of millions), it can be faster than Graham's O(n log n). But in the worst case (all points on hull), Jarvis is O(n²), so Graham is safer for general use.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">587</span><span class="lc-name"><a href="https://leetcode.com/problems/erect-the-fence/" target="_blank" rel="noopener">Erect the Fence</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Convex Hull (Graham Scan / Jarvis March)</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1924</span><span class="lc-name"><a href="https://leetcode.com/problems/erect-the-fence-ii/" target="_blank" rel="noopener">Erect the Fence II</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Minimum Enclosing Circle</span></li>
+                    <li class="leetcode-item"><span class="lc-number">973</span><span class="lc-name"><a href="https://leetcode.com/problems/k-closest-points-to-origin/" target="_blank" rel="noopener">K Closest Points to Origin</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Geometry / Sorting (related concept)</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Sort - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 4</a><span class="separator">›</span><span class="current">Quick Sort</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Quick Sort</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 4</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="quick-sort">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Quick Sort?</h2>
+                <p>Quick Sort is a <strong>divide and conquer</strong> sorting algorithm that works by selecting a <strong>pivot element</strong> and <strong>partitioning</strong> the array so that elements smaller than the pivot go left, and elements larger go right. Then it recursively sorts each partition.</p>
+                <p>It's the <strong>fastest general-purpose sorting algorithm in practice</strong>, averaging O(n log n) with small constant factors and excellent cache performance.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Unlike Merge Sort, Quick Sort does its heavy work <strong>before</strong> the recursion (partitioning), not after (merging). This in-place partitioning gives it O(1) extra space — a major advantage.</p>
+                </div>
+            </div>
+
+            <!-- Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">📚 Organizing Books on a Shelf</div>
+                    <p>Pick a random book (the <strong>pivot</strong>). Put all books that come <strong>before</strong> it alphabetically on the left, and all books that come <strong>after</strong> on the right. The pivot book is now in its <strong>correct final position</strong>. Repeat this process for the left pile and the right pile. Eventually, all books are sorted!</p>
+                </div>
+                <ul>
+                    <li><strong>Sorting a deck of cards:</strong> Pick a card, put lower cards left, higher cards right. Repeat for each pile.</li>
+                    <li><strong>Organizer at an event:</strong> "Everyone shorter than me go left, taller go right." Repeat in each group.</li>
+                    <li><strong>Filing papers:</strong> Pick a reference letter, separate A-M vs N-Z, then subdivide each group.</li>
+                </ul>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How Quick Sort Works</h2>
+
+                <div class="viz-container">
+                    <div class="viz-title">Quick Sort: Partitioning [8, 3, 7, 1, 5, 2, 6, 4]</div>
+                    <div class="ascii-diagram">
+Choose pivot = 4 (last element)
+
+Partition: elements ≤ 4 go LEFT, elements > 4 go RIGHT
+
+  [8, 3, 7, 1, 5, 2, 6, 4]    pivot=4
+   ↓
+  [3, 1, 2]  [4]  [8, 7, 5, 6]
+    ≤ 4      pivot     > 4
+
+  Recurse on [3, 1, 2]:  pivot=2
+  [1]  [2]  [3]
+
+  Recurse on [8, 7, 5, 6]:  pivot=6
+  [5]  [6]  [8, 7]
+
+  Recurse on [8, 7]:  pivot=7
+  []  [7]  [8]
+
+  Final: [1, 2, 3, 4, 5, 6, 7, 8] ✅
+                    </div>
+                </div>
+
+                <h3>Lomuto Partition Scheme</h3>
+                <div class="code-header"><span>JavaScript — Quick Sort (Lomuto)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function quickSort(arr, low = 0, high = arr.length - 1) {
+    if (low < high) {
+        const pivotIndex = partition(arr, low, high);
+        quickSort(arr, low, pivotIndex - 1);   // Sort left
+        quickSort(arr, pivotIndex + 1, high);   // Sort right
+    }
+    return arr;
+}
+
+function partition(arr, low, high) {
+    const pivot = arr[high];  // Choose last element as pivot
+    let i = low - 1;          // Boundary of "smaller" region
+    
+    for (let j = low; j < high; j++) {
+        if (arr[j] <= pivot) {
+            i++;
+            [arr[i], arr[j]] = [arr[j], arr[i]];  // Swap into smaller region
+        }
+    }
+    
+    [arr[i + 1], arr[high]] = [arr[high], arr[i + 1]];  // Place pivot
+    return i + 1;  // Pivot's final position
+}</code></pre>
+            </div>
+
+            <!-- Hoare Partition -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔄</span> Lomuto vs Hoare Partition</h2>
+                
+                <h3>Hoare Partition Scheme</h3>
+                <p>Hoare's scheme uses two pointers that move <strong>toward each other</strong>, making fewer swaps on average.</p>
+                <div class="code-header"><span>JavaScript — Hoare Partition</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function hoarePartition(arr, low, high) {
+    const pivot = arr[Math.floor((low + high) / 2)];
+    let i = low - 1;
+    let j = high + 1;
+    
+    while (true) {
+        do { i++; } while (arr[i] < pivot);
+        do { j--; } while (arr[j] > pivot);
+        
+        if (i >= j) return j;
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+}
+
+// Note: With Hoare, recurse on (low, pivotIndex) and (pivotIndex+1, high)</code></pre>
+
+                <table class="complexity-table">
+                    <thead><tr><th>Aspect</th><th>Lomuto</th><th>Hoare</th></tr></thead>
+                    <tbody>
+                        <tr><td>Pivot position</td><td>Last element</td><td>Middle element (typically)</td></tr>
+                        <tr><td>Swaps</td><td>More swaps</td><td>~3x fewer swaps</td></tr>
+                        <tr><td>Ease</td><td>Simpler to implement</td><td>Slightly tricky</td></tr>
+                        <tr><td>Duplicates</td><td>Poor with many duplicates</td><td>Better with duplicates</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Lomuto Partition on [7, 2, 1, 6, 8, 5, 3, 4]</h2>
+                <p>Pivot = arr[high] = 4, i starts at -1</p>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">j=0: arr[0]=7 > 4 → skip</div><div class="step-state">i=-1 | [7, 2, 1, 6, 8, 5, 3, 4]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">j=1: arr[1]=2 ≤ 4 → i=0, swap arr[0]↔arr[1]</div><div class="step-state">i=0 | [2, 7, 1, 6, 8, 5, 3, 4]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">j=2: arr[2]=1 ≤ 4 → i=1, swap arr[1]↔arr[2]</div><div class="step-state">i=1 | [2, 1, 7, 6, 8, 5, 3, 4]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">j=3: 6 > 4 → skip. j=4: 8 > 4 → skip. j=5: 5 > 4 → skip.</div><div class="step-state">i=1 | [2, 1, 7, 6, 8, 5, 3, 4]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">j=6: arr[6]=3 ≤ 4 → i=2, swap arr[2]↔arr[6]</div><div class="step-state">i=2 | [2, 1, 3, 6, 8, 5, 7, 4]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">6</div><div class="step-content"><div class="step-desc">Loop done. Place pivot: swap arr[i+1]↔arr[high] → arr[3]↔arr[7]</div><div class="step-state">[2, 1, 3, <strong>4</strong>, 8, 5, 7, 6] — pivot 4 at index 3 ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Time & Space Complexity</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Case</th><th>Time</th><th>Why?</th></tr></thead>
+                    <tbody>
+                        <tr><td>Best</td><td class="best">O(n log n)</td><td>Pivot splits array into equal halves</td></tr>
+                        <tr><td>Average</td><td class="best">O(n log n)</td><td>Random pivots give balanced partitions on average</td></tr>
+                        <tr><td>Worst</td><td class="worst">O(n²)</td><td>Already sorted + always picking min/max as pivot</td></tr>
+                        <tr><td>Space (avg)</td><td class="best">O(log n)</td><td>Recursion stack depth = log n for balanced splits</td></tr>
+                        <tr><td>Space (worst)</td><td class="worst">O(n)</td><td>Skewed partitions = n recursive calls</td></tr>
+                    </tbody>
+                </table>
+                <div class="callout info">
+                    <div class="callout-title">💡 Avoiding Worst Case</div>
+                    <p>Use <strong>randomized pivot</strong> selection or <strong>median-of-three</strong> (pick median of first, middle, last elements) to avoid O(n²) on sorted input.</p>
+                </div>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Always Picking First/Last Element as Pivot</div>
+                    <p>On sorted or nearly sorted arrays, this causes O(n²) worst case. Use <strong>random pivot</strong> or <strong>median-of-three</strong>.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not Handling Duplicates</div>
+                    <p>Arrays with many duplicates cause Lomuto partition to degrade. Use <strong>3-way partitioning</strong> (Dutch National Flag) for arrays with duplicates.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Stack Overflow on Large Arrays</div>
+                    <p>Worst-case O(n) recursion depth can overflow the stack. Use <strong>tail call optimization</strong>: recurse on the smaller partition, iterate on the larger one.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing Lomuto and Hoare Recursive Calls</div>
+                    <p>Lomuto: recurse on <code>(low, pi-1)</code> and <code>(pi+1, high)</code>. Hoare: recurse on <code>(low, pi)</code> and <code>(pi+1, high)</code>. Mixing them causes bugs!</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Tips</h2>
+                <ul>
+                    <li><strong>Quick Select:</strong> Use partitioning to find kth smallest/largest in O(n) average — very common interview question</li>
+                    <li><strong>In-place advantage:</strong> Quick Sort uses O(log n) space vs Merge Sort's O(n)</li>
+                    <li><strong>Not stable:</strong> Quick Sort is not stable — mention this when comparing sorts</li>
+                    <li><strong>3-way partition:</strong> Know Dutch National Flag for handling duplicates efficiently</li>
+                    <li><strong>Real-world usage:</strong> C's qsort, Java's Arrays.sort for primitives both use Quick Sort variants</li>
+                </ul>
+            </div>
+
+            <!-- Real-world -->
+            <div class="section-card">
+                <h2><span class="section-icon">🏗️</span> Where Quick Sort Is Used</h2>
+                <ul>
+                    <li><strong>C standard library:</strong> <code>qsort()</code> is typically implemented as Quick Sort</li>
+                    <li><strong>Java:</strong> <code>Arrays.sort()</code> for primitive types uses dual-pivot Quick Sort</li>
+                    <li><strong>V8 engine (Chrome):</strong> JavaScript's Array.sort used Timsort with Quick Sort internals</li>
+                    <li><strong>Database query sorting:</strong> In-memory sorting often uses Quick Sort for its cache efficiency</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Quick Sort = pick pivot → partition (small left, big right) → recurse on each side</li>
+                    <li>Average: O(n log n) | Worst: O(n²) | Space: O(log n)</li>
+                    <li>Lomuto: simple, pivot at end | Hoare: fewer swaps, pivot at middle</li>
+                    <li>Use randomized pivot to avoid worst case on sorted input</li>
+                    <li>Not stable, but in-place — fastest in practice for random data</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What causes Quick Sort's O(n²) worst case?</div>
+                            <div class="flashcard-back">When the pivot always lands at the extreme end (smallest or largest element), creating maximally unbalanced partitions. Happens with sorted input + first/last pivot choice.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How does Quick Select find the kth element in O(n)?</div>
+                            <div class="flashcard-back">Partition once. If pivot index = k, done. If k < pivot index, recurse on left only. If k > pivot index, recurse on right only. Only recurse on ONE side → O(n) average.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is 3-way partitioning?</div>
+                            <div class="flashcard-back">Partition into three groups: elements &lt; pivot, elements == pivot, elements &gt; pivot. Handles many duplicates efficiently. Used in Dutch National Flag problem.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode Problems -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">912</span><span class="lc-name"><a href="https://leetcode.com/problems/sort-an-array/" target="_blank" rel="noopener">Sort an Array</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Quick Sort</span></li>
+                    <li class="leetcode-item"><span class="lc-number">75</span><span class="lc-name"><a href="https://leetcode.com/problems/sort-colors/" target="_blank" rel="noopener">Sort Colors</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">3-Way Partition</span></li>
+                    <li class="leetcode-item"><span class="lc-number">215</span><span class="lc-name"><a href="https://leetcode.com/problems/kth-largest-element-in-an-array/" target="_blank" rel="noopener">Kth Largest Element in an Array</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Quick Select</span></li>
+                    <li class="leetcode-item"><span class="lc-number">347</span><span class="lc-name"><a href="https://leetcode.com/problems/top-k-frequent-elements/" target="_blank" rel="noopener">Top K Frequent Elements</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Quick Select</span></li>
+                    <li class="leetcode-item"><span class="lc-number">973</span><span class="lc-name"><a href="https://leetcode.com/problems/k-closest-points-to-origin/" target="_blank" rel="noopener">K Closest Points to Origin</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Quick Select</span></li>
+                    <li class="leetcode-item"><span class="lc-number">283</span><span class="lc-name"><a href="https://leetcode.com/problems/move-zeroes/" target="_blank" rel="noopener">Move Zeroes</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Partition</span></li>
+                    <li class="leetcode-item"><span class="lc-number">324</span><span class="lc-name"><a href="https://leetcode.com/problems/wiggle-sort-ii/" target="_blank" rel="noopener">Wiggle Sort II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Quick Select + Partition</span></li>
+                    <li class="leetcode-item"><span class="lc-number">148</span><span class="lc-name"><a href="https://leetcode.com/problems/sort-list/" target="_blank" rel="noopener">Sort List</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Sorting</span></li>
+                    <li class="leetcode-item"><span class="lc-number">179</span><span class="lc-name"><a href="https://leetcode.com/problems/largest-number/" target="_blank" rel="noopener">Largest Number</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Custom Sort</span></li>
+                    <li class="leetcode-item"><span class="lc-number">4</span><span class="lc-name"><a href="https://leetcode.com/problems/median-of-two-sorted-arrays/" target="_blank" rel="noopener">Median of Two Sorted Arrays</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Divide & Conquer</span></li>
+                </ul>
+            </div>
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

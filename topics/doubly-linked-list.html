@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doubly Linked List - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 6</a><span class="separator">›</span><span class="current">Doubly Linked List</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Doubly Linked List</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 6</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="doubly-linked-list">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is a Doubly Linked List?</h2>
+                <p>A <strong>Doubly Linked List (DLL)</strong> is a linked list where each node has <strong>two pointers</strong>: one to the <strong>next</strong> node and one to the <strong>previous</strong> node. This allows traversal in <strong>both directions</strong> — forward and backward.</p>
+                <div class="callout tip">
+                    <div class="callout-title">🌍 Real-Life Analogy</div>
+                    <p>Think of a <strong>music playlist</strong> with "Previous" and "Next" buttons. A singly linked list is like a playlist with only "Next" — you can't go back. A doubly linked list is like a full playlist where you can skip forward AND backward. Each song knows the song before it and the song after it.</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How It Works</h2>
+
+                <div class="viz-container">
+                    <div class="viz-title">Doubly Linked List Structure</div>
+                    <div class="ascii-diagram">
+null ← [prev|10|next] ⇌ [prev|20|next] ⇌ [prev|30|next] → null
+         head                                    tail
+
+Each node: { prev, data, next }
+
+Singly:  A → B → C → D     (one-way street)
+Doubly:  A ⇌ B ⇌ C ⇌ D    (two-way street)
+                    </div>
+                </div>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>class DLLNode {
+    constructor(data) {
+        this.data = data;
+        this.prev = null;
+        this.next = null;
+    }
+}
+
+class DoublyLinkedList {
+    constructor() {
+        this.head = null;
+        this.tail = null;
+        this.size = 0;
+    }
+    
+    // Insert at front — O(1)
+    insertFront(data) {
+        const node = new DLLNode(data);
+        if (!this.head) {
+            this.head = this.tail = node;
+        } else {
+            node.next = this.head;
+            this.head.prev = node;
+            this.head = node;
+        }
+        this.size++;
+    }
+    
+    // Insert at end — O(1) with tail pointer
+    insertEnd(data) {
+        const node = new DLLNode(data);
+        if (!this.tail) {
+            this.head = this.tail = node;
+        } else {
+            node.prev = this.tail;
+            this.tail.next = node;
+            this.tail = node;
+        }
+        this.size++;
+    }
+    
+    // Delete a node — O(1) given the node reference
+    deleteNode(node) {
+        if (node.prev) node.prev.next = node.next;
+        else this.head = node.next;
+        
+        if (node.next) node.next.prev = node.prev;
+        else this.tail = node.prev;
+        
+        this.size--;
+    }
+    
+    // Traverse forward
+    printForward() {
+        let curr = this.head;
+        const result = [];
+        while (curr) { result.push(curr.data); curr = curr.next; }
+        return result.join(' ⇌ ');
+    }
+    
+    // Traverse backward
+    printBackward() {
+        let curr = this.tail;
+        const result = [];
+        while (curr) { result.push(curr.data); curr = curr.prev; }
+        return result.join(' ⇌ ');
+    }
+}</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run</h2>
+                <p>Insert 10, 20, 30 then delete 20</p>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">insertEnd(10): Create node, head=tail=node</div><div class="step-state">null ← [10] → null</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">insertEnd(20): Link 10↔20, tail=20</div><div class="step-state">null ← [10] ⇌ [20] → null</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">insertEnd(30): Link 20↔30, tail=30</div><div class="step-state">null ← [10] ⇌ [20] ⇌ [30] → null</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">delete(20): Set 10.next=30, 30.prev=10</div><div class="step-state">null ← [10] ⇌ [30] → null ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Singly LL</th><th>Doubly LL</th><th>Why DLL is better</th></tr></thead>
+                    <tbody>
+                        <tr><td>Insert at head</td><td class="best">O(1)</td><td class="best">O(1)</td><td>Same</td></tr>
+                        <tr><td>Insert at tail</td><td class="avg">O(n) / O(1)*</td><td class="best">O(1)</td><td>DLL has tail pointer</td></tr>
+                        <tr><td>Delete given node</td><td class="worst">O(n)</td><td class="best">O(1)</td><td>DLL has prev pointer!</td></tr>
+                        <tr><td>Delete at tail</td><td class="worst">O(n)</td><td class="best">O(1)</td><td>DLL can access prev</td></tr>
+                        <tr><td>Traverse backward</td><td class="worst">O(n) reversed</td><td class="best">O(n)</td><td>DLL traverses naturally</td></tr>
+                    </tbody>
+                </table>
+                <p class="text-muted">* O(1) if singly LL also maintains a tail pointer for insertion, but deletion at tail is still O(n).</p>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting to update BOTH prev and next</div>
+                    <pre><code>// ❌ Only updating next pointer
+node.prev.next = node.next;
+// Missing: node.next.prev = node.prev;
+
+// ✅ Always update both directions
+if (node.prev) node.prev.next = node.next;
+if (node.next) node.next.prev = node.prev;</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not handling head/tail edge cases</div>
+                    <p>When deleting the head, update head = head.next. When deleting the tail, update tail = tail.prev. Always check for null before accessing .prev or .next.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>DLL is the backbone of <strong>LRU Cache</strong> (LC 146) — O(1) deletion with node reference.</li>
+                    <li>Used in browser history (back/forward), text editor undo/redo.</li>
+                    <li>When you need O(1) deletion of a known node → DLL.</li>
+                    <li>Trade-off: DLL uses more memory per node (extra prev pointer).</li>
+                    <li>Common interview pattern: DLL + HashMap = O(1) for both access and deletion.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Each node has prev + next pointers. Can traverse both directions.</li>
+                    <li>O(1) insertion at head/tail. O(1) deletion given node reference.</li>
+                    <li>Used in LRU Cache, browser history, text editors.</li>
+                    <li>Always update BOTH prev and next pointers when inserting/deleting.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the main advantage of DLL over singly linked list?</div>
+                            <div class="flashcard-back"><strong>O(1) deletion</strong> given a node reference. In a singly linked list, you need O(n) to find the previous node. DLL already has the prev pointer, so deletion is instant.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why is DLL used in LRU Cache?</div>
+                            <div class="flashcard-back">LRU Cache needs: (1) O(1) access (HashMap), (2) O(1) removal of any node, (3) O(1) insertion at front. DLL provides O(1) removal and insertion. HashMap maps keys to DLL nodes for O(1) access.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">146</span><span class="lc-name"><a href="https://leetcode.com/problems/lru-cache/" target="_blank" rel="noopener">LRU Cache</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">DLL + HashMap</span></li>
+                    <li class="leetcode-item"><span class="lc-number">460</span><span class="lc-name"><a href="https://leetcode.com/problems/lfu-cache/" target="_blank" rel="noopener">LFU Cache</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">DLL + HashMap</span></li>
+                    <li class="leetcode-item"><span class="lc-number">430</span><span class="lc-name"><a href="https://leetcode.com/problems/flatten-a-multilevel-doubly-linked-list/" target="_blank" rel="noopener">Flatten Multilevel DLL</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">DLL manipulation</span></li>
+                    <li class="leetcode-item"><span class="lc-number">426</span><span class="lc-name"><a href="https://leetcode.com/problems/convert-binary-search-tree-to-sorted-doubly-linked-list/" target="_blank" rel="noopener">BST to Sorted DLL</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Inorder + DLL</span></li>
+                    <li class="leetcode-item"><span class="lc-number">707</span><span class="lc-name"><a href="https://leetcode.com/problems/design-linked-list/" target="_blank" rel="noopener">Design Linked List</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Implement DLL</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

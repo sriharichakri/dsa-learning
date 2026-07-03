@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Priority Queue - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 8</a><span class="separator">›</span><span class="current">Priority Queue</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Priority Queue</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 8</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="priority-queue">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is a Priority Queue?</h2>
+                <p>A <strong>Priority Queue</strong> is an abstract data type where each element has a <strong>priority</strong>. Elements with higher priority are dequeued before elements with lower priority, regardless of insertion order. It's typically implemented using a <strong>heap</strong>.</p>
+                <div class="callout tip">
+                    <div class="callout-title">🌍 Real-Life Analogy</div>
+                    <p>Think of an <strong>emergency room</strong>. Patients don't get treated in the order they arrive (that would be a regular queue). Instead, the most <strong>critical patient</strong> (highest priority) is treated first, even if they arrived last. A gunshot wound gets priority over a sprained ankle, regardless of who came in first.</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How It Works</h2>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>class MinPriorityQueue {
+    constructor() { this.heap = []; }
+    
+    push(val) {
+        this.heap.push(val);
+        this._bubbleUp(this.heap.length - 1);
+    }
+    
+    pop() {
+        const min = this.heap[0];
+        const last = this.heap.pop();
+        if (this.heap.length > 0) {
+            this.heap[0] = last;
+            this._sinkDown(0);
+        }
+        return min;
+    }
+    
+    peek() { return this.heap[0]; }
+    size() { return this.heap.length; }
+    
+    _bubbleUp(i) {
+        while (i > 0) {
+            const parent = Math.floor((i - 1) / 2);
+            if (this.heap[parent] <= this.heap[i]) break;
+            [this.heap[parent], this.heap[i]] = [this.heap[i], this.heap[parent]];
+            i = parent;
+        }
+    }
+    
+    _sinkDown(i) {
+        const n = this.heap.length;
+        while (true) {
+            let smallest = i;
+            const left = 2 * i + 1, right = 2 * i + 2;
+            if (left < n && this.heap[left] < this.heap[smallest]) smallest = left;
+            if (right < n && this.heap[right] < this.heap[smallest]) smallest = right;
+            if (smallest === i) break;
+            [this.heap[i], this.heap[smallest]] = [this.heap[smallest], this.heap[i]];
+            i = smallest;
+        }
+    }
+}
+
+// Usage: K Closest Points to Origin
+function kClosest(points, k) {
+    const pq = new MinPriorityQueue(); // Sort by distance
+    for (let [x, y] of points) {
+        pq.push({ dist: x*x + y*y, point: [x, y] });
+    }
+    const result = [];
+    for (let i = 0; i < k; i++) result.push(pq.pop().point);
+    return result;
+}</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run</h2>
+                <p>Min Priority Queue: push 5, 3, 7, 1, then pop twice</p>
+
+                <div class="viz-container">
+                    <div class="viz-title">Min-Heap underlying a Priority Queue</div>
+                    <div class="ascii-diagram">
+push(5):     5
+
+push(3):     3        (3 bubbles up, swaps with 5)
+            / 
+           5
+
+push(7):     3
+            / \
+           5   7
+
+push(1):     1        (1 bubbles up through 5, then 3)
+            / \
+           3   7
+          /
+         5
+
+pop() → 1:   3       (remove 1, put 5 at root, sink down)
+             / \
+            5   7
+
+pop() → 3:   5       (remove 3, put 7 at root, sink down)
+             /
+            7
+                    </div>
+                </div>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">push(5): Heap = [5]</div><div class="step-state">Root = 5</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">push(3): 3 < parent 5 → bubble up. Heap = [3, 5]</div><div class="step-state">Root = 3</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">push(7): 7 > parent 3 → stay. Heap = [3, 5, 7]</div><div class="step-state">Root = 3</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">push(1): 1 < parent 5 → swap, 1 < parent 3 → swap. Heap = [1, 3, 7, 5]</div><div class="step-state">Root = 1</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">pop() → 1. Move 5 to root, sink: 5 > 3 → swap. Heap = [3, 5, 7]</div><div class="step-state">Returned 1, Root = 3</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">6</div><div class="step-content"><div class="step-desc">pop() → 3. Move 7 to root, sink: 7 > 5 → swap. Heap = [5, 7]</div><div class="step-state">Returned 3, Root = 5</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Time</th><th>Notes</th></tr></thead>
+                    <tbody>
+                        <tr><td>push (insert)</td><td class="avg">O(log n)</td><td>Bubble up through heap height</td></tr>
+                        <tr><td>pop (extract min/max)</td><td class="avg">O(log n)</td><td>Sink down through heap height</td></tr>
+                        <tr><td>peek (get min/max)</td><td class="best">O(1)</td><td>Just read the root</td></tr>
+                        <tr><td>Build from array</td><td class="best">O(n)</td><td>Heapify all non-leaf nodes</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing min-heap and max-heap</div>
+                    <p>Min priority queue uses a <strong>min-heap</strong> (smallest on top). Max priority queue uses a <strong>max-heap</strong>. For "K largest" problems, use a <strong>min-heap of size K</strong> (counterintuitive!).</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Using sorted array instead of heap</div>
+                    <p>A sorted array gives O(1) peek but O(n) insert (need to shift elements). A heap gives O(log n) for both — much better for dynamic data.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Priority queue = the go-to for "Top K", "Kth largest/smallest" problems.</li>
+                    <li>For "K largest": use min-heap of size K. Pop when size > K.</li>
+                    <li>For "K smallest": use max-heap of size K.</li>
+                    <li>Priority queue is essential for Dijkstra's algorithm and Prim's algorithm.</li>
+                    <li>JavaScript doesn't have a built-in PQ — know how to implement one with a heap.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Priority queue: highest priority element dequeued first.</li>
+                    <li>Implemented as heap: push O(log n), pop O(log n), peek O(1).</li>
+                    <li>Min-heap: smallest on top. Max-heap: largest on top.</li>
+                    <li>Top K largest → min-heap of size K. Top K smallest → max-heap of size K.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why use a min-heap (not max-heap) for "K largest elements"?</div>
+                            <div class="flashcard-back">A min-heap of size K keeps the <strong>K largest</strong> elements seen so far. The root (min of the K) acts as a gatekeeper: if a new element is larger, pop the min and push the new element. At the end, the heap contains the K largest. This is O(n log k) instead of O(n log n).</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the difference between a priority queue and a heap?</div>
+                            <div class="flashcard-back">A <strong>priority queue</strong> is an abstract data type (ADT) — it defines operations (insert, extractMin). A <strong>heap</strong> is a specific data structure used to implement it. You could also implement a PQ with a sorted array or BST, but heap is the most efficient.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">215</span><span class="lc-name"><a href="https://leetcode.com/problems/kth-largest-element-in-an-array/" target="_blank" rel="noopener">Kth Largest Element</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Min-heap of size K</span></li>
+                    <li class="leetcode-item"><span class="lc-number">347</span><span class="lc-name"><a href="https://leetcode.com/problems/top-k-frequent-elements/" target="_blank" rel="noopener">Top K Frequent Elements</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Heap + frequency map</span></li>
+                    <li class="leetcode-item"><span class="lc-number">23</span><span class="lc-name"><a href="https://leetcode.com/problems/merge-k-sorted-lists/" target="_blank" rel="noopener">Merge k Sorted Lists</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Min-heap for merging</span></li>
+                    <li class="leetcode-item"><span class="lc-number">295</span><span class="lc-name"><a href="https://leetcode.com/problems/find-median-from-data-stream/" target="_blank" rel="noopener">Find Median from Data Stream</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Two heaps (max + min)</span></li>
+                    <li class="leetcode-item"><span class="lc-number">973</span><span class="lc-name"><a href="https://leetcode.com/problems/k-closest-points-to-origin/" target="_blank" rel="noopener">K Closest Points to Origin</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Max-heap of size K</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tree Traversal - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 9</a><span class="separator">›</span><span class="current">Tree Traversal</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Tree Traversal (Inorder, Preorder, Postorder, Level Order)</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 9</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="tree-traversal">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Tree Traversal?</h2>
+                <p><strong>Tree Traversal</strong> is the process of visiting every node in a tree exactly once, in a specific order. There are four main traversals:</p>
+                <ul>
+                    <li><strong>Inorder (LNR):</strong> Left → Node → Right — gives <strong>sorted order</strong> in BST</li>
+                    <li><strong>Preorder (NLR):</strong> Node → Left → Right — used to <strong>serialize/copy</strong> trees</li>
+                    <li><strong>Postorder (LRN):</strong> Left → Right → Node — used to <strong>delete</strong> trees</li>
+                    <li><strong>Level Order (BFS):</strong> Level by level, left to right — uses a <strong>queue</strong></li>
+                </ul>
+                <div class="callout tip">
+                    <div class="callout-title">🌍 Real-Life Analogy</div>
+                    <p>Think of visiting rooms in a building. <strong>Preorder</strong> = enter and mark a room, then visit its sub-rooms. <strong>Inorder</strong> = visit left wing, mark current room, then right wing. <strong>Postorder</strong> = visit all sub-rooms first, then mark the current room. <strong>Level order</strong> = visit all rooms on floor 1, then floor 2, etc.</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How It Works</h2>
+
+                <div class="viz-container">
+                    <div class="viz-title">Example tree for all traversals</div>
+                    <div class="ascii-diagram">
+            1
+           / \
+          2    3
+         / \    \
+        4    5    6
+
+Inorder   (LNR): 4, 2, 5, 1, 3, 6
+Preorder  (NLR): 1, 2, 4, 5, 3, 6
+Postorder (LRN): 4, 5, 2, 6, 3, 1
+Level Order:     1, 2, 3, 4, 5, 6
+                    </div>
+                </div>
+
+                <h3>Recursive Implementations</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function inorder(root, result = []) {
+    if (!root) return result;
+    inorder(root.left, result);    // L
+    result.push(root.val);          // N
+    inorder(root.right, result);   // R
+    return result;
+}
+
+function preorder(root, result = []) {
+    if (!root) return result;
+    result.push(root.val);          // N
+    preorder(root.left, result);   // L
+    preorder(root.right, result);  // R
+    return result;
+}
+
+function postorder(root, result = []) {
+    if (!root) return result;
+    postorder(root.left, result);  // L
+    postorder(root.right, result); // R
+    result.push(root.val);          // N
+    return result;
+}</code></pre>
+
+                <h3>Iterative Implementations</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Iterative Inorder — uses stack
+function inorderIterative(root) {
+    const result = [], stack = [];
+    let curr = root;
+    
+    while (curr || stack.length) {
+        while (curr) {
+            stack.push(curr);
+            curr = curr.left;  // Go as left as possible
+        }
+        curr = stack.pop();
+        result.push(curr.val);  // Visit node
+        curr = curr.right;       // Go right
+    }
+    return result;
+}
+
+// Iterative Preorder — straightforward with stack
+function preorderIterative(root) {
+    if (!root) return [];
+    const result = [], stack = [root];
+    
+    while (stack.length) {
+        const node = stack.pop();
+        result.push(node.val);
+        if (node.right) stack.push(node.right); // Right first!
+        if (node.left) stack.push(node.left);   // Left on top
+    }
+    return result;
+}
+
+// Level Order — BFS with queue
+function levelOrder(root) {
+    if (!root) return [];
+    const result = [], queue = [root];
+    
+    while (queue.length) {
+        const levelSize = queue.length;
+        const level = [];
+        
+        for (let i = 0; i < levelSize; i++) {
+            const node = queue.shift();
+            level.push(node.val);
+            if (node.left) queue.push(node.left);
+            if (node.right) queue.push(node.right);
+        }
+        result.push(level);
+    }
+    return result;  // [[1], [2,3], [4,5,6]]
+}</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run</h2>
+                <p>Inorder traversal of the tree: 1(2(4,5), 3(null,6))</p>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Start at 1 → go left to 2 → go left to 4 → go left (null)</div><div class="step-state">Stack: [1, 2, 4] | Result: []</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Pop 4 → visit. Right is null.</div><div class="step-state">Stack: [1, 2] | Result: [4]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Pop 2 → visit. Go right to 5.</div><div class="step-state">Stack: [1] | Result: [4, 2]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">At 5 → push, go left (null). Pop 5 → visit. Right is null.</div><div class="step-state">Stack: [1] | Result: [4, 2, 5]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">Pop 1 → visit. Go right to 3.</div><div class="step-state">Stack: [] | Result: [4, 2, 5, 1]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">6</div><div class="step-content"><div class="step-desc">At 3 → push, left is null. Pop 3 → visit. Go right to 6. Visit 6.</div><div class="step-state">Result: [4, 2, 5, 1, 3, 6] ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Traversal</th><th>Time</th><th>Space (Recursive)</th><th>Space (Iterative)</th></tr></thead>
+                    <tbody>
+                        <tr><td>Inorder</td><td class="best">O(n)</td><td class="avg">O(h) stack</td><td class="avg">O(h) stack</td></tr>
+                        <tr><td>Preorder</td><td class="best">O(n)</td><td class="avg">O(h) stack</td><td class="avg">O(h) stack</td></tr>
+                        <tr><td>Postorder</td><td class="best">O(n)</td><td class="avg">O(h) stack</td><td class="avg">O(h) stack</td></tr>
+                        <tr><td>Level Order</td><td class="best">O(n)</td><td>—</td><td class="avg">O(w) queue</td></tr>
+                    </tbody>
+                </table>
+                <p class="text-muted">h = height of tree (log n for balanced, n for skewed). w = max width (up to n/2).</p>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Mixing up the order of L, N, R</div>
+                    <p><strong>Inorder = LNR</strong>, <strong>Preorder = NLR</strong>, <strong>Postorder = LRN</strong>. The name tells you when the Node is processed: in-between, pre (before), post (after) the children.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Pushing left before right in iterative preorder</div>
+                    <pre><code>// ❌ Left pushed first = left popped last = right processed first!
+stack.push(node.left);
+stack.push(node.right);
+
+// ✅ Push RIGHT first, then LEFT (stack is LIFO!)
+if (node.right) stack.push(node.right);
+if (node.left) stack.push(node.left);</code></pre>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li><strong>Inorder</strong> of BST gives sorted order — use this to validate BSTs.</li>
+                    <li><strong>Preorder</strong> + <strong>Inorder</strong> can reconstruct a unique binary tree.</li>
+                    <li><strong>Level order</strong> is BFS — used for zigzag, right side view, level averages.</li>
+                    <li>Know both <strong>recursive and iterative</strong> versions — iterative shows deeper understanding.</li>
+                    <li><strong>Morris Traversal</strong> achieves O(1) space inorder — bonus points in interviews.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Inorder (LNR): sorted order in BST. Preorder (NLR): copy/serialize. Postorder (LRN): delete.</li>
+                    <li>Level order: BFS with queue, process level by level.</li>
+                    <li>All traversals: O(n) time. Space: O(h) for DFS, O(w) for BFS.</li>
+                    <li>Iterative preorder: stack, push right before left. Iterative inorder: go left, pop, go right.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What does inorder traversal of a BST give you?</div>
+                            <div class="flashcard-back">The nodes in <strong>sorted (ascending) order</strong>. This is because in a BST, left < root < right. Inorder visits left first, then root, then right — producing a sorted sequence.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you remember the order: Inorder, Preorder, Postorder?</div>
+                            <div class="flashcard-back">The name tells you when the <strong>Node (N)</strong> is processed relative to children (L, R):<br>• <strong>Pre</strong>order: N first → NLR<br>• <strong>In</strong>order: N in middle → LNR<br>• <strong>Post</strong>order: N last → LRN</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">94</span><span class="lc-name"><a href="https://leetcode.com/problems/binary-tree-inorder-traversal/" target="_blank" rel="noopener">Binary Tree Inorder Traversal</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Inorder (recursive + iterative)</span></li>
+                    <li class="leetcode-item"><span class="lc-number">144</span><span class="lc-name"><a href="https://leetcode.com/problems/binary-tree-preorder-traversal/" target="_blank" rel="noopener">Binary Tree Preorder Traversal</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Preorder</span></li>
+                    <li class="leetcode-item"><span class="lc-number">102</span><span class="lc-name"><a href="https://leetcode.com/problems/binary-tree-level-order-traversal/" target="_blank" rel="noopener">Level Order Traversal</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">BFS with queue</span></li>
+                    <li class="leetcode-item"><span class="lc-number">103</span><span class="lc-name"><a href="https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/" target="_blank" rel="noopener">Zigzag Level Order</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Level order + alternating</span></li>
+                    <li class="leetcode-item"><span class="lc-number">105</span><span class="lc-name"><a href="https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/" target="_blank" rel="noopener">Construct Tree from Preorder + Inorder</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Tree reconstruction</span></li>
+                    <li class="leetcode-item"><span class="lc-number">199</span><span class="lc-name"><a href="https://leetcode.com/problems/binary-tree-right-side-view/" target="_blank" rel="noopener">Binary Tree Right Side View</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Level order (last of each level)</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queue - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 8</a><span class="separator">›</span><span class="current">Queue</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Queue Fundamentals</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 8</span>
+                    <span class="topic-badge difficulty-easy">Beginner Friendly</span>
+                    <button class="topic-complete-btn" data-topic-id="queue">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is a Queue?</h2>
+                <p>A <strong>Queue</strong> is a linear data structure that follows the <strong>FIFO</strong> principle — <strong>First In, First Out</strong>. The first element added is the first one removed. You add at the <strong>rear (back)</strong> and remove from the <strong>front</strong>.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Queues maintain <strong>order of arrival</strong>. Wherever you need to process things in the order they came — task scheduling, BFS traversal, message processing — a queue is the right choice. Stack = LIFO (most recent first). Queue = FIFO (oldest first).</p>
+                </div>
+            </div>
+
+            <!-- Real-Life Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🎫 Line at a Ticket Counter</div>
+                    <p>People join at the <strong>back</strong> of the line and are served at the <strong>front</strong>. The first person who arrived gets served first — that's FIFO! You can't cut in line (no random access), and new people always join at the end (enqueue at rear).</p>
+                </div>
+                <ul>
+                    <li><strong>Printer queue:</strong> Documents are printed in the order they were sent. First document sent = first printed.</li>
+                    <li><strong>Fast food drive-through:</strong> Cars enter at the back, get served at the front window.</li>
+                    <li><strong>Customer support call:</strong> "Your call will be answered in the order it was received."</li>
+                    <li><strong>Airport runway:</strong> Planes take off in the order they join the runway queue.</li>
+                </ul>
+            </div>
+
+            <!-- Queue Visualization -->
+            <div class="section-card">
+                <h2><span class="section-icon">👁️</span> Queue Visualization</h2>
+
+                <div class="viz-container">
+                    <div class="viz-title">Queue Operations</div>
+                    <div class="ascii-diagram">
+  enqueue(10)   enqueue(20)   enqueue(30)    dequeue()
+  
+  Front→Rear    Front→Rear    Front→Rear     Front→Rear
+  ┌────┐        ┌────┬────┐   ┌────┬────┬────┐ ┌────┬────┐
+  │ 10 │        │ 10 │ 20 │   │ 10 │ 20 │ 30 │ │ 20 │ 30 │
+  └────┘        └────┴────┘   └────┴────┴────┘ └────┴────┘
+                                                removed: 10
+  
+  ← dequeue (remove from front)
+  enqueue (add to rear) →
+                    </div>
+                </div>
+
+                <div class="queue-viz">
+                    <span style="color: #4CAF50; font-weight: bold;">Front →</span>
+                    <div class="stack-item" style="background: #4CAF50; color: white; display: inline-block; padding: 8px 16px; margin: 4px;">10</div>
+                    <div class="stack-item" style="background: #2196F3; color: white; display: inline-block; padding: 8px 16px; margin: 4px;">20</div>
+                    <div class="stack-item" style="background: #FF9800; color: white; display: inline-block; padding: 8px 16px; margin: 4px;">30</div>
+                    <span style="color: #FF9800; font-weight: bold;">← Rear</span>
+                </div>
+            </div>
+
+            <!-- Implementation -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Implementation</h2>
+
+                <div class="code-header"><span>JavaScript — Using Array</span><button class="copy-btn">Copy</button></div>
+                <pre><code>class Queue {
+    constructor() {
+        this.items = [];
+    }
+    
+    enqueue(val) {
+        this.items.push(val);        // Add to rear
+    }
+    
+    dequeue() {
+        if (this.isEmpty()) return undefined;
+        return this.items.shift();    // Remove from front
+    }
+    
+    front() {
+        if (this.isEmpty()) return undefined;
+        return this.items[0];         // Peek at front
+    }
+    
+    isEmpty() {
+        return this.items.length === 0;
+    }
+    
+    size() {
+        return this.items.length;
+    }
+}
+
+const q = new Queue();
+q.enqueue(10);  // [10]
+q.enqueue(20);  // [10, 20]
+q.enqueue(30);  // [10, 20, 30]
+q.front();      // 10
+q.dequeue();    // 10 (removed)
+q.front();      // 20</code></pre>
+
+                <div class="callout warning">
+                    <div class="callout-title">⚡ Array.shift() is O(n)!</div>
+                    <p><code>shift()</code> removes the first element and shifts all others left — that's O(n). For performance-critical code, use a <strong>linked list</strong> or an <strong>object with head/tail indices</strong> for O(1) dequeue.</p>
+                </div>
+
+                <h3>Efficient Queue (O(1) all operations)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>class EfficientQueue {
+    constructor() {
+        this.items = {};
+        this.head = 0;
+        this.tail = 0;
+    }
+    
+    enqueue(val) {
+        this.items[this.tail] = val;
+        this.tail++;
+    }
+    
+    dequeue() {
+        if (this.isEmpty()) return undefined;
+        const val = this.items[this.head];
+        delete this.items[this.head];
+        this.head++;
+        return val;
+    }
+    
+    front() { return this.items[this.head]; }
+    isEmpty() { return this.tail === this.head; }
+    size() { return this.tail - this.head; }
+}</code></pre>
+            </div>
+
+            <!-- Queue using Stacks -->
+            <div class="section-card">
+                <h2><span class="section-icon">⭐</span> Classic: Implement Queue using Two Stacks</h2>
+                <p>A famous interview problem — simulate FIFO using two LIFO stacks.</p>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>class QueueUsingStacks {
+    constructor() {
+        this.inStack = [];   // For enqueue
+        this.outStack = [];  // For dequeue
+    }
+    
+    enqueue(val) {
+        this.inStack.push(val);
+    }
+    
+    dequeue() {
+        if (this.outStack.length === 0) {
+            // Move all from inStack to outStack (reverses order!)
+            while (this.inStack.length > 0) {
+                this.outStack.push(this.inStack.pop());
+            }
+        }
+        return this.outStack.pop();
+    }
+}
+
+// enqueue 1, 2, 3:  inStack = [1, 2, 3]
+// dequeue:          outStack = [3, 2, 1] → pop → returns 1 ✅ (FIFO!)</code></pre>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">enqueue(1), enqueue(2), enqueue(3)</div><div class="step-state">inStack=[1,2,3], outStack=[]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">dequeue() → outStack empty, transfer all from inStack</div><div class="step-state">inStack=[], outStack=[3,2,1]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Pop from outStack → returns <strong>1</strong> (first in, first out!)</div><div class="step-state">inStack=[], outStack=[3,2]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">dequeue() → outStack not empty, just pop → returns <strong>2</strong></div><div class="step-state">inStack=[], outStack=[3] ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- BFS Preview -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌊</span> Where Queues Shine: BFS</h2>
+                <p>Breadth-First Search (BFS) uses a queue to explore nodes level by level — close neighbors first, then their neighbors, and so on.</p>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// BFS on a tree (level-order traversal)
+function bfs(root) {
+    if (!root) return [];
+    const queue = [root];
+    const result = [];
+    
+    while (queue.length > 0) {
+        const node = queue.shift();  // Process front
+        result.push(node.val);
+        
+        if (node.left) queue.push(node.left);   // Add children
+        if (node.right) queue.push(node.right);
+    }
+    return result;
+}</code></pre>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Array (shift)</th><th>Linked List / Object</th></tr></thead>
+                    <tbody>
+                        <tr><td>enqueue (add to rear)</td><td class="best">O(1)</td><td class="best">O(1)</td></tr>
+                        <tr><td>dequeue (remove from front)</td><td class="worst">O(n)</td><td class="best">O(1)</td></tr>
+                        <tr><td>front / peek</td><td class="best">O(1)</td><td class="best">O(1)</td></tr>
+                        <tr><td>isEmpty</td><td class="best">O(1)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Space</td><td class="avg">O(n)</td><td class="avg">O(n)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Stack vs Queue -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔄</span> Stack vs Queue</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Feature</th><th>Stack (LIFO)</th><th>Queue (FIFO)</th></tr></thead>
+                    <tbody>
+                        <tr><td>Order</td><td>Last In, First Out</td><td>First In, First Out</td></tr>
+                        <tr><td>Add</td><td>push (top)</td><td>enqueue (rear)</td></tr>
+                        <tr><td>Remove</td><td>pop (top)</td><td>dequeue (front)</td></tr>
+                        <tr><td>Traversal</td><td>DFS (depth first)</td><td>BFS (breadth first)</td></tr>
+                        <tr><td>Use case</td><td>Undo, brackets, recursion</td><td>Scheduling, BFS, buffering</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Using Array.shift() for high-performance queues</div>
+                    <p><code>shift()</code> is O(n) because it shifts all elements. For large queues, use a linked list or indexed object implementation.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing Stack and Queue</div>
+                    <p>Stack: use when you need the <strong>most recent</strong> item (brackets, undo). Queue: use when you need the <strong>oldest</strong> item (scheduling, BFS).</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting to check empty before dequeue</div>
+                    <pre><code>// ❌ Returns undefined or crashes
+q.dequeue(); // Queue might be empty!
+
+// ✅ Check first
+if (!q.isEmpty()) q.dequeue();</code></pre>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li><strong>BFS traversal</strong> always uses a queue. If they ask BFS, you need a queue.</li>
+                    <li>Know how to implement a <strong>queue using two stacks</strong> (amortized O(1) dequeue).</li>
+                    <li>Know how to implement a <strong>stack using two queues</strong> (less common but sometimes asked).</li>
+                    <li><strong>Circular queue</strong> (ring buffer) is used in system design for bounded buffers.</li>
+                    <li>Queue + HashMap = <strong>LRU Cache</strong> (very popular design question).</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Queue = FIFO. Enqueue at rear, dequeue from front.</li>
+                    <li>Array.shift() is O(n). Use linked list or object for O(1) dequeue.</li>
+                    <li>Queue using two stacks: push to inStack, transfer to outStack for dequeue.</li>
+                    <li>Main use cases: BFS, task scheduling, buffering, order processing.</li>
+                    <li>Stack = DFS, Queue = BFS. Know which to use when.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What does FIFO stand for?</div>
+                            <div class="flashcard-back">First In, First Out. The first element added is the first one removed. Like a line at a ticket counter — first person in line gets served first.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you implement a queue using two stacks?</div>
+                            <div class="flashcard-back">Use inStack for enqueue (push). For dequeue: if outStack is empty, move all elements from inStack to outStack (reversing order), then pop from outStack. Amortized O(1) per operation.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why is Array.shift() O(n) and why does it matter?</div>
+                            <div class="flashcard-back"><code>shift()</code> removes the first element and shifts all remaining elements left by one position. For a queue with n elements, this requires n-1 shifts. Use an object-based queue or linked list for O(1) dequeue.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">232</span><span class="lc-name"><a href="https://leetcode.com/problems/implement-queue-using-stacks/" target="_blank" rel="noopener">Implement Queue using Stacks</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Two Stacks</span></li>
+                    <li class="leetcode-item"><span class="lc-number">933</span><span class="lc-name"><a href="https://leetcode.com/problems/number-of-recent-calls/" target="_blank" rel="noopener">Number of Recent Calls</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Queue</span></li>
+                    <li class="leetcode-item"><span class="lc-number">225</span><span class="lc-name"><a href="https://leetcode.com/problems/implement-stack-using-queues/" target="_blank" rel="noopener">Implement Stack using Queues</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Queue</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

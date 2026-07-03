@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix (2D Arrays) - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 2</a><span class="separator">›</span><span class="current">Matrix (2D Arrays)</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Matrix (2D Arrays)</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 2</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="matrix">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is a Matrix?</h2>
+                <p>A <strong>matrix</strong> (2D array) is an array of arrays — data organized in <strong>rows and columns</strong>. You access elements using two indices: <code>matrix[row][col]</code>.</p>
+                <p>Matrices are used to represent grids, images, game boards, graphs (adjacency matrix), spreadsheets, and much more.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Matrix problems often require specific traversal patterns: row-by-row, column-by-column, diagonal, spiral, or boundary traversal. Knowing these patterns is essential for interviews.</p>
+                </div>
+            </div>
+
+            <!-- Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">♟️ Chessboard / Spreadsheet Grid</div>
+                    <p>A chessboard is an 8×8 matrix. Each square is identified by its row and column (e.g., D4). A spreadsheet works the same way — cell B3 is row 3, column B. Matrices give us the power to store and manipulate 2D data efficiently.</p>
+                </div>
+                <ul>
+                    <li><strong>Image pixels:</strong> Each pixel at (row, col) stores RGB values</li>
+                    <li><strong>Seating chart:</strong> Rows and seats in a theater</li>
+                    <li><strong>Game board:</strong> Tic-tac-toe, Sudoku, Minesweeper — all matrices</li>
+                    <li><strong>Map/grid:</strong> City blocks, terrain maps with elevation data</li>
+                </ul>
+            </div>
+
+            <!-- Basic Operations -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Matrix Traversals</h2>
+                <div class="viz-container">
+                    <div class="viz-title">3×4 Matrix</div>
+                    <div class="ascii-diagram">
+     Col→  0    1    2    3
+Row 0:  [  1,   2,   3,   4 ]
+Row 1:  [  5,   6,   7,   8 ]
+Row 2:  [  9,  10,  11,  12 ]
+
+Access: matrix[1][2] = 7  (row 1, col 2)
+Rows: matrix.length = 3
+Cols: matrix[0].length = 4
+                    </div>
+                </div>
+
+                <h3>Row-by-Row Traversal</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+        console.log(matrix[r][c]);
+    }
+}
+// Output: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12</code></pre>
+
+                <h3>Spiral Order Traversal</h3>
+                <div class="code-header"><span>JavaScript — Spiral Matrix</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function spiralOrder(matrix) {
+    const result = [];
+    let top = 0, bottom = matrix.length - 1;
+    let left = 0, right = matrix[0].length - 1;
+    
+    while (top <= bottom && left <= right) {
+        // Traverse right
+        for (let c = left; c <= right; c++) result.push(matrix[top][c]);
+        top++;
+        // Traverse down
+        for (let r = top; r <= bottom; r++) result.push(matrix[r][right]);
+        right--;
+        // Traverse left
+        if (top <= bottom) {
+            for (let c = right; c >= left; c--) result.push(matrix[bottom][c]);
+            bottom--;
+        }
+        // Traverse up
+        if (left <= right) {
+            for (let r = bottom; r >= top; r--) result.push(matrix[r][left]);
+            left++;
+        }
+    }
+    return result;
+}</code></pre>
+                <div class="viz-container">
+                    <div class="viz-title">Spiral Traversal Path</div>
+                    <div class="ascii-diagram">
+[  1 →  2 →  3 →  4 ]
+                   ↓
+[ 5 →  6 →  7    8 ]
+  ↑              ↓
+[ 9   10 ← 11   12]
+  ↑              ↓
+[13 ← 14 ← 15 ← 16]
+
+Order: 1,2,3,4,8,12,16,15,14,13,9,5,6,7,11,10
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rotate Matrix -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔄</span> Rotate Image (90° Clockwise)</h2>
+                <p>Trick: <strong>Transpose</strong> the matrix, then <strong>reverse each row</strong>.</p>
+                <div class="code-header"><span>JavaScript — Rotate 90° Clockwise</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function rotate(matrix) {
+    const n = matrix.length;
+    
+    // Step 1: Transpose (swap rows and columns)
+    for (let i = 0; i < n; i++) {
+        for (let j = i + 1; j < n; j++) {
+            [matrix[i][j], matrix[j][i]] = [matrix[j][i], matrix[i][j]];
+        }
+    }
+    
+    // Step 2: Reverse each row
+    for (let i = 0; i < n; i++) {
+        matrix[i].reverse();
+    }
+}</code></pre>
+                <div class="viz-container">
+                    <div class="viz-title">Rotation Process</div>
+                    <div class="ascii-diagram">
+Original:        Transpose:       Reverse rows:
+1  2  3          1  4  7          7  4  1
+4  5  6    →     2  5  8    →     8  5  2
+7  8  9          3  6  9          9  6  3
+                                  (90° clockwise ✅)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search in Sorted Matrix -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Search a 2D Matrix</h2>
+                <div class="code-header"><span>JavaScript — Staircase Search O(m+n)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Matrix where each row and column is sorted
+function searchMatrix(matrix, target) {
+    let row = 0;
+    let col = matrix[0].length - 1;  // Start at top-right corner
+    
+    while (row < matrix.length && col >= 0) {
+        if (matrix[row][col] === target) return true;
+        if (matrix[row][col] > target) col--;   // Too big → go left
+        else row++;                               // Too small → go down
+    }
+    return false;
+}
+// Starts at top-right. Each step eliminates a row or column.</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Set Matrix Zeroes</h2>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function setZeroes(matrix) {
+    const rows = matrix.length, cols = matrix[0].length;
+    let firstRowZero = false, firstColZero = false;
+    
+    // Check if first row/col need zeroing
+    for (let c = 0; c < cols; c++) if (matrix[0][c] === 0) firstRowZero = true;
+    for (let r = 0; r < rows; r++) if (matrix[r][0] === 0) firstColZero = true;
+    
+    // Use first row/col as markers
+    for (let r = 1; r < rows; r++) {
+        for (let c = 1; c < cols; c++) {
+            if (matrix[r][c] === 0) {
+                matrix[r][0] = 0;
+                matrix[0][c] = 0;
+            }
+        }
+    }
+    
+    // Zero based on markers
+    for (let r = 1; r < rows; r++)
+        for (let c = 1; c < cols; c++)
+            if (matrix[r][0] === 0 || matrix[0][c] === 0)
+                matrix[r][c] = 0;
+    
+    if (firstRowZero) for (let c = 0; c < cols; c++) matrix[0][c] = 0;
+    if (firstColZero) for (let r = 0; r < rows; r++) matrix[r][0] = 0;
+}</code></pre>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Input: [[1,1,1],[1,0,1],[1,1,1]]. matrix[1][1]=0 found.</div><div class="step-state">Mark: matrix[1][0]=0, matrix[0][1]=0</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Apply markers: row 1 and col 1 become all zeros</div><div class="step-state">[[1,0,1],[0,0,0],[1,0,1]] ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity of Common Matrix Operations</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Full traversal</td><td class="best">O(m × n)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Spiral traversal</td><td class="best">O(m × n)</td><td class="best">O(1) extra</td></tr>
+                        <tr><td>Rotate 90°</td><td class="best">O(n²)</td><td class="best">O(1) in-place</td></tr>
+                        <tr><td>Staircase search</td><td class="best">O(m + n)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Binary search (fully sorted)</td><td class="best">O(log(m×n))</td><td class="best">O(1)</td></tr>
+                        <tr><td>Set matrix zeroes (optimal)</td><td class="best">O(m × n)</td><td class="best">O(1)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing Row and Column Indices</div>
+                    <p><code>matrix[row][col]</code> — row comes first! For an m×n matrix: m rows, n columns. <code>matrix.length</code> = rows, <code>matrix[0].length</code> = cols.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Out of Bounds in Direction Traversal</div>
+                    <p>When exploring 4 or 8 directions, always check bounds: <code>0 &lt;= newRow &lt; rows && 0 &lt;= newCol &lt; cols</code> before accessing.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Wrong Spiral Boundary Checks</div>
+                    <p>After moving top++ and right--, you must check <code>top &lt;= bottom</code> before traversing left, and <code>left &lt;= right</code> before traversing up to avoid duplicating elements.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Tips</h2>
+                <ul>
+                    <li><strong>Direction array pattern:</strong> <code>const dirs = [[0,1],[0,-1],[1,0],[-1,0]]</code> for 4-directional traversal</li>
+                    <li><strong>Rotate = Transpose + Reverse:</strong> Memorize this trick. 90° CW = transpose + reverse rows. 90° CCW = transpose + reverse columns.</li>
+                    <li><strong>In-place markers:</strong> Use first row/column as markers to avoid O(m+n) extra space (Set Matrix Zeroes)</li>
+                    <li><strong>Layer-by-layer:</strong> For spiral/rotate, think in layers from outside to inside</li>
+                    <li><strong>Flatten trick:</strong> Treat m×n matrix as 1D array of size m*n. Index (r,c) = r*cols + c. Row = idx/cols, Col = idx%cols.</li>
+                </ul>
+            </div>
+
+            <!-- Real-world -->
+            <div class="section-card">
+                <h2><span class="section-icon">🏗️</span> Where Matrices Are Used</h2>
+                <ul>
+                    <li><strong>Image processing:</strong> Every image is a matrix of pixel values</li>
+                    <li><strong>Game boards:</strong> Chess, Sudoku, Minesweeper — all grid-based</li>
+                    <li><strong>Spreadsheets:</strong> Excel/Google Sheets are essentially matrices</li>
+                    <li><strong>Machine learning:</strong> Data stored as matrices, operations use matrix multiplication</li>
+                    <li><strong>Graph representation:</strong> Adjacency matrix for dense graphs</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Matrix = 2D array. Access: matrix[row][col]. Rows = matrix.length, Cols = matrix[0].length</li>
+                    <li>Rotate 90° CW: transpose + reverse each row</li>
+                    <li>Spiral: use top/bottom/left/right boundaries, shrink after each direction</li>
+                    <li>Sorted matrix search: start at top-right, go left if too big, down if too small → O(m+n)</li>
+                    <li>Direction array: [[0,1],[0,-1],[1,0],[-1,0]] for 4-directional movement</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you rotate a matrix 90° clockwise in-place?</div>
+                            <div class="flashcard-back">Two steps: 1) Transpose the matrix (swap matrix[i][j] and matrix[j][i]). 2) Reverse each row. Result: 90° clockwise rotation in O(n²) time, O(1) space.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How does the staircase search work on a sorted matrix?</div>
+                            <div class="flashcard-back">Start at top-right corner. If current > target, go left (smaller). If current < target, go down (larger). Each step eliminates a row or column. Time: O(m + n).</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How to convert 2D matrix index to 1D and back?</div>
+                            <div class="flashcard-back">To 1D: index = row * cols + col. To 2D: row = index / cols (integer division), col = index % cols. Useful for treating a matrix as a flat array.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode Problems -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">566</span><span class="lc-name"><a href="https://leetcode.com/problems/reshape-the-matrix/" target="_blank" rel="noopener">Reshape the Matrix</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Index Mapping</span></li>
+                    <li class="leetcode-item"><span class="lc-number">54</span><span class="lc-name"><a href="https://leetcode.com/problems/spiral-matrix/" target="_blank" rel="noopener">Spiral Matrix</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Spiral Traversal</span></li>
+                    <li class="leetcode-item"><span class="lc-number">59</span><span class="lc-name"><a href="https://leetcode.com/problems/spiral-matrix-ii/" target="_blank" rel="noopener">Spiral Matrix II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Spiral Fill</span></li>
+                    <li class="leetcode-item"><span class="lc-number">48</span><span class="lc-name"><a href="https://leetcode.com/problems/rotate-image/" target="_blank" rel="noopener">Rotate Image</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Transpose + Reverse</span></li>
+                    <li class="leetcode-item"><span class="lc-number">73</span><span class="lc-name"><a href="https://leetcode.com/problems/set-matrix-zeroes/" target="_blank" rel="noopener">Set Matrix Zeroes</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">In-place Markers</span></li>
+                    <li class="leetcode-item"><span class="lc-number">74</span><span class="lc-name"><a href="https://leetcode.com/problems/search-a-2d-matrix/" target="_blank" rel="noopener">Search a 2D Matrix</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Binary Search</span></li>
+                    <li class="leetcode-item"><span class="lc-number">240</span><span class="lc-name"><a href="https://leetcode.com/problems/search-a-2d-matrix-ii/" target="_blank" rel="noopener">Search a 2D Matrix II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Staircase Search</span></li>
+                    <li class="leetcode-item"><span class="lc-number">867</span><span class="lc-name"><a href="https://leetcode.com/problems/transpose-matrix/" target="_blank" rel="noopener">Transpose Matrix</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Transpose</span></li>
+                    <li class="leetcode-item"><span class="lc-number">36</span><span class="lc-name"><a href="https://leetcode.com/problems/valid-sudoku/" target="_blank" rel="noopener">Valid Sudoku</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Grid Validation</span></li>
+                    <li class="leetcode-item"><span class="lc-number">498</span><span class="lc-name"><a href="https://leetcode.com/problems/diagonal-traverse/" target="_blank" rel="noopener">Diagonal Traverse</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Diagonal Traversal</span></li>
+                </ul>
+            </div>
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

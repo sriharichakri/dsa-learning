@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bit Manipulation Basics - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 14</a><span class="separator">›</span><span class="current">Bit Manipulation</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Bit Manipulation Basics</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 14</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="bit-basics">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Bit Manipulation?</h2>
+                <p><strong>Bit manipulation</strong> is the act of algorithmically manipulating bits — the most basic unit of data in computing (0 or 1). Using bitwise operators, we can perform operations that are incredibly fast because they work directly on the binary representation of numbers.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Bitwise operations are the <strong>fastest operations</strong> a CPU can perform — they execute in a single clock cycle. Understanding bits lets you write O(1) solutions to problems that seem to require O(n) approaches.</p>
+                </div>
+            </div>
+
+            <!-- Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">💡 Light Switches (On/Off)</div>
+                    <p>Imagine a row of 8 light switches. Each switch is either ON (1) or OFF (0). The pattern "10110001" means switches 1, 3, 4, and 8 are on. <strong>AND</strong> is like keeping switches on only where BOTH panels have them on. <strong>OR</strong> turns on a switch if EITHER panel has it on. <strong>XOR</strong> flips switches that differ. <strong>NOT</strong> flips all switches.</p>
+                </div>
+                <ul>
+                    <li><strong>Permission flags:</strong> Read=4(100), Write=2(010), Execute=1(001). rwx = 7(111)</li>
+                    <li><strong>Presence/absence:</strong> Tracking which items in a set are present using bits</li>
+                    <li><strong>Binary counting:</strong> A 3-bit counter goes 000, 001, 010, 011, 100, 101, 110, 111</li>
+                </ul>
+            </div>
+
+            <!-- Bitwise Operators -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Bitwise Operators</h2>
+                <div class="viz-container">
+                    <div class="viz-title">All Bitwise Operators (a = 12 = 1100, b = 10 = 1010)</div>
+                    <div class="ascii-diagram">
+AND (&)  — Both bits must be 1        OR (|)  — At least one bit is 1
+  1100                                   1100
+& 1010                                 | 1010
+------                                 ------
+  1000 = 8                               1110 = 14
+
+XOR (^) — Bits must differ             NOT (~) — Flip all bits
+  1100                                   ~ 1100
+^ 1010                                 ------
+------                                   ...0011 = -13 (in 32-bit: two's complement)
+  0110 = 6
+
+LEFT SHIFT (<<)                        RIGHT SHIFT (>>)
+  1100 << 1 = 11000 = 24                1100 >> 1 = 110 = 6
+  (Multiply by 2)                       (Divide by 2)
+  1100 << 2 = 110000 = 48               1100 >> 2 = 11 = 3
+  (Multiply by 4)                       (Divide by 4)
+                    </div>
+                </div>
+
+                <div class="code-header"><span>JavaScript — Bitwise Operators</span><button class="copy-btn">Copy</button></div>
+                <pre><code>let a = 12;  // 1100
+let b = 10;  // 1010
+
+a & b;   // 8   (1000) — AND
+a | b;   // 14  (1110) — OR
+a ^ b;   // 6   (0110) — XOR
+~a;      // -13        — NOT (flips all bits)
+a << 1;  // 24  (11000) — Left shift (×2)
+a >> 1;  // 6   (110)   — Right shift (÷2)</code></pre>
+            </div>
+
+            <!-- Common Tricks -->
+            <div class="section-card">
+                <h2><span class="section-icon">🎯</span> Essential Bit Tricks</h2>
+                <div class="code-header"><span>JavaScript — Must-Know Bit Tricks</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// 1. Check if number is odd or even
+function isOdd(n) { return (n & 1) === 1; }
+// n & 1 checks the last bit: 1 = odd, 0 = even
+
+// 2. Check if number is power of 2
+function isPowerOfTwo(n) { return n > 0 && (n & (n - 1)) === 0; }
+// Powers of 2 have exactly one bit set: 1000 & 0111 = 0
+
+// 3. Count set bits (number of 1s)
+function countBits(n) {
+    let count = 0;
+    while (n > 0) {
+        count += n & 1;
+        n >>= 1;
+    }
+    return count;
+}
+
+// 4. Swap two numbers without temp variable
+function swap(a, b) {
+    a ^= b; b ^= a; a ^= b;
+    return [a, b];
+}
+
+// 5. Get, Set, Clear, Toggle a specific bit
+function getBit(n, i)    { return (n >> i) & 1; }
+function setBit(n, i)    { return n | (1 << i); }
+function clearBit(n, i)  { return n & ~(1 << i); }
+function toggleBit(n, i) { return n ^ (1 << i); }
+
+// 6. Turn off rightmost set bit
+function turnOffRightmost(n) { return n & (n - 1); }
+
+// 7. Isolate rightmost set bit
+function isolateRightmost(n) { return n & (-n); }
+
+// 8. Check if two numbers have opposite signs
+function oppositeSign(a, b) { return (a ^ b) < 0; }</code></pre>
+            </div>
+
+            <!-- XOR Properties -->
+            <div class="section-card">
+                <h2><span class="section-icon">⭐</span> XOR — The Magic Operator</h2>
+                <div class="viz-container">
+                    <div class="viz-title">XOR Properties</div>
+                    <div class="ascii-diagram">
+Property                  Example
+─────────────────────────────────────────────
+a ^ 0 = a                5 ^ 0 = 5
+a ^ a = 0                5 ^ 5 = 0
+a ^ b = b ^ a            Commutative
+(a ^ b) ^ c = a ^ (b^c) Associative
+
+The "Single Number" Trick:
+  [4, 1, 2, 1, 2]
+  4 ^ 1 ^ 2 ^ 1 ^ 2
+= 4 ^ (1^1) ^ (2^2)     — Rearrange (commutative)
+= 4 ^ 0 ^ 0             — Pairs cancel out
+= 4                      — Only unique number remains! ✅
+                    </div>
+                </div>
+
+                <div class="code-header"><span>JavaScript — Single Number (XOR)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function singleNumber(nums) {
+    let result = 0;
+    for (const num of nums) {
+        result ^= num;  // Pairs cancel, single remains
+    }
+    return result;
+}
+// [2, 3, 2] → 0^2=2, 2^3=1, 1^2=3 → 3 ✅</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Counting Bits of n = 13 (1101)</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">n=13 (1101). n & 1 = 1 (last bit is 1). count=1. n >>= 1 → n=6 (110)</div><div class="step-state">count=1, n=6</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">n=6 (110). n & 1 = 0 (last bit is 0). count=1. n >>= 1 → n=3 (11)</div><div class="step-state">count=1, n=3</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">n=3 (11). n & 1 = 1. count=2. n >>= 1 → n=1 (1)</div><div class="step-state">count=2, n=1</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">n=1 (1). n & 1 = 1. count=3. n >>= 1 → n=0. Loop ends.</div><div class="step-state">count=3 ✅ (13 = 1101 has 3 set bits)</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Time & Space Complexity</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Time</th><th>Space</th><th>Why?</th></tr></thead>
+                    <tbody>
+                        <tr><td>Single bitwise op (AND, OR, XOR)</td><td class="best">O(1)</td><td class="best">O(1)</td><td>One CPU cycle</td></tr>
+                        <tr><td>Count set bits</td><td class="best">O(log n) = O(32)</td><td class="best">O(1)</td><td>Check each of 32 bits</td></tr>
+                        <tr><td>Single Number (XOR array)</td><td class="best">O(n)</td><td class="best">O(1)</td><td>One pass, no extra space</td></tr>
+                        <tr><td>Power of 2 check</td><td class="best">O(1)</td><td class="best">O(1)</td><td>Single AND operation</td></tr>
+                        <tr><td>Counting Bits for 0 to n</td><td class="best">O(n)</td><td class="best">O(n)</td><td>DP: dp[i] = dp[i>>1] + (i&1)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Operator Precedence Issues</div>
+                    <pre><code>// ❌ WRONG: == has higher precedence than &
+if (n & 1 == 1)    // Parsed as: n & (1 == 1) → n & 1
+
+// ✅ RIGHT: Use parentheses!
+if ((n & 1) === 1)</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Signed vs Unsigned Right Shift</div>
+                    <p>In JavaScript, <code>>></code> preserves the sign bit (arithmetic shift). <code>>>></code> fills with zeros (logical shift). For negative numbers, they give different results!</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting 32-bit Limit in JavaScript</div>
+                    <p>JavaScript bitwise operators work on <strong>32-bit signed integers</strong>. For numbers larger than 2³¹-1, bitwise operations may give unexpected results.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Tips</h2>
+                <ul>
+                    <li><strong>XOR for "find the unique":</strong> When elements appear in pairs except one, XOR all elements</li>
+                    <li><strong>n & (n-1) trick:</strong> Turns off the rightmost set bit. Useful for counting bits and power-of-2 checks</li>
+                    <li><strong>Bit masking for subsets:</strong> Enumerate all subsets of n elements using 0 to 2ⁿ-1</li>
+                    <li><strong>Missing number:</strong> XOR all numbers 0 to n, then XOR with array elements. Missing number remains</li>
+                    <li><strong>Practice converting:</strong> Be comfortable converting between decimal and binary in your head</li>
+                </ul>
+            </div>
+
+            <!-- Real-world -->
+            <div class="section-card">
+                <h2><span class="section-icon">🏗️</span> Where Bit Manipulation Is Used</h2>
+                <ul>
+                    <li><strong>Unix file permissions:</strong> rwxr-xr-- = 754 in octal (111 101 100 in binary)</li>
+                    <li><strong>Graphics:</strong> Color channels packed into 32 bits (ARGB: 8 bits each)</li>
+                    <li><strong>Networking:</strong> Subnet masks, IP addressing (AND operation to check network membership)</li>
+                    <li><strong>Cryptography:</strong> XOR is fundamental to many encryption algorithms</li>
+                    <li><strong>Compression:</strong> Huffman coding uses variable-length bit patterns</li>
+                    <li><strong>Game development:</strong> Flag-based state management using bitmasks</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>AND (&): both 1 → 1 | OR (|): either 1 → 1 | XOR (^): different → 1</li>
+                    <li>Left shift (<<): multiply by 2 | Right shift (>>): divide by 2</li>
+                    <li>a ^ a = 0 | a ^ 0 = a | n & (n-1) removes rightmost set bit</li>
+                    <li>Check odd: n & 1 | Power of 2: n & (n-1) === 0</li>
+                    <li>XOR all elements: pairs cancel, unique remains</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How does n & (n-1) work and what does it do?</div>
+                            <div class="flashcard-back">It turns off the rightmost set bit. Example: 12 (1100) & 11 (1011) = 8 (1000). n-1 flips all bits from the rightmost 1 to the end. AND cancels the rightmost 1. Used for power-of-2 check and counting bits.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why does XORing all elements find the single unique number?</div>
+                            <div class="flashcard-back">XOR is commutative and associative. a^a=0 and a^0=a. So duplicate pairs cancel to 0, and the unique element XORed with 0 gives itself. One pass, O(1) space!</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you check, set, clear, and toggle the ith bit?</div>
+                            <div class="flashcard-back">Check: (n >> i) & 1. Set: n | (1 << i). Clear: n & ~(1 << i). Toggle: n ^ (1 << i). The mask (1 << i) has only the ith bit set.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How to find the missing number from [0, 1, ..., n] using XOR?</div>
+                            <div class="flashcard-back">XOR all numbers from 0 to n, then XOR with all elements in the array. The missing number remains because all present numbers cancel out in pairs.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode Problems -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">136</span><span class="lc-name"><a href="https://leetcode.com/problems/single-number/" target="_blank" rel="noopener">Single Number</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">XOR</span></li>
+                    <li class="leetcode-item"><span class="lc-number">191</span><span class="lc-name"><a href="https://leetcode.com/problems/number-of-1-bits/" target="_blank" rel="noopener">Number of 1 Bits</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Bit Count</span></li>
+                    <li class="leetcode-item"><span class="lc-number">338</span><span class="lc-name"><a href="https://leetcode.com/problems/counting-bits/" target="_blank" rel="noopener">Counting Bits</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">DP + Bits</span></li>
+                    <li class="leetcode-item"><span class="lc-number">190</span><span class="lc-name"><a href="https://leetcode.com/problems/reverse-bits/" target="_blank" rel="noopener">Reverse Bits</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Bit Shift</span></li>
+                    <li class="leetcode-item"><span class="lc-number">268</span><span class="lc-name"><a href="https://leetcode.com/problems/missing-number/" target="_blank" rel="noopener">Missing Number</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">XOR</span></li>
+                    <li class="leetcode-item"><span class="lc-number">231</span><span class="lc-name"><a href="https://leetcode.com/problems/power-of-two/" target="_blank" rel="noopener">Power of Two</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">n & (n-1)</span></li>
+                    <li class="leetcode-item"><span class="lc-number">137</span><span class="lc-name"><a href="https://leetcode.com/problems/single-number-ii/" target="_blank" rel="noopener">Single Number II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Bit Count</span></li>
+                    <li class="leetcode-item"><span class="lc-number">260</span><span class="lc-name"><a href="https://leetcode.com/problems/single-number-iii/" target="_blank" rel="noopener">Single Number III</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">XOR + Isolation</span></li>
+                    <li class="leetcode-item"><span class="lc-number">78</span><span class="lc-name"><a href="https://leetcode.com/problems/subsets/" target="_blank" rel="noopener">Subsets</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Bit Masking</span></li>
+                    <li class="leetcode-item"><span class="lc-number">371</span><span class="lc-name"><a href="https://leetcode.com/problems/sum-of-two-integers/" target="_blank" rel="noopener">Sum of Two Integers</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Bit Arithmetic</span></li>
+                    <li class="leetcode-item"><span class="lc-number">201</span><span class="lc-name"><a href="https://leetcode.com/problems/bitwise-and-of-numbers-range/" target="_blank" rel="noopener">Bitwise AND of Numbers Range</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Common Prefix</span></li>
+                </ul>
+            </div>
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

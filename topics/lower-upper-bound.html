@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lower &amp; Upper Bound - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 3</a><span class="separator">›</span><span class="current">Lower &amp; Upper Bound</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Lower &amp; Upper Bound</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 3</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="lower-upper-bound">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What are Lower &amp; Upper Bound?</h2>
+                <p>In a <strong>sorted array</strong>, the <strong>lower bound</strong> of a target is the index of the <strong>first element ≥ target</strong>, and the <strong>upper bound</strong> is the index of the <strong>first element &gt; target</strong>. These are the building blocks for many binary search variations.</p>
+                <p>Together they let you find: first occurrence, last occurrence, count of a value, insertion position, and range queries — all in O(log n).</p>
+                <div class="callout tip">
+                    <div class="callout-title">🌍 Real-Life Analogy</div>
+                    <p>Think of a library shelf with books sorted by page count. <strong>Lower bound of 200 pages</strong> = "Where does the 200-page section start?" (first book with ≥ 200 pages). <strong>Upper bound of 200 pages</strong> = "Where does the 200-page section end?" (first book with > 200 pages). The books between lower and upper bound are exactly the 200-page books!</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How It Works</h2>
+
+                <h3>Lower Bound (First element ≥ target)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function lowerBound(arr, target) {
+    let lo = 0, hi = arr.length;
+    
+    while (lo < hi) {
+        let mid = Math.floor((lo + hi) / 2);
+        if (arr[mid] < target) {
+            lo = mid + 1;   // Too small, search right
+        } else {
+            hi = mid;       // Could be the answer, search left
+        }
+    }
+    return lo;  // Index of first element >= target
+}
+
+// [1, 3, 3, 5, 8, 8, 10]
+// lowerBound(arr, 3) → 1  (first 3 is at index 1)
+// lowerBound(arr, 4) → 3  (5 is first element >= 4)
+// lowerBound(arr, 8) → 4  (first 8 is at index 4)</code></pre>
+
+                <h3>Upper Bound (First element &gt; target)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function upperBound(arr, target) {
+    let lo = 0, hi = arr.length;
+    
+    while (lo < hi) {
+        let mid = Math.floor((lo + hi) / 2);
+        if (arr[mid] <= target) {
+            lo = mid + 1;   // Still ≤ target, search right
+        } else {
+            hi = mid;       // First element > target
+        }
+    }
+    return lo;  // Index of first element > target
+}
+
+// [1, 3, 3, 5, 8, 8, 10]
+// upperBound(arr, 3) → 3  (5 is first element > 3)
+// upperBound(arr, 8) → 6  (10 is first element > 8)
+// upperBound(arr, 10) → 7 (past end = all elements ≤ 10)</code></pre>
+
+                <h3>Applications Built on Lower/Upper Bound</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// First occurrence of target
+function firstOccurrence(arr, target) {
+    let idx = lowerBound(arr, target);
+    return (idx < arr.length && arr[idx] === target) ? idx : -1;
+}
+
+// Last occurrence of target
+function lastOccurrence(arr, target) {
+    let idx = upperBound(arr, target) - 1;
+    return (idx >= 0 && arr[idx] === target) ? idx : -1;
+}
+
+// Count occurrences of target
+function countOccurrences(arr, target) {
+    return upperBound(arr, target) - lowerBound(arr, target);
+}
+
+// Insertion position (where target should be inserted)
+function insertionIndex(arr, target) {
+    return lowerBound(arr, target);  // Same as lower bound!
+}</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run</h2>
+                <p>Find <strong>lower bound of 5</strong> in <code>[1, 3, 3, 5, 5, 8, 10]</code></p>
+
+                <div class="viz-container">
+                    <div class="viz-title">Lower bound search for target = 5</div>
+                    <div class="ascii-diagram">
+Array: [1, 3, 3, 5, 5, 8, 10]
+Index:  0  1  2  3  4  5   6     hi=7
+
+Step 1: lo=0, hi=7, mid=3 → arr[3]=5 ≥ 5 → hi=3
+        [1, 3, 3] | 5, 5, 8, 10
+                     ↑ could be answer
+
+Step 2: lo=0, hi=3, mid=1 → arr[1]=3 < 5 → lo=2
+        1 | [3, 3] | 5, 5, 8, 10
+                ↑ too small
+
+Step 3: lo=2, hi=3, mid=2 → arr[2]=3 < 5 → lo=3
+        1, 3 | [3] | 5, 5, 8, 10
+                 ↑ still too small
+
+lo=3 === hi=3 → return 3 ✅  (arr[3] = 5)
+                    </div>
+                </div>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">lo=0, hi=7, mid=3. arr[3]=5 ≥ 5</div><div class="step-state">hi = 3 (mid could be the answer)</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">lo=0, hi=3, mid=1. arr[1]=3 < 5</div><div class="step-state">lo = 2 (too small, go right)</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">lo=2, hi=3, mid=2. arr[2]=3 < 5</div><div class="step-state">lo = 3 (still too small)</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">lo=3 === hi=3 → loop ends</div><div class="step-state">Return 3 → arr[3] = 5 ✅ First element ≥ 5</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Lower Bound</td><td class="best">O(log n)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Upper Bound</td><td class="best">O(log n)</td><td class="best">O(1)</td></tr>
+                        <tr><td>First Occurrence</td><td class="best">O(log n)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Last Occurrence</td><td class="best">O(log n)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Count Occurrences</td><td class="best">O(log n)</td><td class="best">O(1)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing lower and upper bound conditions</div>
+                    <pre><code>// Lower bound: first element >= target
+if (arr[mid] < target) lo = mid + 1;   // < not <=
+
+// Upper bound: first element > target
+if (arr[mid] <= target) lo = mid + 1;  // <= not <
+
+// The ONLY difference is < vs <=</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Setting hi = arr.length - 1 instead of arr.length</div>
+                    <p>If the target is larger than all elements, the answer should be arr.length (past the end). Using arr.length - 1 would miss this case. Always use <code>hi = arr.length</code> (exclusive).</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting to verify the result</div>
+                    <p>Lower bound returns the insertion point, not necessarily the target. Always check if <code>arr[result] === target</code> when looking for exact matches.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Master these two functions — they solve 90% of binary search interview problems.</li>
+                    <li>"Find first/last occurrence" is a classic interview question — use lower/upper bound.</li>
+                    <li>The difference between lower and upper bound is just <code>&lt;</code> vs <code>&lt;=</code> in the condition.</li>
+                    <li>Count of a value = <code>upperBound(target) - lowerBound(target)</code>.</li>
+                    <li>JavaScript's built-in doesn't have these, but Python has <code>bisect_left</code> (lower) and <code>bisect_right</code> (upper).</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Lower bound: first index where arr[i] ≥ target. Condition: arr[mid] < target → go right.</li>
+                    <li>Upper bound: first index where arr[i] > target. Condition: arr[mid] ≤ target → go right.</li>
+                    <li>Both use hi = arr.length (can return past-end index).</li>
+                    <li>First occurrence = lowerBound, Last occurrence = upperBound - 1.</li>
+                    <li>Count = upperBound - lowerBound.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the only code difference between lower bound and upper bound?</div>
+                            <div class="flashcard-back">Lower bound: <code>arr[mid] &lt; target</code> → go right.<br>Upper bound: <code>arr[mid] &lt;= target</code> → go right.<br>Just <strong>&lt; vs &lt;=</strong>. Everything else is identical.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you count occurrences of a value using lower and upper bound?</div>
+                            <div class="flashcard-back"><code>count = upperBound(target) - lowerBound(target)</code>. Upper bound gives the index after the last occurrence, lower bound gives the first occurrence. The difference is the count.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">34</span><span class="lc-name"><a href="https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/" target="_blank" rel="noopener">Find First and Last Position</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Lower + Upper Bound</span></li>
+                    <li class="leetcode-item"><span class="lc-number">35</span><span class="lc-name"><a href="https://leetcode.com/problems/search-insert-position/" target="_blank" rel="noopener">Search Insert Position</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Lower Bound</span></li>
+                    <li class="leetcode-item"><span class="lc-number">744</span><span class="lc-name"><a href="https://leetcode.com/problems/find-smallest-letter-greater-than-target/" target="_blank" rel="noopener">Find Smallest Letter Greater Than Target</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Upper Bound</span></li>
+                    <li class="leetcode-item"><span class="lc-number">2089</span><span class="lc-name"><a href="https://leetcode.com/problems/find-target-indices-after-sorting-array/" target="_blank" rel="noopener">Find Target Indices After Sorting</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Lower + Upper Bound</span></li>
+                    <li class="leetcode-item"><span class="lc-number">275</span><span class="lc-name"><a href="https://leetcode.com/problems/h-index-ii/" target="_blank" rel="noopener">H-Index II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Lower Bound variant</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

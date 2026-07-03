@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Longest Increasing Subsequence - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 12</a><span class="separator">›</span><span class="current">Longest Increasing Subsequence</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Longest Increasing Subsequence (LIS)</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 12</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="lis">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is LIS?</h2>
+                <p>The <strong>Longest Increasing Subsequence</strong> finds the longest subsequence of an array where elements are in <strong>strictly increasing order</strong>. Elements don't need to be contiguous.</p>
+                <p>For [10, 9, 2, 5, 3, 7, 101, 18], the LIS is [2, 3, 7, 101] with length 4.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Two approaches: <strong>O(n²) DP</strong> where dp[i] = LIS ending at index i, and <strong>O(n log n) Patience Sort</strong> using binary search on a "tails" array. The O(n log n) approach maintains the smallest possible tail element for each LIS length.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🃏 Patience Sorting (Card Game)</div>
+                    <p>Deal cards left to right. Place each card on the leftmost pile whose top card is ≥ current card. If no pile works, start a new pile. The number of piles at the end equals the LIS length! This is actually how the O(n log n) algorithm works — binary search finds the right pile.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> LIS Implementations</h2>
+
+                <h3>O(n²) DP Approach</h3>
+                <div class="code-header"><span>JavaScript — LIS O(n²)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function lengthOfLIS_DP(nums) {
+    const n = nums.length;
+    const dp = new Array(n).fill(1); // Each element is an LIS of length 1
+
+    for (let i = 1; i < n; i++) {
+        for (let j = 0; j < i; j++) {
+            if (nums[j] < nums[i]) {
+                dp[i] = Math.max(dp[i], dp[j] + 1);
+            }
+        }
+    }
+    return Math.max(...dp);
+}
+// dp[i] = length of LIS ending at index i</code></pre>
+
+                <h3>O(n log n) Binary Search Approach</h3>
+                <div class="code-header"><span>JavaScript — LIS O(n log n)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function lengthOfLIS(nums) {
+    const tails = []; // tails[i] = smallest tail element for LIS of length i+1
+
+    for (const num of nums) {
+        let lo = 0, hi = tails.length;
+
+        // Binary search for the position to replace
+        while (lo < hi) {
+            const mid = Math.floor((lo + hi) / 2);
+            if (tails[mid] < num) lo = mid + 1;
+            else hi = mid;
+        }
+
+        tails[lo] = num; // Replace or extend
+        // If lo === tails.length, we extended the LIS
+    }
+
+    return tails.length;
+}
+// [10,9,2,5,3,7,101,18] → tails grows: [10],[9],[2],[2,5],[2,3],[2,3,7],[2,3,7,101],[2,3,7,18]
+// Length = 4</code></pre>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: LIS on [10, 9, 2, 5, 3, 7, 101, 18]</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">num=10: tails empty → append. tails=[10].</div><div class="step-state">tails = [10], LIS length = 1</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">num=9: 9 < 10 → replace tails[0]. tails=[9].</div><div class="step-state">tails = [9], LIS length = 1</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">num=2: 2 < 9 → replace tails[0]. num=5: 5 > 2 → append. num=3: replace tails[1].</div><div class="step-state">tails = [2, 3], LIS length = 2</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">num=7: 7 > 3 → append. num=101: append. num=18: replace 101.</div><div class="step-state">tails = [2, 3, 7, 18], LIS length = 4 ✅</div></div></div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Approach</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>DP (O(n²))</td><td class="avg">O(n²)</td><td>O(n)</td></tr>
+                        <tr><td>Binary Search</td><td class="best">O(n log n)</td><td>O(n)</td></tr>
+                        <tr><td>Brute Force</td><td class="worst">O(2ⁿ)</td><td>O(n)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Thinking the tails array IS the LIS</div>
+                    <p>The tails array gives the correct <strong>length</strong> of LIS but NOT the actual LIS sequence. To reconstruct, you need additional bookkeeping (parent pointers).</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Using <= instead of < for strictly increasing</div>
+                    <p>LIS requires <strong>strictly</strong> increasing. Use <code>nums[j] < nums[i]</code>, not <code><=</code>. For non-decreasing, use <code><=</code>.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Know both O(n²) and O(n log n). The O(n²) is easier to explain; the O(n log n) shows mastery.</li>
+                    <li>"Number of LIS" (LC 673) requires counting, not just length — needs modified O(n²) approach.</li>
+                    <li>LIS connects to patience sorting, longest chain, and Russian doll envelopes problems.</li>
+                    <li>Longest Non-decreasing Subsequence: change < to <=.</li>
+                </ul>
+            </div>
+
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>LIS: longest strictly increasing subsequence (not contiguous).</li>
+                    <li>O(n²): dp[i] = max(dp[j]+1) for all j < i where nums[j] < nums[i].</li>
+                    <li>O(n log n): maintain "tails" array, binary search for insertion position.</li>
+                    <li>tails array gives length, NOT the actual LIS.</li>
+                    <li>Patience sorting = the O(n log n) algorithm in card game form.</li>
+                </ul>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What does tails[i] represent in the O(n log n) LIS algorithm?</div>
+                            <div class="flashcard-back"><code>tails[i]</code> stores the <strong>smallest possible tail element</strong> of all increasing subsequences of length <code>i+1</code>. By keeping tails as small as possible, we maximize the chance of extending the LIS with future elements.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the O(n²) DP recurrence for LIS?</div>
+                            <div class="flashcard-back"><code>dp[i] = max(dp[j] + 1)</code> for all <code>j < i</code> where <code>nums[j] < nums[i]</code>. Each dp[i] represents the LIS length ending at index i. Answer = max(dp[0..n-1]).</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">300</span><span class="lc-name"><a href="https://leetcode.com/problems/longest-increasing-subsequence/" target="_blank" rel="noopener">Longest Increasing Subsequence</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Classic LIS</span></li>
+                    <li class="leetcode-item"><span class="lc-number">673</span><span class="lc-name"><a href="https://leetcode.com/problems/number-of-longest-increasing-subsequence/" target="_blank" rel="noopener">Number of Longest Increasing Subsequence</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">LIS + counting</span></li>
+                    <li class="leetcode-item"><span class="lc-number">354</span><span class="lc-name"><a href="https://leetcode.com/problems/russian-doll-envelopes/" target="_blank" rel="noopener">Russian Doll Envelopes</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">2D LIS</span></li>
+                    <li class="leetcode-item"><span class="lc-number">646</span><span class="lc-name"><a href="https://leetcode.com/problems/maximum-length-of-pair-chain/" target="_blank" rel="noopener">Maximum Length of Pair Chain</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">LIS variant / Greedy</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1964</span><span class="lc-name"><a href="https://leetcode.com/problems/find-the-longest-valid-obstacle-course-at-each-position/" target="_blank" rel="noopener">Longest Valid Obstacle Course</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">LIS variant (non-decreasing)</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

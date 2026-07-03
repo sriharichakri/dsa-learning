@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimum Spanning Tree - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 10</a><span class="separator">›</span><span class="current">Minimum Spanning Tree</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Minimum Spanning Tree (MST)</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 10</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="mst">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is a Minimum Spanning Tree?</h2>
+                <p>A <strong>Minimum Spanning Tree (MST)</strong> of a connected, undirected, weighted graph is a subset of edges that connects <strong>all vertices</strong> with the <strong>minimum total edge weight</strong> and <strong>no cycles</strong>. It has exactly <strong>V-1 edges</strong> for V vertices.</p>
+                <p>Two classic algorithms: <strong>Kruskal's</strong> (sort edges, add cheapest non-cycle-forming edge) and <strong>Prim's</strong> (grow tree from a starting vertex using cheapest available edge).</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Both algorithms are <strong>greedy</strong> and produce the same MST (or one of equal weight if ties exist). Kruskal's works globally (sort all edges), Prim's works locally (expand from current tree). Kruskal's uses <strong>Union-Find</strong>, Prim's uses a <strong>Priority Queue</strong>.</p>
+                </div>
+            </div>
+
+            <!-- Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🏙️ Connecting Cities with Minimum Cable</div>
+                    <p>Imagine you need to connect several cities with fiber optic cable. Each possible connection has a different cost. You want ALL cities connected using the <strong>least total cable</strong>. You don't need every possible connection — just enough to reach every city from every other city (a spanning tree), at minimum cost.</p>
+                </div>
+                <ul>
+                    <li><strong>Road network:</strong> Build the cheapest road network connecting all towns.</li>
+                    <li><strong>Water pipeline:</strong> Connect all neighborhoods with minimum piping.</li>
+                    <li><strong>Electrical grid:</strong> Wire all buildings using least cable.</li>
+                </ul>
+            </div>
+
+            <!-- Kruskal's -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Kruskal's Algorithm</h2>
+                <div class="viz-container">
+                    <div class="viz-title">Kruskal's: Sort edges, add cheapest non-cycle edge</div>
+                    <div class="ascii-diagram">
+Graph:                        Sorted edges:
+  A---4---B                   1: C-D (1)
+  |       |                   2: A-C (2)
+  2       3                   3: B-D (3)
+  |       |                   4: A-B (4)
+  C---1---D                   5: B-C (5)
+
+Step 1: Add C-D (1) ✅         Components: {A}, {B}, {C,D}
+Step 2: Add A-C (2) ✅         Components: {A,C,D}, {B}
+Step 3: Add B-D (3) ✅         Components: {A,B,C,D}
+Step 4: A-B (4) → A,B already connected → SKIP ❌
+Step 5: B-C (5) → already connected → SKIP ❌
+
+MST edges: C-D(1), A-C(2), B-D(3). Total weight = 6
+                    </div>
+                </div>
+
+                <div class="code-header"><span>JavaScript — Kruskal's Algorithm with Union-Find</span><button class="copy-btn">Copy</button></div>
+                <pre><code>class UnionFind {
+    constructor(n) {
+        this.parent = Array.from({length: n}, (_, i) => i);
+        this.rank = new Array(n).fill(0);
+    }
+    find(x) {
+        if (this.parent[x] !== x) this.parent[x] = this.find(this.parent[x]);
+        return this.parent[x];
+    }
+    union(x, y) {
+        const px = this.find(x), py = this.find(y);
+        if (px === py) return false; // Already connected
+        if (this.rank[px] < this.rank[py]) this.parent[px] = py;
+        else if (this.rank[px] > this.rank[py]) this.parent[py] = px;
+        else { this.parent[py] = px; this.rank[px]++; }
+        return true;
+    }
+}
+
+function kruskal(n, edges) {
+    // edges: [[u, v, weight], ...]
+    edges.sort((a, b) => a[2] - b[2]); // Sort by weight
+    const uf = new UnionFind(n);
+    const mst = [];
+    let totalWeight = 0;
+
+    for (const [u, v, w] of edges) {
+        if (uf.union(u, v)) { // No cycle? Add to MST
+            mst.push([u, v, w]);
+            totalWeight += w;
+            if (mst.length === n - 1) break; // MST complete
+        }
+    }
+
+    return { mst, totalWeight };
+}</code></pre>
+            </div>
+
+            <!-- Prim's -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔧</span> Prim's Algorithm</h2>
+                <div class="code-header"><span>JavaScript — Prim's Algorithm</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function prims(n, edges) {
+    // Build adjacency list
+    const adj = Array.from({length: n}, () => []);
+    for (const [u, v, w] of edges) {
+        adj[u].push([v, w]);
+        adj[v].push([u, w]);
+    }
+
+    const inMST = new Array(n).fill(false);
+    // Min-heap: [weight, node]
+    const pq = [[0, 0]]; // Start from node 0
+    let totalWeight = 0;
+    let edgesAdded = 0;
+
+    while (pq.length > 0 && edgesAdded < n) {
+        pq.sort((a, b) => a[0] - b[0]); // Simple sort (use real heap for efficiency)
+        const [w, u] = pq.shift();
+
+        if (inMST[u]) continue;
+        inMST[u] = true;
+        totalWeight += w;
+        edgesAdded++;
+
+        for (const [v, weight] of adj[u]) {
+            if (!inMST[v]) {
+                pq.push([weight, v]);
+            }
+        }
+    }
+
+    return totalWeight;
+}
+
+// Min Cost to Connect All Points
+function minCostConnectPoints(points) {
+    const n = points.length;
+    const edges = [];
+    for (let i = 0; i < n; i++) {
+        for (let j = i + 1; j < n; j++) {
+            const dist = Math.abs(points[i][0]-points[j][0]) + Math.abs(points[i][1]-points[j][1]);
+            edges.push([i, j, dist]);
+        }
+    }
+    return kruskal(n, edges).totalWeight;
+}</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Kruskal's on 4 nodes</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Edges sorted: (2,3,1), (0,2,2), (1,3,3), (0,1,4), (1,2,5). UF: each node is its own set.</div><div class="step-state">MST = [], weight = 0</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Edge (2,3,1): find(2)≠find(3) → union. Add to MST.</div><div class="step-state">MST = [(2,3,1)], weight = 1</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Edge (0,2,2): find(0)≠find(2) → union. Add to MST.</div><div class="step-state">MST = [(2,3,1),(0,2,2)], weight = 3</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Edge (1,3,3): find(1)≠find(3) → union. Add to MST. 3 edges = V-1. Done!</div><div class="step-state">MST = [(2,3,1),(0,2,2),(1,3,3)], weight = 6 ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Algorithm</th><th>Time</th><th>Space</th><th>Best For</th></tr></thead>
+                    <tbody>
+                        <tr><td>Kruskal's</td><td>O(E log E)</td><td>O(V + E)</td><td class="best">Sparse graphs</td></tr>
+                        <tr><td>Prim's (heap)</td><td>O(E log V)</td><td>O(V + E)</td><td class="best">Dense graphs</td></tr>
+                        <tr><td>Prim's (adj matrix)</td><td>O(V²)</td><td>O(V²)</td><td>Very dense graphs</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting to check for cycles in Kruskal's</div>
+                    <p>Without Union-Find cycle detection, you'll add edges that create cycles, resulting in a graph that isn't a tree.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not marking visited nodes in Prim's</div>
+                    <p>Without the inMST check, you'll process the same node multiple times and get incorrect total weight.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing MST with shortest path</div>
+                    <p>MST minimizes TOTAL edge weight. Shortest path minimizes the path between two specific nodes. They solve different problems!</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>"Min Cost to Connect All Points" (LC 1584) is the most common MST interview problem.</li>
+                    <li>Know both algorithms: Kruskal's is easier to code, Prim's is better for dense graphs.</li>
+                    <li>Kruskal's needs Union-Find — make sure you know path compression and union by rank.</li>
+                    <li>MST has exactly V-1 edges. If you can't add V-1 edges, the graph is disconnected.</li>
+                    <li>MST edge weight is unique if all edge weights are distinct.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>MST: connects all vertices with minimum total edge weight, no cycles, V-1 edges.</li>
+                    <li>Kruskal's: sort edges + Union-Find. O(E log E). Good for sparse graphs.</li>
+                    <li>Prim's: grow tree with min-heap. O(E log V). Good for dense graphs.</li>
+                    <li>Both are greedy algorithms and produce optimal results.</li>
+                    <li>MST ≠ shortest path. MST minimizes total weight, not individual paths.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What's the difference between Kruskal's and Prim's algorithms?</div>
+                            <div class="flashcard-back"><strong>Kruskal's:</strong> Global approach — sort ALL edges, greedily add cheapest non-cycle edge. Uses Union-Find. Better for sparse graphs (E ≈ V).<br><strong>Prim's:</strong> Local approach — grow MST from one vertex, always add cheapest edge connecting tree to non-tree vertex. Uses min-heap. Better for dense graphs (E ≈ V²).</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How many edges does an MST have?</div>
+                            <div class="flashcard-back">Exactly <strong>V - 1</strong> edges, where V is the number of vertices. This is because a tree with V nodes always has V-1 edges (adding one more would create a cycle, removing one would disconnect).</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">1584</span><span class="lc-name"><a href="https://leetcode.com/problems/min-cost-to-connect-all-points/" target="_blank" rel="noopener">Min Cost to Connect All Points</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">MST (Kruskal/Prim)</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1135</span><span class="lc-name"><a href="https://leetcode.com/problems/connecting-cities-with-minimum-cost/" target="_blank" rel="noopener">Connecting Cities With Minimum Cost</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Classic MST</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1168</span><span class="lc-name"><a href="https://leetcode.com/problems/optimize-water-distribution-in-a-village/" target="_blank" rel="noopener">Optimize Water Distribution</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">MST with virtual node</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1489</span><span class="lc-name"><a href="https://leetcode.com/problems/find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree/" target="_blank" rel="noopener">Critical and Pseudo-Critical Edges in MST</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">MST edge analysis</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1697</span><span class="lc-name"><a href="https://leetcode.com/problems/checking-existence-of-edge-length-limited-paths/" target="_blank" rel="noopener">Checking Existence of Edge Length Limited Paths</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">MST + Union-Find</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

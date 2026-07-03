@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time &amp; Space Complexity - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb">
+            <a href="../index.html">Home</a><span class="separator">›</span>
+            <a href="../index.html">Phase 1</a><span class="separator">›</span>
+            <span class="current">Time &amp; Space Complexity</span>
+        </div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Time &amp; Space Complexity (Big O)</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 1</span>
+                    <span class="topic-badge difficulty-easy">Beginner Friendly</span>
+                    <button class="topic-complete-btn" data-topic-id="complexity">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Complexity Analysis?</h2>
+                <p>Imagine two delivery drivers both need to deliver 100 packages. Driver A delivers them one by one. Driver B sorts all packages by area first, then delivers them in one optimized route. Both finish the job — but Driver B is <strong>dramatically faster</strong>.</p>
+                <p>Complexity analysis is how we measure <strong>how fast an algorithm runs</strong> (time) and <strong>how much memory it uses</strong> (space) as the input grows larger.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 The Big Question</div>
+                    <p>We don't measure in seconds (that depends on hardware). Instead we ask: <strong>"If I double the input size, how much longer does it take?"</strong></p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🤔</span> Why Do We Need This?</h2>
+                <p>Two solutions can both be "correct" but behave completely differently:</p>
+                <table class="complexity-table">
+                    <thead><tr><th>Input Size (n)</th><th>O(n) Algorithm</th><th>O(n²) Algorithm</th></tr></thead>
+                    <tbody>
+                        <tr><td>10</td><td class="best">10 ops</td><td class="avg">100 ops</td></tr>
+                        <tr><td>1,000</td><td class="best">1,000 ops</td><td class="avg">1,000,000 ops</td></tr>
+                        <tr><td>1,000,000</td><td class="best">1,000,000 ops</td><td class="worst">1,000,000,000,000 ops 💀</td></tr>
+                    </tbody>
+                </table>
+                <p>At large inputs, an O(n²) solution can take <strong>hours</strong> while O(n) finishes in <strong>milliseconds</strong>. In interviews, choosing the right algorithm is what separates "accepted" from "time limit exceeded".</p>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">📚 Finding a Word in a Dictionary</div>
+                    <p><strong>O(n) — Linear:</strong> Start at page 1, read every word until you find it. For a 1000-page dictionary, you might check all 1000 pages.</p>
+                    <p><strong>O(log n) — Binary Search:</strong> Open the middle. Too early? Go to second half's middle. Too late? Go to first half's middle. For 1000 pages, you need at most ~10 checks!</p>
+                    <p><strong>O(1) — Direct Access:</strong> Someone tells you "page 547, word 3." You go straight there. No searching needed, regardless of dictionary size.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📊</span> Big O, Big Theta, Big Omega</h2>
+                <ul>
+                    <li><strong>Big O (O):</strong> <em>Upper bound</em> — "In the <strong>worst case</strong>, my algorithm takes at most this long." This is what interviews care about most.</li>
+                    <li><strong>Big Omega (Ω):</strong> <em>Lower bound</em> — "In the <strong>best case</strong>, it takes at least this long."</li>
+                    <li><strong>Big Theta (Θ):</strong> <em>Tight bound</em> — "It takes <strong>exactly</strong> this long (both upper and lower)."</li>
+                </ul>
+                <div class="callout info">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <p>When someone says "What's the time complexity?" they almost always mean <strong>Big O (worst case)</strong>. But understanding best/average case helps you explain your solution better.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📈</span> Common Complexities (Ranked Best → Worst)</h2>
+                <table class="complexity-table">
+                    <thead>
+                        <tr><th>Notation</th><th>Name</th><th>Example</th><th>n=1M?</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="best">O(1)</td><td>Constant</td><td>Array access, HashMap lookup</td><td class="best">1 op</td></tr>
+                        <tr><td class="best">O(log n)</td><td>Logarithmic</td><td>Binary Search</td><td class="best">20 ops</td></tr>
+                        <tr><td class="best">O(n)</td><td>Linear</td><td>Single loop through array</td><td class="avg">1M ops</td></tr>
+                        <tr><td class="avg">O(n log n)</td><td>Linearithmic</td><td>Merge Sort, Quick Sort</td><td class="avg">20M ops</td></tr>
+                        <tr><td class="worst">O(n²)</td><td>Quadratic</td><td>Nested loops, Bubble Sort</td><td class="worst">10¹² ops</td></tr>
+                        <tr><td class="worst">O(2ⁿ)</td><td>Exponential</td><td>Recursive Fibonacci (naive)</td><td class="worst">💀</td></tr>
+                        <tr><td class="worst">O(n!)</td><td>Factorial</td><td>Permutations</td><td class="worst">💀💀</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="viz-container">
+                    <div class="viz-title">Growth Rate Comparison</div>
+                    <div class="ascii-diagram">
+    ops
+    ↑     O(n²)         O(n!)
+    |         /          /
+    |        /      O(2ⁿ)
+    |       /       /
+    |      /       /
+    |     /    O(n log n)
+    |    /    /
+    |   /   / O(n)
+    |  /  / /
+    | / / /  O(log n)
+    |/_/____________________ O(1)
+    +------------------------→ n
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> How to Calculate Big O</h2>
+                <h3>Rule 1: Drop Constants</h3>
+                <pre><code>// This runs 3n times → O(3n) → O(n)
+for (let i = 0; i &lt; 3 * n; i++) { ... }
+
+// Constants don't matter for growth rate</code></pre>
+                
+                <h3>Rule 2: Drop Lower-Order Terms</h3>
+                <pre><code>// O(n² + n + 1) → O(n²)
+// As n grows, n² dominates everything else</code></pre>
+
+                <h3>Rule 3: Different Inputs = Different Variables</h3>
+                <pre><code>// Two different arrays → O(a + b), NOT O(n)
+for (let x of arrA) { ... }  // O(a)
+for (let y of arrB) { ... }  // O(b)</code></pre>
+
+                <h3>Rule 4: Nested Loops Multiply</h3>
+                <pre><code>// Outer: n times × Inner: n times = O(n × n) = O(n²)
+for (let i = 0; i &lt; n; i++) {
+    for (let j = 0; j &lt; n; j++) {
+        // ...
+    }
+}</code></pre>
+
+                <h3>Rule 5: Sequential Code Adds</h3>
+                <pre><code>// O(n) + O(n) = O(2n) = O(n)
+for (let i = 0; i &lt; n; i++) { ... }  // O(n)
+for (let j = 0; j &lt; n; j++) { ... }  // O(n)</code></pre>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🧠</span> Space Complexity</h2>
+                <p>Space complexity measures <strong>extra memory</strong> used by your algorithm (not counting the input itself).</p>
+                <pre><code>// O(1) space — only using a few variables
+function sum(arr) {
+    let total = 0;  // one variable
+    for (let x of arr) total += x;
+    return total;
+}
+
+// O(n) space — creating a new array of size n
+function doubled(arr) {
+    let result = [];  // grows with input
+    for (let x of arr) result.push(x * 2);
+    return result;
+}
+
+// O(n) space — recursion uses call stack space!
+function factorial(n) {
+    if (n <= 1) return 1;
+    return n * factorial(n - 1); // n stack frames
+}</code></pre>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Saying O(n) when it's actually O(n²)</div>
+                    <p>Watch for hidden loops! Methods like <code>.includes()</code>, <code>.indexOf()</code>, <code>.sort()</code> inside a loop add complexity.</p>
+                    <pre><code>// ❌ This is O(n²), not O(n)!
+for (let i = 0; i &lt; arr.length; i++) {
+    if (arr.includes(target - arr[i])) { ... }
+    //    ^^^ includes is O(n) inside an O(n) loop!
+}</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting recursion space</div>
+                    <p>Each recursive call adds a frame to the call stack. A recursion of depth n uses O(n) space.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Thinking HashMap is always "free"</div>
+                    <p>A HashMap gives O(1) lookups but costs O(n) space. It's a <strong>time-space tradeoff</strong>.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Tips</h2>
+                <ul>
+                    <li>Always state both <strong>time and space</strong> complexity when explaining your solution</li>
+                    <li>Start with brute force, then optimize — show your thought process</li>
+                    <li>Most competitive programming limits: ~10⁸ operations/second. So for n=10⁵, O(n²) = 10¹⁰ → too slow!</li>
+                    <li>Quick guide for max n:
+                        <ul>
+                            <li>n ≤ 20 → O(2ⁿ) or O(n!) OK (backtracking)</li>
+                            <li>n ≤ 3000 → O(n²) OK</li>
+                            <li>n ≤ 10⁵ → need O(n log n) or O(n)</li>
+                            <li>n ≤ 10⁸ → need O(n) or O(log n)</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="quick-notes">
+                <h3>📝 Quick Revision</h3>
+                <ul>
+                    <li>Big O = worst case upper bound. Drop constants and lower terms.</li>
+                    <li>Nested loops multiply: O(n) × O(n) = O(n²)</li>
+                    <li>Sequential code adds: O(n) + O(m) = O(n + m)</li>
+                    <li>Recursion: time = branches^depth, space = depth</li>
+                    <li>Always mention time AND space complexity</li>
+                </ul>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What does O(log n) mean intuitively?</div>
+                            <div class="flashcard-back">The problem size is cut in half at each step. For n=1,000,000 you only need ~20 steps. Example: Binary Search.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">O(n² + 5n + 100) simplifies to?</div>
+                            <div class="flashcard-back">O(n²). Drop constants and lower-order terms. As n grows, n² dominates.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What's the space complexity of recursive Fibonacci?</div>
+                            <div class="flashcard-back">O(n) — the call stack goes n levels deep. Time is O(2ⁿ) due to branching, but space is just O(n) because stack frames are reused after returning.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">1</span><span class="lc-name"><a href="https://leetcode.com/problems/two-sum/" target="_blank">Two Sum</a> — Can you identify O(n²) vs O(n)?</span><span class="lc-difficulty easy">Easy</span></li>
+                    <li class="leetcode-item"><span class="lc-number">217</span><span class="lc-name"><a href="https://leetcode.com/problems/contains-duplicate/" target="_blank">Contains Duplicate</a> — Compare sort vs hashset approach</span><span class="lc-difficulty easy">Easy</span></li>
+                    <li class="leetcode-item"><span class="lc-number">53</span><span class="lc-name"><a href="https://leetcode.com/problems/maximum-subarray/" target="_blank">Maximum Subarray</a> — O(n) vs O(n²) vs O(n log n)</span><span class="lc-difficulty medium">Medium</span></li>
+                    <li class="leetcode-item"><span class="lc-number">704</span><span class="lc-name"><a href="https://leetcode.com/problems/binary-search/" target="_blank">Binary Search</a> — Classic O(log n)</span><span class="lc-difficulty easy">Easy</span></li>
+                    <li class="leetcode-item"><span class="lc-number">509</span><span class="lc-name"><a href="https://leetcode.com/problems/fibonacci-number/" target="_blank">Fibonacci</a> — O(2ⁿ) vs O(n) vs O(log n)</span><span class="lc-difficulty easy">Easy</span></li>
+                </ul>
+            </div>
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

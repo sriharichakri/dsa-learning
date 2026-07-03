@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dijkstra's Algorithm - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 10</a><span class="separator">›</span><span class="current">Dijkstra's Algorithm</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Dijkstra's Algorithm</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 10</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="dijkstra">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Dijkstra's Algorithm?</h2>
+                <p><strong>Dijkstra's Algorithm</strong> finds the <strong>shortest path</strong> from a source node to all other nodes in a <strong>weighted graph with non-negative edges</strong>. It uses a <strong>greedy</strong> approach: always process the node with the <strong>smallest known distance</strong> next.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Dijkstra's is essentially <strong>BFS with a priority queue</strong> instead of a regular queue. Instead of processing nodes level by level, it processes them in order of their distance from the source. This handles weighted edges correctly.</p>
+                </div>
+            </div>
+
+            <!-- Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🗺️ GPS Finding the Fastest Route</div>
+                    <p>Your GPS doesn't just count intersections — it considers <strong>actual travel time</strong> on each road. It starts at your location, checks all nearby intersections, and always expands to the <strong>closest reachable point</strong> next. It keeps updating shorter routes as it discovers them. When it reaches your destination, it's guaranteed to have found the fastest route!</p>
+                </div>
+                <ul>
+                    <li><strong>Flight routing:</strong> Find cheapest flights considering different ticket prices per segment</li>
+                    <li><strong>Network routing:</strong> Internet packets find the fastest path through network nodes</li>
+                    <li><strong>Game pathfinding:</strong> Characters finding the cheapest path across terrain with varying costs</li>
+                </ul>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How Dijkstra's Algorithm Works</h2>
+
+                <div class="viz-container">
+                    <div class="viz-title">Dijkstra's: Shortest Paths from Node A</div>
+                    <div class="ascii-diagram">
+Graph:
+    A --4-- B --3-- E
+    |       |       |
+    2       1       6
+    |       |       |
+    C --5-- D --2-- F
+
+Step-by-step distance table:
+┌──────┬───┬───┬───┬───┬───┬───┬─────────────────────┐
+│ Step │ A │ B │ C │ D │ E │ F │ Process (min dist)   │
+├──────┼───┼───┼───┼───┼───┼───┼─────────────────────┤
+│ Init │ 0 │ ∞ │ ∞ │ ∞ │ ∞ │ ∞ │                     │
+│  1   │ 0*│ 4 │ 2 │ ∞ │ ∞ │ ∞ │ Process A (dist=0)  │
+│  2   │ 0 │ 4 │ 2*│ 7 │ ∞ │ ∞ │ Process C (dist=2)  │
+│  3   │ 0 │ 4*│ 2 │ 5 │ 7 │ ∞ │ Process B (dist=4)  │
+│  4   │ 0 │ 4 │ 2 │ 5*│ 7 │ 7 │ Process D (dist=5)  │
+│  5   │ 0 │ 4 │ 2 │ 5 │ 7*│ 7 │ Process E (dist=7)  │
+│  6   │ 0 │ 4 │ 2 │ 5 │ 7 │ 7*│ Process F (dist=7)  │
+└──────┴───┴───┴───┴───┴───┴───┴─────────────────────┘
+* = finalized (node processed)
+
+Shortest paths from A:
+  A→B: 4 (A→B)
+  A→C: 2 (A→C)
+  A→D: 5 (A→B→D)
+  A→E: 7 (A→B→E)
+  A→F: 7 (A→B→D→F)
+                    </div>
+                </div>
+
+                <div class="code-header"><span>JavaScript — Dijkstra's with Min-Heap</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function dijkstra(graph, start) {
+    // graph: { node: [[neighbor, weight], ...] }
+    const dist = {};
+    for (const node in graph) dist[node] = Infinity;
+    dist[start] = 0;
+    
+    // Min-heap: [distance, node]
+    const pq = [[0, start]];  // Priority queue
+    const visited = new Set();
+    
+    while (pq.length > 0) {
+        // Get node with minimum distance
+        pq.sort((a, b) => a[0] - b[0]);  // Simple sort (use heap for efficiency)
+        const [d, u] = pq.shift();
+        
+        if (visited.has(u)) continue;  // Already processed
+        visited.add(u);
+        
+        for (const [v, weight] of graph[u]) {
+            const newDist = d + weight;
+            if (newDist < dist[v]) {
+                dist[v] = newDist;
+                pq.push([newDist, v]);
+            }
+        }
+    }
+    return dist;
+}
+
+// Example
+const graph = {
+    'A': [['B',4], ['C',2]],
+    'B': [['A',4], ['D',1], ['E',3]],
+    'C': [['A',2], ['D',5]],
+    'D': [['B',1], ['C',5], ['F',2]],
+    'E': [['B',3], ['F',6]],
+    'F': [['D',2], ['E',6]]
+};
+console.log(dijkstra(graph, 'A'));
+// { A: 0, B: 4, C: 2, D: 5, E: 7, F: 7 }</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Simple Weighted Graph</h2>
+                <div class="ascii-diagram">
+    A --1-- B --4-- D
+     \      |
+      3     2
+       \    |
+        C --1-- E (target)
+                </div>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Init: dist = {A:0, B:∞, C:∞, D:∞, E:∞}. PQ = [(0,A)]</div><div class="step-state">Process A (d=0)</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">From A: B=0+1=1, C=0+3=3. Update both. PQ = [(1,B), (3,C)]</div><div class="step-state">dist: {A:0, B:1, C:3, D:∞, E:∞}</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Process B (d=1). From B: D=1+4=5, E via B→C? No direct. C=1+2=3 (same). PQ = [(3,C), (5,D)]</div><div class="step-state">dist: {A:0, B:1, C:3, D:5, E:∞}</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Process C (d=3). From C: E=3+1=4. PQ = [(4,E), (5,D)]</div><div class="step-state">dist: {A:0, B:1, C:3, D:5, E:4}</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">Process E (d=4). No unvisited neighbors to improve.</div><div class="step-state">Shortest to E = 4 (A→B→... wait, A→C→E = 3+1 = 4) ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Time & Space Complexity</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Implementation</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>With Min-Heap (binary)</td><td class="best">O((V + E) log V)</td><td class="best">O(V)</td></tr>
+                        <tr><td>With Fibonacci Heap</td><td class="best">O(V log V + E)</td><td class="best">O(V)</td></tr>
+                        <tr><td>With simple array</td><td class="worst">O(V²)</td><td class="best">O(V)</td></tr>
+                    </tbody>
+                </table>
+                <div class="callout info">
+                    <div class="callout-title">💡 When to Use Which</div>
+                    <p>For sparse graphs (E ≈ V), use min-heap → O(V log V). For dense graphs (E ≈ V²), simple array is fine → O(V²). In interviews, always use min-heap.</p>
+                </div>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Using Dijkstra's with Negative Edges</div>
+                    <p>Dijkstra's does NOT work with negative edge weights. Once a node is finalized, its distance is locked — but a negative edge could offer a shorter path later. Use <strong>Bellman-Ford</strong> for negative edges.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not Skipping Already-Visited Nodes</div>
+                    <p>A node can be added to the priority queue multiple times. Always check <code>if (visited.has(u)) continue;</code> after dequeuing to avoid reprocessing.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Using BFS Instead of Dijkstra's for Weighted Graphs</div>
+                    <p>BFS treats all edges as equal weight. For weighted graphs, BFS gives <strong>wrong shortest paths</strong>. Always use Dijkstra's (or Bellman-Ford) for weighted graphs.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Tips</h2>
+                <ul>
+                    <li><strong>BFS vs Dijkstra's:</strong> Unweighted → BFS. Non-negative weighted → Dijkstra's. Negative weights → Bellman-Ford.</li>
+                    <li><strong>Modified Dijkstra's:</strong> Many problems modify the "distance" — e.g., maximum probability, minimum cost with constraints</li>
+                    <li><strong>Reconstruct path:</strong> Maintain a <code>prev</code> map alongside <code>dist</code> to trace the actual shortest path</li>
+                    <li><strong>K stops constraint:</strong> "Cheapest Flights Within K Stops" needs modified BFS/Bellman-Ford, not pure Dijkstra's</li>
+                    <li><strong>In JavaScript:</strong> Use array + sort as simple PQ, or implement a proper min-heap for efficiency</li>
+                </ul>
+            </div>
+
+            <!-- Real-world -->
+            <div class="section-card">
+                <h2><span class="section-icon">🏗️</span> Where Dijkstra's Is Used</h2>
+                <ul>
+                    <li><strong>Google Maps / Waze:</strong> Finding fastest driving routes considering road speeds</li>
+                    <li><strong>Network routing (OSPF):</strong> Internet routers find optimal paths using Dijkstra's</li>
+                    <li><strong>Social networks:</strong> Finding closest connections weighted by interaction frequency</li>
+                    <li><strong>Game pathfinding:</strong> A* algorithm (Dijkstra's with heuristic) for game character movement</li>
+                    <li><strong>Airline route planning:</strong> Finding cheapest flight combinations</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Dijkstra's = BFS with priority queue. Greedy: always process closest unvisited node.</li>
+                    <li>Works only with non-negative edge weights</li>
+                    <li>Time: O((V+E) log V) with min-heap | Space: O(V)</li>
+                    <li>Negative edges → use Bellman-Ford instead</li>
+                    <li>Skip already-visited nodes when dequeuing from priority queue</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why doesn't Dijkstra's work with negative edge weights?</div>
+                            <div class="flashcard-back">Dijkstra's "finalizes" a node's distance once processed (greedy property). A negative edge could later provide a shorter path to an already-finalized node, violating this assumption.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What's the difference between BFS and Dijkstra's?</div>
+                            <div class="flashcard-back">BFS uses a regular queue (FIFO) — all edges have equal weight. Dijkstra's uses a priority queue (min-heap) — processes the closest node first, handling different edge weights correctly.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you reconstruct the actual shortest path in Dijkstra's?</div>
+                            <div class="flashcard-back">Maintain a `prev` map: when updating dist[v] = dist[u] + w, set prev[v] = u. After algorithm finishes, trace back from destination using prev until you reach the source.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode Problems -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">743</span><span class="lc-name"><a href="https://leetcode.com/problems/network-delay-time/" target="_blank" rel="noopener">Network Delay Time</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Classic Dijkstra</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1514</span><span class="lc-name"><a href="https://leetcode.com/problems/path-with-maximum-probability/" target="_blank" rel="noopener">Path with Maximum Probability</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Modified Dijkstra</span></li>
+                    <li class="leetcode-item"><span class="lc-number">787</span><span class="lc-name"><a href="https://leetcode.com/problems/cheapest-flights-within-k-stops/" target="_blank" rel="noopener">Cheapest Flights Within K Stops</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">BFS / Bellman-Ford</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1631</span><span class="lc-name"><a href="https://leetcode.com/problems/path-with-minimum-effort/" target="_blank" rel="noopener">Path With Minimum Effort</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Dijkstra on Grid</span></li>
+                    <li class="leetcode-item"><span class="lc-number">778</span><span class="lc-name"><a href="https://leetcode.com/problems/swim-in-rising-water/" target="_blank" rel="noopener">Swim in Rising Water</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Dijkstra / Binary Search</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1334</span><span class="lc-name"><a href="https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance/" target="_blank" rel="noopener">Find the City With Smallest Neighbors</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Multi-source Dijkstra</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1368</span><span class="lc-name"><a href="https://leetcode.com/problems/minimum-cost-to-make-at-least-one-valid-path-in-a-grid/" target="_blank" rel="noopener">Min Cost Valid Path in Grid</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">0-1 BFS / Dijkstra</span></li>
+                    <li class="leetcode-item"><span class="lc-number">505</span><span class="lc-name"><a href="https://leetcode.com/problems/the-maze-ii/" target="_blank" rel="noopener">The Maze II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Dijkstra on Grid</span></li>
+                    <li class="leetcode-item"><span class="lc-number">882</span><span class="lc-name"><a href="https://leetcode.com/problems/reachable-nodes-in-subdivided-graph/" target="_blank" rel="noopener">Reachable Nodes In Subdivided Graph</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Modified Dijkstra</span></li>
+                    <li class="leetcode-item"><span class="lc-number">2290</span><span class="lc-name"><a href="https://leetcode.com/problems/minimum-obstacle-removal-to-reach-corner/" target="_blank" rel="noopener">Min Obstacle Removal to Reach Corner</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">0-1 BFS / Dijkstra</span></li>
+                </ul>
+            </div>
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

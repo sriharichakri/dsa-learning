@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tree DP - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 12</a><span class="separator">›</span><span class="current">Tree DP</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Tree DP</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 12</span>
+                    <span class="topic-badge difficulty-hard">Hard</span>
+                    <button class="topic-complete-btn" data-topic-id="tree-dp">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Tree DP?</h2>
+                <p><strong>Tree DP</strong> applies dynamic programming on tree structures. Each node computes its answer based on answers from its children (post-order DFS). Common problems include finding <strong>diameter</strong>, <strong>maximum path sum</strong>, and <strong>house robber on trees</strong>.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>The key pattern: DFS returns information from children, and the parent combines it. Often you need to track <strong>two values</strong> per node — e.g., the best path ending at this node vs. the best path through this node (which can't be extended further).</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🏢 Corporate Reporting</div>
+                    <p>Each department reports its results to its manager. The manager combines reports from all departments and passes a summary to their boss. The CEO gets the final combined result. Tree DP works the same way — leaves report to parents, who combine and pass up.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Tree DP Problems</h2>
+
+                <h3>1. Binary Tree Maximum Path Sum</h3>
+                <div class="code-header"><span>JavaScript — Max Path Sum (LC 124)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function maxPathSum(root) {
+    let maxSum = -Infinity;
+
+    function dfs(node) {
+        if (!node) return 0;
+
+        // Max gain from left and right (ignore negative paths)
+        const leftGain = Math.max(0, dfs(node.left));
+        const rightGain = Math.max(0, dfs(node.right));
+
+        // Path through this node (can't be extended further up)
+        const pathThroughNode = node.val + leftGain + rightGain;
+        maxSum = Math.max(maxSum, pathThroughNode);
+
+        // Return max extendable path (can only go through one child)
+        return node.val + Math.max(leftGain, rightGain);
+    }
+
+    dfs(root);
+    return maxSum;
+}</code></pre>
+
+                <h3>2. Diameter of Binary Tree</h3>
+                <div class="code-header"><span>JavaScript — Diameter (LC 543)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function diameterOfBinaryTree(root) {
+    let diameter = 0;
+
+    function depth(node) {
+        if (!node) return 0;
+        const left = depth(node.left);
+        const right = depth(node.right);
+
+        // Diameter through this node = left depth + right depth
+        diameter = Math.max(diameter, left + right);
+
+        return 1 + Math.max(left, right); // Return depth
+    }
+
+    depth(root);
+    return diameter;
+}</code></pre>
+
+                <h3>3. House Robber III (Tree)</h3>
+                <div class="code-header"><span>JavaScript — House Robber III (LC 337)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function rob(root) {
+    // Returns [robThis, skipThis]
+    function dfs(node) {
+        if (!node) return [0, 0];
+
+        const left = dfs(node.left);
+        const right = dfs(node.right);
+
+        // Rob this node: can't rob children
+        const robThis = node.val + left[1] + right[1];
+        // Skip this node: take best of each child
+        const skipThis = Math.max(...left) + Math.max(...right);
+
+        return [robThis, skipThis];
+    }
+
+    return Math.max(...dfs(root));
+}</code></pre>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Max Path Sum</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Tree: -10(L:9, R:20(L:15, R:7)). DFS post-order.</div><div class="step-state">Process leaves first</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Node 9: no children. pathThrough=9. Return 9. Node 15: return 15. Node 7: return 7.</div><div class="step-state">maxSum = 15</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Node 20: leftGain=15, rightGain=7. pathThrough=20+15+7=42. Return 20+15=35.</div><div class="step-state">maxSum = 42</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Node -10: leftGain=max(0,9)=9, rightGain=max(0,35)=35. pathThrough=-10+9+35=34 < 42.</div><div class="step-state">maxSum = 42 ✅ (path: 15→20→7)</div></div></div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Problem</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Max Path Sum</td><td class="best">O(n)</td><td>O(h)</td></tr>
+                        <tr><td>Diameter</td><td class="best">O(n)</td><td>O(h)</td></tr>
+                        <tr><td>House Robber III</td><td class="best">O(n)</td><td>O(h)</td></tr>
+                    </tbody>
+                </table>
+                <p>All tree DP solutions visit each node once. Space is O(h) for recursion stack (h = height).</p>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing "path through node" vs "path from node"</div>
+                    <p>A path THROUGH a node goes left→node→right (can't extend further up). A path FROM a node goes node→one child (can extend to parent). Return the FROM value, update global max with THROUGH value.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not handling negative values</div>
+                    <p>Use <code>Math.max(0, childGain)</code> to ignore negative paths. A negative child path makes things worse — better to not include it.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Max Path Sum (LC 124) is one of the hardest tree problems — and very commonly asked.</li>
+                    <li>The pattern: DFS returns one thing (extendable path), updates global with another (full path through node).</li>
+                    <li>Diameter is the same pattern but simpler — good warm-up before max path sum.</li>
+                    <li>House Robber III combines tree DFS with the take/skip DP pattern.</li>
+                </ul>
+            </div>
+
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Tree DP: DFS returns info from children, parent combines.</li>
+                    <li>Max Path Sum: return extendable gain, update global with through-path.</li>
+                    <li>Diameter = max(left_depth + right_depth) across all nodes.</li>
+                    <li>House Robber III: return [robThis, skipThis] pair from each node.</li>
+                    <li>All are O(n) time, O(h) space. Single DFS traversal.</li>
+                </ul>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">In Max Path Sum, why do we return one value but update global max with another?</div>
+                            <div class="flashcard-back">We return the <strong>extendable path</strong> (node + one child) because the parent can only extend through one branch. But the <strong>best path through the node</strong> (left + node + right) might be the global answer — it just can't be extended further. So we update global max with it.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How does House Robber III use tree DP?</div>
+                            <div class="flashcard-back">Each node returns a pair: [rob_this, skip_this]. If we rob this node, we must skip both children (take their skip values). If we skip this node, we take the best (max of rob/skip) from each child. Final answer: max of root's pair.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">124</span><span class="lc-name"><a href="https://leetcode.com/problems/binary-tree-maximum-path-sum/" target="_blank" rel="noopener">Binary Tree Maximum Path Sum</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Tree DP classic</span></li>
+                    <li class="leetcode-item"><span class="lc-number">543</span><span class="lc-name"><a href="https://leetcode.com/problems/diameter-of-binary-tree/" target="_blank" rel="noopener">Diameter of Binary Tree</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Tree DP (depth)</span></li>
+                    <li class="leetcode-item"><span class="lc-number">337</span><span class="lc-name"><a href="https://leetcode.com/problems/house-robber-iii/" target="_blank" rel="noopener">House Robber III</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Take/Skip on tree</span></li>
+                    <li class="leetcode-item"><span class="lc-number">968</span><span class="lc-name"><a href="https://leetcode.com/problems/binary-tree-cameras/" target="_blank" rel="noopener">Binary Tree Cameras</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">3-state tree DP</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1372</span><span class="lc-name"><a href="https://leetcode.com/problems/longest-zigzag-path-in-a-binary-tree/" target="_blank" rel="noopener">Longest ZigZag Path</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Direction-aware tree DP</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

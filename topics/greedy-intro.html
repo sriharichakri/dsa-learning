@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greedy Fundamentals - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 11</a><span class="separator">›</span><span class="current">Greedy Fundamentals</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Greedy Fundamentals</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 11</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="greedy-intro">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is a Greedy Algorithm?</h2>
+                <p>A <strong>greedy algorithm</strong> makes the <strong>locally optimal choice</strong> at each step, hoping to find the <strong>globally optimal solution</strong>. It never looks back or reconsiders previous choices.</p>
+                <p>Greedy algorithms don't always work — they only work when the problem has the <strong>greedy choice property</strong> (local optimum leads to global optimum) and <strong>optimal substructure</strong> (optimal solution contains optimal solutions to subproblems).</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>The hardest part of greedy isn't coding — it's <strong>proving the greedy choice is correct</strong>. If you can argue that the greedy choice is never worse than any alternative, the algorithm works. If not, you need DP or another approach.</p>
+                </div>
+            </div>
+
+            <!-- Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🪙 Making Change with Coins</div>
+                    <p>You need to give $0.67 in change using the fewest coins. Your strategy: always pick the <strong>largest denomination</strong> that fits. $0.67 → 25¢ + 25¢ + 10¢ + 5¢ + 1¢ + 1¢ = 6 coins. This greedy approach works for standard US denominations! (But fails for some arbitrary coin systems.)</p>
+                </div>
+                <ul>
+                    <li><strong>Eating at a buffet:</strong> Always grab the dish you want most next (might miss a better combination!)</li>
+                    <li><strong>Scheduling meetings:</strong> Always pick the meeting that ends earliest to fit the most meetings</li>
+                    <li><strong>Filling a truck:</strong> Load the lightest items first to fit the most items (not always optimal for value)</li>
+                    <li><strong>Driving route:</strong> Always take the next nearest gas station (works for fuel, not always for shortest path)</li>
+                </ul>
+            </div>
+
+            <!-- When Greedy Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">✅</span> When Does Greedy Work?</h2>
+                <div class="viz-container">
+                    <div class="viz-title">Greedy Works vs. Doesn't Work</div>
+                    <div class="ascii-diagram">
+✅ GREEDY WORKS:                    ❌ GREEDY FAILS:
+Activity Selection                  0/1 Knapsack
+  → Pick earliest ending            Items: [(60,10), (100,20), (120,30)]
+  → Always optimal                  Capacity: 50
+                                     Greedy by value/weight: picks wrong combo
+Fractional Knapsack                 
+  → Take highest value/weight       Shortest Path (negative edges)
+  → Can take fractions              → Dijkstra (greedy) fails
+                                     → Need Bellman-Ford
+Huffman Coding
+  → Merge two smallest              Coin Change (arbitrary denominations)
+  → Provably optimal                → Coins: [1, 3, 4], Amount: 6
+                                     → Greedy: 4+1+1=3 coins
+                                     → Optimal: 3+3=2 coins ❌
+                    </div>
+                </div>
+                <div class="callout info">
+                    <div class="callout-title">💡 The Two Properties</div>
+                    <p><strong>1. Greedy Choice Property:</strong> A locally optimal choice leads to a globally optimal solution.<br>
+                    <strong>2. Optimal Substructure:</strong> The optimal solution to the problem contains optimal solutions to its subproblems.</p>
+                </div>
+            </div>
+
+            <!-- Classic Problems -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Classic Greedy Problems</h2>
+
+                <h3>1. Activity Selection (Interval Scheduling)</h3>
+                <div class="code-header"><span>JavaScript — Maximum Non-overlapping Intervals</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Pick the maximum number of non-overlapping activities
+function activitySelection(activities) {
+    // Sort by end time (GREEDY: pick earliest ending first)
+    activities.sort((a, b) => a[1] - b[1]);
+    
+    const selected = [activities[0]];
+    let lastEnd = activities[0][1];
+    
+    for (let i = 1; i < activities.length; i++) {
+        if (activities[i][0] >= lastEnd) {  // No overlap
+            selected.push(activities[i]);
+            lastEnd = activities[i][1];
+        }
+    }
+    return selected;
+}
+// activities = [[1,3], [2,5], [3,6], [5,7], [8,9]]
+// Selected: [1,3], [5,7], [8,9] → 3 activities</code></pre>
+
+                <h3>2. Jump Game</h3>
+                <div class="code-header"><span>JavaScript — Can you reach the last index?</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function canJump(nums) {
+    let maxReach = 0;
+    
+    for (let i = 0; i < nums.length; i++) {
+        if (i > maxReach) return false;  // Can't reach this index
+        maxReach = Math.max(maxReach, i + nums[i]);
+    }
+    return true;
+}
+// [2,3,1,1,4] → true (2→3→4 or 2→1→1→4)
+// [3,2,1,0,4] → false (stuck at index 3)</code></pre>
+
+                <h3>3. Gas Station</h3>
+                <div class="code-header"><span>JavaScript — Circular Route Gas Station</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function canCompleteCircuit(gas, cost) {
+    let totalSurplus = 0;
+    let currentSurplus = 0;
+    let start = 0;
+    
+    for (let i = 0; i < gas.length; i++) {
+        totalSurplus += gas[i] - cost[i];
+        currentSurplus += gas[i] - cost[i];
+        
+        if (currentSurplus < 0) {
+            start = i + 1;      // Can't start from any station before i+1
+            currentSurplus = 0;
+        }
+    }
+    
+    return totalSurplus >= 0 ? start : -1;
+}</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Jump Game II — Minimum Jumps</h2>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function jump(nums) {
+    let jumps = 0, currentEnd = 0, farthest = 0;
+    
+    for (let i = 0; i < nums.length - 1; i++) {
+        farthest = Math.max(farthest, i + nums[i]);
+        if (i === currentEnd) {
+            jumps++;
+            currentEnd = farthest;
+        }
+    }
+    return jumps;
+}</code></pre>
+                <p>Array: [2, 3, 1, 1, 4]</p>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">i=0: farthest = max(0, 0+2) = 2. i === currentEnd(0) → jumps=1, currentEnd=2</div><div class="step-state">jumps=1, currentEnd=2, farthest=2</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">i=1: farthest = max(2, 1+3) = 4. i ≠ currentEnd → continue</div><div class="step-state">jumps=1, currentEnd=2, farthest=4</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">i=2: farthest = max(4, 2+1) = 4. i === currentEnd(2) → jumps=2, currentEnd=4</div><div class="step-state">jumps=2, currentEnd=4, farthest=4</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">i=3: farthest = max(4, 3+1) = 4. i ≠ currentEnd → continue. Loop ends (i < n-1)</div><div class="step-state">Answer: 2 jumps ✅ (index 0 → 1 → 4)</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity of Common Greedy Problems</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Problem</th><th>Time</th><th>Space</th><th>Why?</th></tr></thead>
+                    <tbody>
+                        <tr><td>Activity Selection</td><td class="best">O(n log n)</td><td class="best">O(1)</td><td>Sort + single pass</td></tr>
+                        <tr><td>Jump Game</td><td class="best">O(n)</td><td class="best">O(1)</td><td>Single pass tracking maxReach</td></tr>
+                        <tr><td>Jump Game II</td><td class="best">O(n)</td><td class="best">O(1)</td><td>BFS-like level tracking</td></tr>
+                        <tr><td>Gas Station</td><td class="best">O(n)</td><td class="best">O(1)</td><td>Single pass tracking surplus</td></tr>
+                        <tr><td>Assign Cookies</td><td class="best">O(n log n)</td><td class="best">O(1)</td><td>Sort both arrays + two pointers</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Assuming Greedy Always Works</div>
+                    <p>Greedy fails for many problems (0/1 knapsack, coin change with arbitrary coins). Always verify the greedy choice property before using it!</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Wrong Sorting Order</div>
+                    <p>Activity selection needs sorting by <strong>end time</strong>, not start time. Fractional knapsack sorts by <strong>value/weight ratio</strong>. The sorting criterion is everything!</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing Greedy with DP</div>
+                    <p>If a greedy solution doesn't work, the problem likely needs DP. Greedy makes ONE choice per step and never revisits. DP considers ALL choices and picks the best.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not Proving Correctness</div>
+                    <p>In interviews, just saying "use greedy" isn't enough. You should explain <strong>why</strong> the greedy choice is correct, even if briefly.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Tips</h2>
+                <ul>
+                    <li><strong>Pattern recognition:</strong> "Minimum/maximum number of..." often suggests greedy or DP. Try greedy first — it's simpler.</li>
+                    <li><strong>Sort first:</strong> Many greedy problems start with sorting by some criterion.</li>
+                    <li><strong>Exchange argument:</strong> To prove greedy works, show that swapping a greedy choice for a non-greedy one never improves the solution.</li>
+                    <li><strong>Greedy vs DP:</strong> If greedy fails on a counterexample, switch to DP. Many problems have both solutions.</li>
+                    <li><strong>Interval problems:</strong> Sort by end time for maximum non-overlapping, by start time for merging.</li>
+                </ul>
+            </div>
+
+            <!-- Real-world -->
+            <div class="section-card">
+                <h2><span class="section-icon">🏗️</span> Where Greedy Is Used</h2>
+                <ul>
+                    <li><strong>Huffman coding:</strong> Data compression (ZIP, JPEG) uses greedy to build optimal prefix codes</li>
+                    <li><strong>Dijkstra's algorithm:</strong> Greedy choice of nearest unvisited node</li>
+                    <li><strong>Kruskal's/Prim's MST:</strong> Greedy edge selection for minimum spanning tree</li>
+                    <li><strong>CPU scheduling:</strong> Shortest Job First algorithm is greedy</li>
+                    <li><strong>Coin dispensers:</strong> ATMs use greedy to dispense fewest bills</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Greedy = make the best local choice at each step, never look back</li>
+                    <li>Works only with greedy choice property + optimal substructure</li>
+                    <li>Activity selection: sort by end time, pick non-overlapping</li>
+                    <li>Jump Game: track max reachable index in one pass</li>
+                    <li>If greedy fails (counterexample exists), switch to DP</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What two properties must a problem have for greedy to work?</div>
+                            <div class="flashcard-back">1) Greedy Choice Property: A locally optimal choice leads to a globally optimal solution. 2) Optimal Substructure: The optimal solution contains optimal solutions to subproblems.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why does greedy fail for 0/1 Knapsack?</div>
+                            <div class="flashcard-back">Greedy picks items with best value/weight ratio, but you can't take fractions. A less "efficient" item might fit the remaining capacity better. Example: items (60, 10kg), (100, 20kg), (120, 30kg), capacity 50kg. Greedy misses optimal combo.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How does the "exchange argument" prove greedy correctness?</div>
+                            <div class="flashcard-back">Assume an optimal solution that differs from the greedy solution. Show that swapping the differing choice to the greedy choice produces a solution that is at least as good. This proves greedy is optimal.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode Problems -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">455</span><span class="lc-name"><a href="https://leetcode.com/problems/assign-cookies/" target="_blank" rel="noopener">Assign Cookies</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Sort + Greedy</span></li>
+                    <li class="leetcode-item"><span class="lc-number">55</span><span class="lc-name"><a href="https://leetcode.com/problems/jump-game/" target="_blank" rel="noopener">Jump Game</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Greedy Reach</span></li>
+                    <li class="leetcode-item"><span class="lc-number">45</span><span class="lc-name"><a href="https://leetcode.com/problems/jump-game-ii/" target="_blank" rel="noopener">Jump Game II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Greedy BFS</span></li>
+                    <li class="leetcode-item"><span class="lc-number">134</span><span class="lc-name"><a href="https://leetcode.com/problems/gas-station/" target="_blank" rel="noopener">Gas Station</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Greedy Surplus</span></li>
+                    <li class="leetcode-item"><span class="lc-number">435</span><span class="lc-name"><a href="https://leetcode.com/problems/non-overlapping-intervals/" target="_blank" rel="noopener">Non-overlapping Intervals</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Interval Greedy</span></li>
+                    <li class="leetcode-item"><span class="lc-number">763</span><span class="lc-name"><a href="https://leetcode.com/problems/partition-labels/" target="_blank" rel="noopener">Partition Labels</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Greedy + HashMap</span></li>
+                    <li class="leetcode-item"><span class="lc-number">846</span><span class="lc-name"><a href="https://leetcode.com/problems/hand-of-straights/" target="_blank" rel="noopener">Hand of Straights</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Greedy + Map</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1005</span><span class="lc-name"><a href="https://leetcode.com/problems/maximize-sum-of-array-after-k-negations/" target="_blank" rel="noopener">Maximize Sum After K Negations</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Sort + Greedy</span></li>
+                    <li class="leetcode-item"><span class="lc-number">621</span><span class="lc-name"><a href="https://leetcode.com/problems/task-scheduler/" target="_blank" rel="noopener">Task Scheduler</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Greedy + Math</span></li>
+                    <li class="leetcode-item"><span class="lc-number">135</span><span class="lc-name"><a href="https://leetcode.com/problems/candy/" target="_blank" rel="noopener">Candy</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Two-pass Greedy</span></li>
+                </ul>
+            </div>
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

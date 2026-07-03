@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KMP Algorithm - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 15</a><span class="separator">›</span><span class="current">KMP Algorithm</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>KMP Algorithm</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 15</span>
+                    <span class="topic-badge difficulty-hard">Hard</span>
+                    <button class="topic-complete-btn" data-topic-id="kmp">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is the KMP Algorithm?</h2>
+                <p>The <strong>Knuth-Morris-Pratt (KMP)</strong> algorithm is a string pattern matching algorithm that finds all occurrences of a pattern in a text in <strong>O(n + m)</strong> time, where n is the text length and m is the pattern length. It avoids the worst-case O(n × m) of the naive approach by never re-scanning characters in the text.</p>
+                <p>The key innovation is the <strong>failure function (prefix table / LPS array)</strong>, which tells the algorithm how far to jump when a mismatch occurs, based on the longest proper prefix of the pattern that is also a suffix.</p>
+                <div class="callout tip">
+                    <div class="callout-title">🔍 Real-Life Analogy: Remembering Partial Matches</div>
+                    <p>Imagine you're searching for the word "ABCABD" in a long text. You've matched "ABCAB" and then hit a mismatch at 'D'. A naive approach restarts from scratch. But you notice the matched part "ABCAB" ends with "AB" which is also how your pattern starts! So instead of starting over, you slide forward, keeping the "AB" prefix matched, and continue from the 3rd character. <strong>KMP remembers what you've already matched</strong> and never goes backward in the text.</p>
+                </div>
+            </div>
+
+            <!-- Failure Function -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> The Failure Function (LPS Array)</h2>
+                <div class="viz-container">
+                    <div class="viz-title">LPS Array for pattern "ABABCABAB"</div>
+                    <div class="ascii-diagram">
+Pattern: A B A B C A B A B
+Index:   0 1 2 3 4 5 6 7 8
+
+LPS[i] = length of longest proper prefix of pattern[0..i]
+         that is also a suffix of pattern[0..i]
+
+i=0: "A"         → no proper prefix = suffix → LPS[0] = 0
+i=1: "AB"        → no match                  → LPS[1] = 0
+i=2: "ABA"       → "A" = "A" (prefix=suffix) → LPS[2] = 1
+i=3: "ABAB"      → "AB" = "AB"               → LPS[3] = 2
+i=4: "ABABC"     → no match                  → LPS[4] = 0
+i=5: "ABABCA"    → "A" = "A"                 → LPS[5] = 1
+i=6: "ABABCAB"   → "AB" = "AB"               → LPS[6] = 2
+i=7: "ABABCABA"  → "ABA" = "ABA"             → LPS[7] = 3
+i=8: "ABABCABAB" → "ABAB" = "ABAB"           → LPS[8] = 4
+
+LPS = [0, 0, 1, 2, 0, 1, 2, 3, 4]
+
+On mismatch at position i in pattern:
+  Jump to LPS[i-1] instead of restarting from 0.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Implementation -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔧</span> Implementation</h2>
+                <div class="code-header"><span>JavaScript — KMP Pattern Matching</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Build the LPS (Longest Proper Prefix which is also Suffix) array
+function buildLPS(pattern) {
+    const m = pattern.length;
+    const lps = new Array(m).fill(0);
+    let len = 0; // Length of previous longest prefix-suffix
+    let i = 1;
+
+    while (i < m) {
+        if (pattern[i] === pattern[len]) {
+            len++;
+            lps[i] = len;
+            i++;
+        } else {
+            if (len !== 0) {
+                len = lps[len - 1]; // Fall back, don't increment i
+            } else {
+                lps[i] = 0;
+                i++;
+            }
+        }
+    }
+    return lps;
+}
+
+// KMP Search — O(n + m)
+function kmpSearch(text, pattern) {
+    const n = text.length, m = pattern.length;
+    if (m === 0) return [];
+
+    const lps = buildLPS(pattern);
+    const results = [];
+    let i = 0; // Index in text
+    let j = 0; // Index in pattern
+
+    while (i < n) {
+        if (text[i] === pattern[j]) {
+            i++;
+            j++;
+        }
+
+        if (j === m) {
+            results.push(i - m); // Found match at index i - m
+            j = lps[j - 1];     // Continue searching
+        } else if (i < n && text[i] !== pattern[j]) {
+            if (j !== 0) {
+                j = lps[j - 1]; // Use failure function
+            } else {
+                i++;             // No prefix match, advance text
+            }
+        }
+    }
+    return results;
+}
+
+// Usage
+console.log(kmpSearch("ABABDABACDABABCABAB", "ABABCABAB"));
+// [9] — pattern found at index 9
+
+console.log(kmpSearch("AAAAAA", "AAA"));
+// [0, 1, 2, 3] — overlapping matches</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: kmpSearch("ABXABABCABAB", "ABABCABAB")</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">i=0,j=0: text[0]='A' = pattern[0]='A'. Match! i=1, j=1.</div><div class="step-state">Matched: "A"</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">i=1,j=1: text[1]='B' = pattern[1]='B'. Match! i=2, j=2.</div><div class="step-state">Matched: "AB"</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">i=2,j=2: text[2]='X' ≠ pattern[2]='A'. Mismatch! j≠0, so j=lps[1]=0.</div><div class="step-state">Fall back: j=0, text pointer stays at i=2</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">i=2,j=0: text[2]='X' ≠ pattern[0]='A'. j=0, so i=3.</div><div class="step-state">Skip 'X', advance text</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">i=3 to i=11: Characters match pattern "ABABCABAB" fully. j reaches 9 = m.</div><div class="step-state">Match found at index 3! ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Naive</th><th>KMP</th></tr></thead>
+                    <tbody>
+                        <tr><td>Build LPS</td><td>-</td><td>O(m)</td></tr>
+                        <tr><td>Search</td><td class="worst">O(n × m)</td><td class="best">O(n)</td></tr>
+                        <tr><td>Total</td><td class="worst">O(n × m)</td><td class="best">O(n + m)</td></tr>
+                        <tr><td>Space</td><td>O(1)</td><td>O(m) for LPS</td></tr>
+                    </tbody>
+                </table>
+                <p>KMP's guarantee is that the text pointer <code>i</code> never moves backward. Each character in the text is compared at most twice.</p>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing LPS with "longest prefix that equals suffix" (including entire string)</div>
+                    <p>LPS uses <strong>proper</strong> prefix/suffix — the entire string doesn't count. "ABAB": the proper prefix-suffix is "AB" (length 2), not "ABAB" (length 4).</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Incrementing i on mismatch when j ≠ 0</div>
+                    <p>When there's a mismatch and j > 0, only update j = lps[j-1]. Do NOT increment i — you need to re-compare the current text character with the new pattern position.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not continuing search after finding a match</div>
+                    <p>After j reaches m (full match found), set j = lps[j-1] to find overlapping matches. Don't reset j to 0 — that misses overlaps like "AAA" in "AAAA".</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>KMP is the <strong>go-to answer</strong> for "find pattern in string in O(n+m)" in interviews.</li>
+                    <li>Focus on understanding the <strong>LPS array</strong> — that's the crux. The search phase is straightforward once LPS is understood.</li>
+                    <li>LeetCode 28 (Find the Index of First Occurrence) can be solved with KMP, though interviewers accept simpler approaches too.</li>
+                    <li>LeetCode 459 (Repeated Substring Pattern): if <code>lps[m-1] > 0</code> and <code>m % (m - lps[m-1]) === 0</code>, the string is a repeated pattern.</li>
+                    <li>Alternative algorithms: Rabin-Karp (hash-based), Z-algorithm (Z-array), Boyer-Moore (skip from right).</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>KMP: pattern matching in O(n + m) — text pointer never goes backward.</li>
+                    <li>LPS[i] = length of longest proper prefix of pattern[0..i] that equals a suffix.</li>
+                    <li>On mismatch at pattern[j]: if j > 0, jump j = LPS[j-1]; else advance i.</li>
+                    <li>On full match (j = m): record position, set j = LPS[m-1] for overlapping matches.</li>
+                    <li>Repeated Substring Pattern check: m % (m - LPS[m-1]) === 0.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What does LPS[i] represent?</div>
+                            <div class="flashcard-back">The length of the <strong>longest proper prefix</strong> of pattern[0..i] that is also a <strong>suffix</strong> of pattern[0..i]. "Proper" means the prefix can't be the whole string. Example: for "ABCAB", LPS[4] = 2 because "AB" is both a prefix and suffix.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why does the text pointer never go backward in KMP?</div>
+                            <div class="flashcard-back">On mismatch, instead of restarting, KMP uses the LPS array to know how much of the pattern is still valid. It slides the pattern forward, keeping the already-matched prefix. The text pointer only advances or stays — it never retreats. This guarantees O(n) comparisons.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How to check if a string is a repeated pattern using KMP?</div>
+                            <div class="flashcard-back">Build the LPS array. If <code>LPS[m-1] > 0</code> and <code>m % (m - LPS[m-1]) === 0</code>, then the string is made of repeated copies of pattern[0..m-LPS[m-1]-1]. Example: "abcabc" → LPS[5]=3, period = 6-3 = 3, 6%3=0 ✓ → repeated "abc".</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">28</span><span class="lc-name"><a href="https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/" target="_blank" rel="noopener">Find the Index of First Occurrence in a String</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">KMP / String Matching</span></li>
+                    <li class="leetcode-item"><span class="lc-number">459</span><span class="lc-name"><a href="https://leetcode.com/problems/repeated-substring-pattern/" target="_blank" rel="noopener">Repeated Substring Pattern</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">KMP (LPS array trick)</span></li>
+                    <li class="leetcode-item"><span class="lc-number">214</span><span class="lc-name"><a href="https://leetcode.com/problems/shortest-palindrome/" target="_blank" rel="noopener">Shortest Palindrome</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">KMP on reversed string</span></li>
+                    <li class="leetcode-item"><span class="lc-number">796</span><span class="lc-name"><a href="https://leetcode.com/problems/rotate-string/" target="_blank" rel="noopener">Rotate String</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">KMP / String Concatenation</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1392</span><span class="lc-name"><a href="https://leetcode.com/problems/longest-happy-prefix/" target="_blank" rel="noopener">Longest Happy Prefix</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">KMP (LPS direct application)</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Two Pointers - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 5</a><span class="separator">›</span><span class="current">Two Pointers</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Two Pointers</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 5</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="two-pointers">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is the Two Pointers Technique?</h2>
+                <p>The <strong>Two Pointers</strong> technique uses two references (indices) that move through a data structure simultaneously, typically from different positions or at different speeds. This allows you to process pairs of elements efficiently without nested loops.</p>
+                <p>It reduces O(n²) brute force solutions to O(n) by cleverly eliminating unnecessary comparisons.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Two Pointers works because of <strong>sorted order</strong> or <strong>structural properties</strong>. In a sorted array, if the sum of two elements is too large, moving the right pointer left decreases it. Too small? Move the left pointer right. This directed movement eliminates entire groups of impossible pairs.</p>
+                </div>
+            </div>
+
+            <!-- Real-Life Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🚶‍♂️ Two People Walking Toward Each Other</div>
+                    <p>Imagine a long hallway with numbered tiles. Two people start at opposite ends and walk toward each other. At each step, they check the numbers on their tiles. If the sum is too small, the person on the left moves forward (to a bigger number). If too big, the person on the right moves backward. They keep adjusting until they find the target sum or meet in the middle.</p>
+                </div>
+                <ul>
+                    <li><strong>Squeezing a tube of toothpaste:</strong> You press from both ends toward the middle — that's opposite-direction two pointers.</li>
+                    <li><strong>Tortoise and Hare:</strong> Slow and fast runners on a track — if there's a loop, the fast one catches up. That's fast-slow pointers!</li>
+                    <li><strong>Merging two sorted piles:</strong> Take the smaller top card from either pile — that's same-direction two pointers.</li>
+                </ul>
+            </div>
+
+            <!-- Three Patterns -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Three Two-Pointer Patterns</h2>
+
+                <h3>1. Opposite Direction (Converging)</h3>
+                <p>Left starts at beginning, right starts at end. They move toward each other.</p>
+                <div class="viz-container">
+                    <div class="viz-title">Two Sum II: Find pair summing to 9 in [1, 2, 4, 6, 8, 9]</div>
+                    <div class="ascii-diagram">
+[1, 2, 4, 6, 8, 9]
+ L              R     sum=1+9=10 > 9 → move R left
+ L           R        sum=1+8=9  ✅ Found!
+
+[1, 3, 5, 7]
+ L        R           sum=1+7=8 < target? → move L right
+    L     R           sum=3+7=10 > target? → move R left
+    L  R              sum=3+5=8 ✅
+                    </div>
+                </div>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Two Sum II — sorted array
+function twoSumSorted(nums, target) {
+    let left = 0, right = nums.length - 1;
+    
+    while (left < right) {
+        let sum = nums[left] + nums[right];
+        if (sum === target) return [left, right];
+        else if (sum < target) left++;    // Need bigger sum
+        else right--;                     // Need smaller sum
+    }
+    return [];
+}</code></pre>
+
+                <h3>2. Same Direction (Fast-Slow)</h3>
+                <p>Both pointers start at the beginning. One moves faster. Used for removing duplicates, partitioning.</p>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Remove duplicates from sorted array (in-place)
+function removeDuplicates(nums) {
+    if (nums.length === 0) return 0;
+    let slow = 0;
+    
+    for (let fast = 1; fast < nums.length; fast++) {
+        if (nums[fast] !== nums[slow]) {
+            slow++;
+            nums[slow] = nums[fast];
+        }
+    }
+    return slow + 1; // Length of unique portion
+}
+
+// [1, 1, 2, 2, 3] → [1, 2, 3, _, _] returns 3</code></pre>
+
+                <div class="viz-container">
+                    <div class="viz-title">Remove Duplicates: [1, 1, 2, 2, 3]</div>
+                    <div class="ascii-diagram">
+[1, 1, 2, 2, 3]
+ S  F               nums[F]=1 == nums[S]=1 → skip
+ S     F             nums[F]=2 != nums[S]=1 → S++, copy
+    S     F          nums[F]=2 == nums[S]=2 → skip
+    S        F       nums[F]=3 != nums[S]=2 → S++, copy
+       S        F    F reaches end. Answer = S+1 = 3
+
+Result: [1, 2, 3, ...]  (first 3 elements are unique)
+                    </div>
+                </div>
+
+                <h3>3. Fast-Slow (Cycle Detection — Floyd's Algorithm)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Detect cycle in linked list
+function hasCycle(head) {
+    let slow = head, fast = head;
+    
+    while (fast && fast.next) {
+        slow = slow.next;        // 1 step
+        fast = fast.next.next;   // 2 steps
+        if (slow === fast) return true; // They met = cycle!
+    }
+    return false; // fast reached end = no cycle
+}</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Container With Most Water</h2>
+                <p>Find two lines that together with x-axis form the container holding the most water.</p>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function maxArea(height) {
+    let left = 0, right = height.length - 1;
+    let maxWater = 0;
+    
+    while (left < right) {
+        let width = right - left;
+        let h = Math.min(height[left], height[right]);
+        maxWater = Math.max(maxWater, width * h);
+        
+        if (height[left] < height[right]) left++;
+        else right--;
+    }
+    return maxWater;
+}</code></pre>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">height=[1,8,6,2,5,4,8,3,7]. L=0(h=1), R=8(h=7). Area = 8×min(1,7) = 8. Move L (smaller).</div><div class="step-state">maxWater=8, L=1, R=8</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">L=1(h=8), R=8(h=7). Area = 7×min(8,7) = 49. Move R (smaller).</div><div class="step-state">maxWater=49, L=1, R=7</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">L=1(h=8), R=7(h=3). Area = 6×min(8,3) = 18. Move R.</div><div class="step-state">maxWater=49, L=1, R=6</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">L=1(h=8), R=6(h=8). Area = 5×min(8,8) = 40. Move either (R--).</div><div class="step-state">maxWater=49, continues... ✅ Final: 49</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Problem</th><th>Brute Force</th><th>Two Pointers</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Two Sum (sorted)</td><td class="worst">O(n²)</td><td class="best">O(n)</td><td class="best">O(1)</td></tr>
+                        <tr><td>3Sum</td><td class="worst">O(n³)</td><td class="avg">O(n²)</td><td class="best">O(1)*</td></tr>
+                        <tr><td>Container With Most Water</td><td class="worst">O(n²)</td><td class="best">O(n)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Remove Duplicates</td><td class="avg">O(n)</td><td class="best">O(n)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Trapping Rain Water</td><td class="worst">O(n²)</td><td class="best">O(n)</td><td class="best">O(1)</td></tr>
+                    </tbody>
+                </table>
+                <p class="text-muted">* Excluding space for the output array.</p>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Using two pointers on unsorted data</div>
+                    <p>The opposite-direction technique relies on sorted order. If the array isn't sorted, <strong>sort it first</strong> (O(n log n)) or use a HashMap instead.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting to skip duplicates in 3Sum</div>
+                    <pre><code>// ❌ Gets duplicate triplets
+// ✅ Skip duplicates after finding a match
+while (left < right && nums[left] === nums[left + 1]) left++;
+while (left < right && nums[right] === nums[right - 1]) right--;</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Moving the wrong pointer</div>
+                    <p>In opposite-direction: if sum is too small, move LEFT right (increase). If too big, move RIGHT left (decrease). Getting this backwards gives wrong answers.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li><strong>Sorted array + find pair?</strong> → Two pointers from both ends. O(n) time, O(1) space.</li>
+                    <li><strong>Remove/move elements in-place?</strong> → Slow-fast pointers from the same end.</li>
+                    <li><strong>Cycle detection?</strong> → Floyd's tortoise and hare (fast-slow pointers).</li>
+                    <li>Two pointers gives O(1) space which HashMaps don't — mention this trade-off to impress interviewers.</li>
+                    <li>For 3Sum: fix one element, use two pointers on the rest → O(n²) total.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Opposite direction: L at start, R at end, move inward. Works on sorted arrays.</li>
+                    <li>Same direction: slow/fast from start. Remove duplicates, partition, merge.</li>
+                    <li>Fast-slow: cycle detection. Fast moves 2x, if they meet → cycle exists.</li>
+                    <li>Two pointers typically give O(n) time and O(1) space.</li>
+                    <li>Sort first if array is unsorted (adds O(n log n) but enables two pointers).</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What are the three two-pointer patterns?</div>
+                            <div class="flashcard-back">1. Opposite direction (converging from both ends) — used for pair sums in sorted arrays. 2. Same direction (slow/fast) — used for removing duplicates. 3. Fast-slow (Floyd's) — used for cycle detection.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why does the two-pointer approach work on sorted arrays?</div>
+                            <div class="flashcard-back">Sorted order creates a monotonic property: moving left pointer right increases the sum, moving right pointer left decreases it. This eliminates large groups of impossible pairs in each step.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How does Floyd's cycle detection work?</div>
+                            <div class="flashcard-back">Two pointers start at head. Slow moves 1 step, fast moves 2 steps per iteration. If there's a cycle, fast will eventually "lap" slow and they'll meet. If fast reaches null, there's no cycle.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">125</span><span class="lc-name"><a href="https://leetcode.com/problems/valid-palindrome/" target="_blank" rel="noopener">Valid Palindrome</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Opposite Direction</span></li>
+                    <li class="leetcode-item"><span class="lc-number">167</span><span class="lc-name"><a href="https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/" target="_blank" rel="noopener">Two Sum II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Opposite Direction</span></li>
+                    <li class="leetcode-item"><span class="lc-number">15</span><span class="lc-name"><a href="https://leetcode.com/problems/3sum/" target="_blank" rel="noopener">3Sum</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Sort + Two Pointers</span></li>
+                    <li class="leetcode-item"><span class="lc-number">11</span><span class="lc-name"><a href="https://leetcode.com/problems/container-with-most-water/" target="_blank" rel="noopener">Container With Most Water</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Opposite Direction</span></li>
+                    <li class="leetcode-item"><span class="lc-number">26</span><span class="lc-name"><a href="https://leetcode.com/problems/remove-duplicates-from-sorted-array/" target="_blank" rel="noopener">Remove Duplicates from Sorted Array</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Fast-Slow</span></li>
+                    <li class="leetcode-item"><span class="lc-number">42</span><span class="lc-name"><a href="https://leetcode.com/problems/trapping-rain-water/" target="_blank" rel="noopener">Trapping Rain Water</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Opposite Direction</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

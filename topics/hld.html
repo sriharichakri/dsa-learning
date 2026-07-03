@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heavy-Light Decomposition - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 15</a><span class="separator">›</span><span class="current">Heavy-Light Decomposition</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Heavy-Light Decomposition</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 15</span>
+                    <span class="topic-badge difficulty-hard">Hard</span>
+                    <button class="topic-complete-btn" data-topic-id="hld">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Heavy-Light Decomposition?</h2>
+                <p><strong>Heavy-Light Decomposition (HLD)</strong> is a technique to decompose a tree into <strong>chains</strong> (paths) such that any root-to-leaf path crosses at most <strong>O(log n)</strong> chains. This allows us to answer <strong>path queries</strong> (sum, max, min along a path between two nodes) and perform <strong>path updates</strong> in O(log² n) by combining HLD with a Segment Tree.</p>
+                <p>Each node's heaviest child (the one with the largest subtree) continues the current chain, while other children start new chains. This ensures chains are long and there aren't too many of them along any path.</p>
+                <div class="callout tip">
+                    <div class="callout-title">🚂 Real-Life Analogy: Railway Express Lines</div>
+                    <p>Think of a railway network shaped like a tree. The busiest routes (most passengers) become <strong>express lines</strong> — long, uninterrupted stretches. Less-traveled branch lines start their own segments. To travel between any two stations, you take at most O(log n) express lines, switching at junction points. HLD decomposes the tree the same way: heavy edges form express chains, and you traverse at most O(log n) chains between any two nodes.</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How HLD Works</h2>
+                <div class="viz-container">
+                    <div class="viz-title">Heavy-Light Decomposition Example</div>
+                    <div class="ascii-diagram">
+Tree with subtree sizes:
+           0 (8)
+          / \
+    (5) 1    2 (2)
+       / \     \
+  (3) 3   4(1)  5(1)
+     / \
+(1) 6   7(1)
+
+Heavy edges (→ largest subtree child):
+0 → 1 (heavy), 0 → 2 (light)
+1 → 3 (heavy), 1 → 4 (light)
+3 → 6 (heavy, tie-break: leftmost)
+
+Chains:
+Chain 1: [0, 1, 3, 6]    ← heavy path from root
+Chain 2: [2, 5]           ← light child of 0
+Chain 3: [4]              ← light child of 1
+Chain 4: [7]              ← light child of 3
+
+Segment Tree positions (flattened via DFS):
+pos:  0  1  2  3  4  5  6  7
+node: 0  1  3  6  7  4  2  5
+
+Path query (6 → 5):
+  Chain [0,1,3,6]: query seg[0..3]
+  Switch to chain [2,5]: query seg[6..7]
+  Total: 2 chain queries = O(log n) × O(log n) each
+                    </div>
+                </div>
+            </div>
+
+            <!-- Implementation -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔧</span> Implementation</h2>
+                <div class="code-header"><span>JavaScript — Heavy-Light Decomposition (Path Sum Query)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>class HLD {
+    constructor(n, edges, values, root = 0) {
+        this.n = n;
+        this.adj = Array.from({ length: n }, () => []);
+        for (const [u, v] of edges) {
+            this.adj[u].push(v);
+            this.adj[v].push(u);
+        }
+
+        this.parent = new Array(n).fill(-1);
+        this.depth = new Array(n).fill(0);
+        this.subtreeSize = new Array(n).fill(1);
+        this.heavy = new Array(n).fill(-1);    // Heavy child
+        this.head = new Array(n).fill(0);       // Chain head
+        this.pos = new Array(n).fill(0);        // Position in segment tree
+        this.flat = new Array(n);               // Flattened values
+
+        this.dfs(root);               // Compute sizes & heavy children
+        this.decompose(root, root);   // Assign chains & positions
+        
+        // Map values to flattened order
+        for (let i = 0; i < n; i++) {
+            this.flat[this.pos[i]] = values[i];
+        }
+        this.seg = new SegTree(this.flat); // Segment tree on flattened array
+    }
+
+    dfs(root) {
+        const stack = [[root, -1, false]];
+        const order = [];
+        while (stack.length) {
+            const [u, par, processed] = stack.pop();
+            if (processed) {
+                let maxSize = 0, heavyChild = -1;
+                for (const v of this.adj[u]) {
+                    if (v === par) continue;
+                    this.subtreeSize[u] += this.subtreeSize[v];
+                    if (this.subtreeSize[v] > maxSize) {
+                        maxSize = this.subtreeSize[v];
+                        heavyChild = v;
+                    }
+                }
+                this.heavy[u] = heavyChild;
+                continue;
+            }
+            stack.push([u, par, true]);
+            this.parent[u] = par;
+            this.depth[u] = par === -1 ? 0 : this.depth[par] + 1;
+            for (const v of this.adj[u]) {
+                if (v !== par) stack.push([v, u, false]);
+            }
+        }
+    }
+
+    decompose(root, h) {
+        let timer = 0;
+        const stack = [[root, h]];
+        while (stack.length) {
+            const [u, head] = stack.pop();
+            this.head[u] = head;
+            this.pos[u] = timer++;
+            // Process light children first (pushed last, processed first won't work)
+            // We need heavy child processed first in DFS order
+            const lightChildren = [];
+            for (const v of this.adj[u]) {
+                if (v !== this.parent[u] && v !== this.heavy[u]) {
+                    lightChildren.push(v);
+                }
+            }
+            // Push light children (they'll be processed after heavy subtree)
+            for (const v of lightChildren.reverse()) {
+                stack.push([v, v]); // Light children start new chains
+            }
+            // Push heavy child last (processed first — DFS order)
+            if (this.heavy[u] !== -1) {
+                stack.push([this.heavy[u], head]); // Continue chain
+            }
+        }
+    }
+
+    // Path query: sum of values on path from u to v
+    pathQuery(u, v) {
+        let result = 0;
+        while (this.head[u] !== this.head[v]) {
+            // Move the deeper chain head up
+            if (this.depth[this.head[u]] < this.depth[this.head[v]]) {
+                [u, v] = [v, u];
+            }
+            result += this.seg.query(this.pos[this.head[u]], this.pos[u]);
+            u = this.parent[this.head[u]];
+        }
+        // Now u and v are in the same chain
+        if (this.depth[u] > this.depth[v]) [u, v] = [v, u];
+        result += this.seg.query(this.pos[u], this.pos[v]);
+        return result;
+    }
+
+    // Point update: set value of node u
+    pointUpdate(u, val) {
+        this.seg.update(this.pos[u], val);
+    }
+}
+
+// Minimal Segment Tree for sum queries
+class SegTree {
+    constructor(arr) {
+        this.n = arr.length;
+        this.tree = new Array(4 * this.n).fill(0);
+        this._build(arr, 1, 0, this.n - 1);
+    }
+    _build(arr, nd, s, e) {
+        if (s === e) { this.tree[nd] = arr[s]; return; }
+        const m = (s + e) >> 1;
+        this._build(arr, 2*nd, s, m);
+        this._build(arr, 2*nd+1, m+1, e);
+        this.tree[nd] = this.tree[2*nd] + this.tree[2*nd+1];
+    }
+    update(i, v, nd=1, s=0, e=this.n-1) {
+        if (s===e) { this.tree[nd]=v; return; }
+        const m=(s+e)>>1;
+        if(i<=m) this.update(i,v,2*nd,s,m);
+        else this.update(i,v,2*nd+1,m+1,e);
+        this.tree[nd]=this.tree[2*nd]+this.tree[2*nd+1];
+    }
+    query(l, r, nd=1, s=0, e=this.n-1) {
+        if(r<s||e<l) return 0;
+        if(l<=s&&e<=r) return this.tree[nd];
+        const m=(s+e)>>1;
+        return this.query(l,r,2*nd,s,m)+this.query(l,r,2*nd+1,m+1,e);
+    }
+}</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: pathQuery(6, 5)</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">head[6]=0 (chain [0,1,3,6]), head[5]=2 (chain [2,5]). Different chains.</div><div class="step-state">u=6, v=5</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">depth[head[6]]=0, depth[head[5]]=1. head[5] is deeper → swap: u=5, v=6.</div><div class="step-state">u=5, v=6</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Query segment tree for chain of u=5: seg.query(pos[head[5]], pos[5]) = seg.query(pos[2], pos[5]). Add to result. Move u = parent[head[5]] = parent[2] = 0.</div><div class="step-state">result += sum of chain [2,5]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">head[0]=0, head[6]=0. Same chain now! depth[0] < depth[6] → u=0, v=6.</div><div class="step-state">u=0, v=6, same chain</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">Query seg.query(pos[0], pos[6]). Add to result. Done!</div><div class="step-state">result += sum of path [0,1,3,6] ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Time</th><th>Note</th></tr></thead>
+                    <tbody>
+                        <tr><td>Preprocessing</td><td>O(n)</td><td>DFS + decomposition</td></tr>
+                        <tr><td>Path Query</td><td class="avg">O(log² n)</td><td>O(log n) chains × O(log n) per seg query</td></tr>
+                        <tr><td>Path Update</td><td class="avg">O(log² n)</td><td>Same reasoning</td></tr>
+                        <tr><td>Point Update</td><td class="best">O(log n)</td><td>Single segment tree update</td></tr>
+                        <tr><td>Space</td><td>O(n)</td><td>Segment tree + HLD arrays</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Heavy child must be visited first in DFS</div>
+                    <p>During decomposition, the heavy child must get the next consecutive position in the segment tree. If light children are visited first, the chain won't be contiguous and segment tree queries break.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing node values vs edge values</div>
+                    <p>If weights are on edges (not nodes), you assign each edge's weight to the child node. Then in path queries, exclude the LCA node (it doesn't correspond to any edge on the path).</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Moving the wrong chain up</div>
+                    <p>In the path query loop, always move the node whose chain head is deeper. Moving the shallower one can cause infinite loops or skip nodes.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>HLD is an <strong>advanced competitive programming technique</strong>, rarely asked in standard interviews but important for ICPC-level contests.</li>
+                    <li>If asked "how to do path queries on a tree efficiently," HLD + Segment Tree is the standard answer.</li>
+                    <li>Alternative: <strong>Euler Tour + Segment Tree</strong> handles subtree queries (not path queries) more easily.</li>
+                    <li>The O(log² n) can be reduced to O(log n) using Euler Tour + LCA for certain problems.</li>
+                    <li>Core insight: any root-to-leaf path crosses at most O(log n) light edges → at most O(log n) chains.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>HLD decomposes tree into chains via heavy edges (to child with largest subtree).</li>
+                    <li>Any root-to-leaf path crosses ≤ O(log n) chains.</li>
+                    <li>Chains are contiguous in a flattened array → use Segment Tree for queries.</li>
+                    <li>Path query: climb chains until same chain, querying segment tree at each step.</li>
+                    <li>Time: O(log² n) per path query. Space: O(n).</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why at most O(log n) chains on any root-to-leaf path?</div>
+                            <div class="flashcard-back">Each time you cross a <strong>light edge</strong>, the subtree size at least halves (the heavy child has the larger subtree). Since the subtree starts at n and halves each time, you can halve at most log(n) times. So at most O(log n) light edges = O(log n) chain switches.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What data structure is used on top of HLD chains?</div>
+                            <div class="flashcard-back">A <strong>Segment Tree</strong> built on the flattened chain order. Each chain occupies a contiguous range, so range queries/updates on a chain become segment tree operations. This gives O(log n) per chain operation, and O(log n) chains → O(log² n) total.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">2458</span><span class="lc-name"><a href="https://leetcode.com/problems/height-of-binary-tree-after-subtree-removal-queries/" target="_blank" rel="noopener">Height of Binary Tree After Subtree Removal Queries</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">HLD / Euler Tour</span></li>
+                    <li class="leetcode-item"><span class="lc-number">2846</span><span class="lc-name"><a href="https://leetcode.com/problems/minimum-edge-weight-equilibrium-queries-in-a-tree/" target="_blank" rel="noopener">Min Edge Weight Equilibrium Queries in a Tree</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">HLD / LCA</span></li>
+                    <li class="leetcode-item"><span class="lc-number">SPOJ - QTREE</span><span class="lc-name"><a href="https://www.spoj.com/problems/QTREE/" target="_blank" rel="noopener">Query on a Tree (SPOJ)</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Classic HLD Problem</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

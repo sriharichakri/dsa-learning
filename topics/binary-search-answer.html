@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Search on Answer - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 3</a><span class="separator">›</span><span class="current">Binary Search on Answer</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Binary Search on Answer</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 3</span>
+                    <span class="topic-badge difficulty-hard">Hard</span>
+                    <button class="topic-complete-btn" data-topic-id="binary-search-on-answer">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Binary Search on Answer?</h2>
+                <p><strong>Binary Search on Answer</strong> is a powerful technique where instead of searching for an element in an array, you <strong>binary search on the range of possible answers</strong>. You define a search space (min to max possible answer) and for each candidate answer, check if it's feasible using a helper function.</p>
+                <p>The key insight: if the answer is <strong>monotonic</strong> (if X works, then X+1 also works, or vice versa), you can binary search on it!</p>
+                <div class="callout tip">
+                    <div class="callout-title">🌍 Real-Life Analogy</div>
+                    <p>Imagine you're a delivery company and need to find the <strong>minimum truck capacity</strong> to deliver all packages within D days. You don't try every possible truck size from 1 to ∞. Instead, you start with a range: the smallest truck must hold at least the heaviest package, and the largest would carry everything in one trip. Then you <strong>binary search</strong>: "Can a truck of capacity 50 do it in D days?" If yes, try smaller. If no, try bigger.</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How It Works</h2>
+                <ol>
+                    <li><strong>Identify the search space:</strong> What's the minimum and maximum possible answer?</li>
+                    <li><strong>Write a feasibility check:</strong> Given a candidate answer, can we satisfy the constraints?</li>
+                    <li><strong>Binary search:</strong> If the candidate works, try a smaller/larger value. If not, adjust the other way.</li>
+                </ol>
+
+                <h3>Template: Minimize the Maximum</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function binarySearchOnAnswer(arr, constraint) {
+    let lo = minPossibleAnswer;   // e.g., max element
+    let hi = maxPossibleAnswer;   // e.g., sum of all elements
+    
+    while (lo < hi) {
+        let mid = Math.floor((lo + hi) / 2);
+        if (isFeasible(arr, mid, constraint)) {
+            hi = mid;     // mid works, try smaller
+        } else {
+            lo = mid + 1; // mid doesn't work, need bigger
+        }
+    }
+    return lo;  // Minimum answer that's feasible
+}
+
+function isFeasible(arr, candidate, constraint) {
+    // Check if candidate answer satisfies the problem constraints
+    // Return true/false
+}</code></pre>
+
+                <h3>Example: Capacity to Ship Packages Within D Days (LC 1011)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function shipWithinDays(weights, days) {
+    let lo = Math.max(...weights);       // Must carry heaviest package
+    let hi = weights.reduce((a, b) => a + b); // Carry all in one day
+    
+    while (lo < hi) {
+        let mid = Math.floor((lo + hi) / 2);
+        if (canShip(weights, mid, days)) {
+            hi = mid;     // Can do with this capacity, try less
+        } else {
+            lo = mid + 1; // Can't fit, need more capacity
+        }
+    }
+    return lo;
+}
+
+function canShip(weights, capacity, days) {
+    let daysNeeded = 1, currentLoad = 0;
+    for (let w of weights) {
+        if (currentLoad + w > capacity) {
+            daysNeeded++;
+            currentLoad = 0;
+        }
+        currentLoad += w;
+    }
+    return daysNeeded <= days;
+}
+
+// shipWithinDays([1,2,3,4,5,6,7,8,9,10], 5) → 15</code></pre>
+
+                <h3>Example: Koko Eating Bananas (LC 875)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function minEatingSpeed(piles, h) {
+    let lo = 1;
+    let hi = Math.max(...piles);
+    
+    while (lo < hi) {
+        let mid = Math.floor((lo + hi) / 2);
+        let hoursNeeded = piles.reduce((sum, p) => 
+            sum + Math.ceil(p / mid), 0);
+        
+        if (hoursNeeded <= h) {
+            hi = mid;     // Can finish in time, try slower
+        } else {
+            lo = mid + 1; // Too slow, eat faster
+        }
+    }
+    return lo;
+}</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run</h2>
+                <p><strong>Ship packages</strong>: weights = [1,2,3,4,5,6,7,8,9,10], days = 5</p>
+
+                <div class="viz-container">
+                    <div class="viz-title">Binary search on capacity range [10, 55]</div>
+                    <div class="ascii-diagram">
+Search space: [10 ─────────────────────── 55]
+                    
+Step 1: mid = 32   Can ship in 5 days? ✅ (easily!)
+        [10 ──────── 32]  → hi = 32
+
+Step 2: mid = 21   Can ship in 5 days? ✅
+        [10 ──── 21]     → hi = 21
+
+Step 3: mid = 15   Can ship in 5 days? ✅ (exactly 5 days!)
+        [10 ── 15]       → hi = 15
+
+Step 4: mid = 12   Can ship in 5 days? ❌ (needs 6 days)
+        [13 ─ 15]        → lo = 13
+
+Step 5: mid = 14   Can ship in 5 days? ❌ (needs 6 days)
+        [15]             → lo = 15
+
+Answer: 15 ✅
+                    </div>
+                </div>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">lo=10, hi=55, mid=32. canShip(32, 5)? Yes (2 days enough)</div><div class="step-state">hi = 32</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">lo=10, hi=32, mid=21. canShip(21, 5)? Yes (3 days)</div><div class="step-state">hi = 21</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">lo=10, hi=21, mid=15. canShip(15, 5)? Yes (exactly 5 days)</div><div class="step-state">hi = 15</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">lo=10, hi=15, mid=12. canShip(12, 5)? No (needs 6 days)</div><div class="step-state">lo = 13</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">lo=13, hi=15, mid=14. canShip(14, 5)? No (needs 6 days)</div><div class="step-state">lo = 15. lo === hi → return 15 ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Problem</th><th>Time</th><th>Space</th><th>Why?</th></tr></thead>
+                    <tbody>
+                        <tr><td>Ship Within D Days</td><td class="avg">O(n × log(sum))</td><td class="best">O(1)</td><td>Binary search on answer × linear feasibility check</td></tr>
+                        <tr><td>Koko Eating Bananas</td><td class="avg">O(n × log(max))</td><td class="best">O(1)</td><td>Search range [1, max(piles)]</td></tr>
+                        <tr><td>Split Array Largest Sum</td><td class="avg">O(n × log(sum))</td><td class="best">O(1)</td><td>Same pattern</td></tr>
+                    </tbody>
+                </table>
+                <div class="callout info">
+                    <div class="callout-title">💡 General Complexity</div>
+                    <p>O(n × log(range)) where range = hi - lo. The binary search does O(log(range)) iterations, and each feasibility check is O(n).</p>
+                </div>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Wrong search space boundaries</div>
+                    <p>If lo is too high or hi is too low, you'll miss the answer. For "minimum capacity" problems: lo = max(single element), hi = sum(all elements). Think about the extreme cases.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Flipping the condition</div>
+                    <pre><code>// ❌ Minimize answer but moving lo up when feasible
+if (isFeasible(mid)) lo = mid + 1;  // WRONG — skips the answer!
+
+// ✅ When minimizing: feasible → try smaller (hi = mid)
+if (isFeasible(mid)) hi = mid;
+// ✅ When maximizing: feasible → try larger (lo = mid)
+if (isFeasible(mid)) lo = mid;</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not recognizing the monotonic property</div>
+                    <p>Binary search on answer ONLY works if the feasibility function is monotonic. If capacity X works, then capacity X+1 must also work. If this isn't true, you can't binary search.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Look for keywords: "minimum maximum", "maximum minimum", "least capacity", "smallest speed".</li>
+                    <li>The pattern: <strong>"Minimize X such that condition Y is satisfied"</strong> → binary search on X.</li>
+                    <li>Always explain: (1) search space, (2) feasibility function, (3) why it's monotonic.</li>
+                    <li>This technique is a <strong>huge differentiator</strong> — many candidates can't think of applying binary search to non-array problems.</li>
+                    <li>Practice writing the feasibility check quickly — that's usually the tricky part.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Binary search the answer space, not the array. Define [lo, hi] as the range of possible answers.</li>
+                    <li>Write a feasibility function: "Can we achieve this with candidate = mid?"</li>
+                    <li>Minimize: if feasible → hi = mid, else lo = mid + 1.</li>
+                    <li>Maximize: if feasible → lo = mid, else hi = mid - 1 (use mid = (lo+hi+1)/2 to avoid infinite loop).</li>
+                    <li>Complexity: O(n × log(range)). The log factor is from binary search, n is from the feasibility check.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">When can you use binary search on answer?</div>
+                            <div class="flashcard-back">When the <strong>feasibility function is monotonic</strong>: if answer X works, then all values beyond X also work (or vice versa). Look for "minimize the maximum" or "maximize the minimum" type problems.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What are the two key components of binary search on answer?</div>
+                            <div class="flashcard-back">1. <strong>Search space:</strong> [lo, hi] range of possible answers. 2. <strong>Feasibility function:</strong> Given candidate mid, can we satisfy the constraints? Returns boolean.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you set lo and hi for "minimum capacity to ship in D days"?</div>
+                            <div class="flashcard-back"><strong>lo = max(weights)</strong> — must carry at least the heaviest package. <strong>hi = sum(weights)</strong> — carry everything in one trip. The answer is somewhere in between.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">875</span><span class="lc-name"><a href="https://leetcode.com/problems/koko-eating-bananas/" target="_blank" rel="noopener">Koko Eating Bananas</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">BS on Answer (minimize speed)</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1011</span><span class="lc-name"><a href="https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/" target="_blank" rel="noopener">Capacity To Ship Packages</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">BS on Answer (minimize capacity)</span></li>
+                    <li class="leetcode-item"><span class="lc-number">410</span><span class="lc-name"><a href="https://leetcode.com/problems/split-array-largest-sum/" target="_blank" rel="noopener">Split Array Largest Sum</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">BS on Answer (minimize max sum)</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1283</span><span class="lc-name"><a href="https://leetcode.com/problems/find-the-smallest-divisor-given-a-threshold/" target="_blank" rel="noopener">Find the Smallest Divisor</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">BS on Answer</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1482</span><span class="lc-name"><a href="https://leetcode.com/problems/minimum-number-of-days-to-make-m-bouquets/" target="_blank" rel="noopener">Minimum Days to Make m Bouquets</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">BS on Answer (minimize days)</span></li>
+                    <li class="leetcode-item"><span class="lc-number">774</span><span class="lc-name"><a href="https://leetcode.com/problems/minimize-max-distance-to-gas-station/" target="_blank" rel="noopener">Minimize Max Distance to Gas Station</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">BS on Answer (floating point)</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

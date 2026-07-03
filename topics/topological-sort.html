@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topological Sort - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 10</a><span class="separator">›</span><span class="current">Topological Sort</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Topological Sort</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 10</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="topological-sort">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Topological Sort?</h2>
+                <p><strong>Topological Sort</strong> is a linear ordering of vertices in a <strong>Directed Acyclic Graph (DAG)</strong> such that for every directed edge <code>u → v</code>, vertex <code>u</code> comes before <code>v</code> in the ordering.</p>
+                <p>It only works on <strong>DAGs</strong> — if the graph has a cycle, no topological ordering exists. Two main approaches: <strong>Kahn's algorithm (BFS)</strong> and <strong>DFS-based</strong>.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Topological sort answers: "In what order should I do things if some things depend on others?" If the graph has a cycle (A depends on B, B depends on A), there's no valid order — Kahn's algorithm detects this by checking if all nodes were processed.</p>
+                </div>
+            </div>
+
+            <!-- Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">📚 Course Prerequisites</div>
+                    <p>In college, some courses have prerequisites: you must take "Calculus I" before "Calculus II", and "Linear Algebra" before "Machine Learning". Topological sort gives you a valid order to take all courses such that every prerequisite is satisfied before you enroll in the dependent course.</p>
+                </div>
+                <ul>
+                    <li><strong>Getting dressed:</strong> Underwear before pants, socks before shoes, shirt before jacket.</li>
+                    <li><strong>Build systems:</strong> Compile dependencies before the main project (like npm/Maven builds).</li>
+                    <li><strong>Task scheduling:</strong> Some tasks must finish before others can start.</li>
+                    <li><strong>Spreadsheet formulas:</strong> Cells that reference other cells must be computed in dependency order.</li>
+                </ul>
+            </div>
+
+            <!-- Visualization -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How Topological Sort Works</h2>
+                <div class="viz-container">
+                    <div class="viz-title">Kahn's Algorithm (BFS) — Process nodes with in-degree 0</div>
+                    <div class="ascii-diagram">
+Graph (course prerequisites):
+  A → C       A: no prereqs
+  A → D       B: no prereqs
+  B → D       C: needs A
+  C → E       D: needs A, B
+  D → E       E: needs C, D
+
+In-degree:  A:0  B:0  C:1  D:2  E:2
+
+Step 1: Queue = [A, B] (in-degree 0)
+Step 2: Process A → reduce C(1→0), D(2→1). Queue = [B, C]
+Step 3: Process B → reduce D(1→0). Queue = [C, D]
+Step 4: Process C → reduce E(2→1). Queue = [D]
+Step 5: Process D → reduce E(1→0). Queue = [E]
+Step 6: Process E → done.
+
+Result: [A, B, C, D, E] ✅ (one valid topological order)
+                    </div>
+                </div>
+
+                <h3>Kahn's Algorithm (BFS-based)</h3>
+                <div class="code-header"><span>JavaScript — Kahn's Algorithm</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function topologicalSortKahn(numNodes, edges) {
+    const adj = Array.from({length: numNodes}, () => []);
+    const inDegree = new Array(numNodes).fill(0);
+
+    for (const [u, v] of edges) {
+        adj[u].push(v);
+        inDegree[v]++;
+    }
+
+    // Start with all nodes that have in-degree 0
+    const queue = [];
+    for (let i = 0; i < numNodes; i++) {
+        if (inDegree[i] === 0) queue.push(i);
+    }
+
+    const result = [];
+    while (queue.length > 0) {
+        const node = queue.shift();
+        result.push(node);
+
+        for (const neighbor of adj[node]) {
+            inDegree[neighbor]--;
+            if (inDegree[neighbor] === 0) {
+                queue.push(neighbor);
+            }
+        }
+    }
+
+    // If not all nodes processed → cycle exists!
+    return result.length === numNodes ? result : []; // empty = has cycle
+}
+
+// Course Schedule (can finish all courses?)
+function canFinish(numCourses, prerequisites) {
+    const order = topologicalSortKahn(numCourses, prerequisites);
+    return order.length === numCourses;
+}</code></pre>
+
+                <h3>DFS-based Topological Sort</h3>
+                <div class="code-header"><span>JavaScript — DFS Topological Sort</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function topologicalSortDFS(numNodes, edges) {
+    const adj = Array.from({length: numNodes}, () => []);
+    for (const [u, v] of edges) adj[u].push(v);
+
+    const visited = new Array(numNodes).fill(0); // 0:unvisited, 1:in-progress, 2:done
+    const stack = [];
+    let hasCycle = false;
+
+    function dfs(node) {
+        if (hasCycle) return;
+        visited[node] = 1; // Mark in-progress
+
+        for (const neighbor of adj[node]) {
+            if (visited[neighbor] === 1) { hasCycle = true; return; } // Cycle!
+            if (visited[neighbor] === 0) dfs(neighbor);
+        }
+
+        visited[node] = 2; // Mark done
+        stack.push(node);  // Add to stack AFTER processing all neighbors
+    }
+
+    for (let i = 0; i < numNodes; i++) {
+        if (visited[i] === 0) dfs(i);
+    }
+
+    return hasCycle ? [] : stack.reverse(); // Reverse gives topological order
+}</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Kahn's on Course Schedule</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">4 courses, prereqs: [[1,0],[2,0],[3,1],[3,2]]. Build graph. In-degree: [0,1,1,2].</div><div class="step-state">Queue: [0] (only course 0 has no prereqs)</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Process 0: neighbors [1,2]. Reduce in-degree of 1→0, 2→0.</div><div class="step-state">result=[0], Queue=[1,2]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Process 1: neighbor [3]. Reduce in-degree of 3→1.</div><div class="step-state">result=[0,1], Queue=[2]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Process 2: neighbor [3]. Reduce in-degree of 3→0. Add 3 to queue.</div><div class="step-state">result=[0,1,2], Queue=[3]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">Process 3: no neighbors. Queue empty. result.length === 4 === numCourses.</div><div class="step-state">result=[0,1,2,3] ✅ Can finish all courses!</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Algorithm</th><th>Time</th><th>Space</th><th>Cycle Detection</th></tr></thead>
+                    <tbody>
+                        <tr><td>Kahn's (BFS)</td><td>O(V + E)</td><td>O(V + E)</td><td class="best">Yes (check count)</td></tr>
+                        <tr><td>DFS-based</td><td>O(V + E)</td><td>O(V + E)</td><td class="best">Yes (back edge)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Applying topological sort to cyclic graphs</div>
+                    <p>Topological sort only works on DAGs. Always check: if result length < number of nodes, there's a cycle.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing edge direction in course schedule</div>
+                    <p>In LC 207, prerequisite [a,b] means b→a (must take b before a). Getting the direction wrong reverses the dependency.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ DFS: not using 3-state visited array</div>
+                    <p>Using a simple boolean visited misses cycle detection. You need 3 states: unvisited, in-progress (on current DFS path), and done.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li><strong>Course Schedule</strong> is one of the most frequently asked graph problems. Know both Kahn's and DFS approaches.</li>
+                    <li>Kahn's is more intuitive and naturally gives the order. DFS requires reversing the result.</li>
+                    <li>"Alien Dictionary" is a harder variation — build a graph from character ordering, then topological sort.</li>
+                    <li>If the problem asks "is it possible?" → check for cycles. If it asks for "the order" → return topological order.</li>
+                    <li>Multiple valid orderings exist. Unless the problem asks for lexicographic order (use min-heap instead of queue).</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Topological sort: linear ordering of DAG vertices where u comes before v for every edge u→v.</li>
+                    <li>Kahn's (BFS): process in-degree 0 nodes first, reduce neighbors' in-degree.</li>
+                    <li>DFS: post-order + reverse. Use 3-state visited for cycle detection.</li>
+                    <li>Cycle check: result.length < numNodes means cycle exists.</li>
+                    <li>Time: O(V+E) for both approaches.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the key idea behind Kahn's Algorithm?</div>
+                            <div class="flashcard-back">Repeatedly remove nodes with <strong>in-degree 0</strong> (no dependencies). When you remove a node, decrement the in-degree of its neighbors. If a neighbor reaches 0, add it to the queue. If not all nodes are processed, a cycle exists.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How does DFS-based topological sort detect cycles?</div>
+                            <div class="flashcard-back">Use a 3-state visited array: 0=unvisited, 1=in-progress, 2=done. If during DFS you reach a node marked "in-progress", you've found a <strong>back edge</strong> → cycle exists. Nodes are added to the result stack only after all descendants are processed (post-order).</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why must topological sort only work on DAGs?</div>
+                            <div class="flashcard-back">If there's a cycle A→B→C→A, then A must come before B, B before C, and C before A — which is impossible. No linear ordering can satisfy circular dependencies. Topological sort requires a <strong>Directed Acyclic Graph</strong>.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">207</span><span class="lc-name"><a href="https://leetcode.com/problems/course-schedule/" target="_blank" rel="noopener">Course Schedule</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Cycle detection in DAG</span></li>
+                    <li class="leetcode-item"><span class="lc-number">210</span><span class="lc-name"><a href="https://leetcode.com/problems/course-schedule-ii/" target="_blank" rel="noopener">Course Schedule II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Topological ordering</span></li>
+                    <li class="leetcode-item"><span class="lc-number">269</span><span class="lc-name"><a href="https://leetcode.com/problems/alien-dictionary/" target="_blank" rel="noopener">Alien Dictionary</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Build graph + topo sort</span></li>
+                    <li class="leetcode-item"><span class="lc-number">802</span><span class="lc-name"><a href="https://leetcode.com/problems/find-eventual-safe-states/" target="_blank" rel="noopener">Find Eventual Safe States</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Reverse topo sort</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1203</span><span class="lc-name"><a href="https://leetcode.com/problems/sort-items-by-groups-respecting-dependencies/" target="_blank" rel="noopener">Sort Items by Groups</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Double topo sort</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

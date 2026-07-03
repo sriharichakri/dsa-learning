@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bucket Sort - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 4</a><span class="separator">›</span><span class="current">Bucket Sort</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Bucket Sort</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 4</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="bucket-sort">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Bucket Sort?</h2>
+                <p><strong>Bucket Sort</strong> distributes elements into several "buckets" (sub-arrays), sorts each bucket individually (often with insertion sort), and then concatenates them. It's especially efficient for <strong>uniformly distributed</strong> data.</p>
+                <p>Average case: <strong>O(n + k)</strong> where k is the number of buckets. It works beautifully for floating-point numbers in a known range.</p>
+                <div class="callout tip">
+                    <div class="callout-title">🌍 Real-Life Analogy</div>
+                    <p>Imagine sorting mail by ZIP code. You set up bins labeled 00000-09999, 10000-19999, etc. Drop each letter into its bin. Then sort within each bin (small pile = fast). Stack all bins together. The mail is sorted! Each "bin" is a bucket, and sorting small buckets is much faster than sorting everything at once.</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How It Works</h2>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function bucketSort(arr, bucketCount = arr.length) {
+    if (arr.length <= 1) return arr;
+    
+    const min = Math.min(...arr);
+    const max = Math.max(...arr);
+    const range = max - min;
+    
+    // Create buckets
+    const buckets = Array.from({ length: bucketCount }, () => []);
+    
+    // Distribute elements into buckets
+    for (let num of arr) {
+        const idx = range === 0 ? 0 : 
+            Math.min(Math.floor(((num - min) / range) * (bucketCount - 1)), bucketCount - 1);
+        buckets[idx].push(num);
+    }
+    
+    // Sort each bucket (insertion sort for small buckets)
+    let result = [];
+    for (let bucket of buckets) {
+        bucket.sort((a, b) => a - b);  // Or use insertion sort
+        result.push(...bucket);
+    }
+    return result;
+}
+
+// Sort floats in [0, 1)
+function bucketSortFloats(arr) {
+    const n = arr.length;
+    const buckets = Array.from({ length: n }, () => []);
+    
+    for (let num of arr) {
+        const idx = Math.floor(num * n);
+        buckets[Math.min(idx, n - 1)].push(num);
+    }
+    
+    let result = [];
+    for (let bucket of buckets) {
+        bucket.sort((a, b) => a - b);
+        result.push(...bucket);
+    }
+    return result;
+}
+
+// bucketSortFloats([0.78, 0.17, 0.39, 0.26, 0.72, 0.94, 0.21, 0.12, 0.23, 0.68])
+// → [0.12, 0.17, 0.21, 0.23, 0.26, 0.39, 0.68, 0.72, 0.78, 0.94]</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run</h2>
+                <p>Sort <code>[0.78, 0.17, 0.39, 0.26, 0.72, 0.94, 0.21, 0.12, 0.23, 0.68]</code> (10 buckets)</p>
+
+                <div class="viz-container">
+                    <div class="viz-title">Bucket Sort — distribute, sort each, concatenate</div>
+                    <div class="ascii-diagram">
+Bucket 0 [0.0-0.1): 
+Bucket 1 [0.1-0.2): [0.17, 0.12]
+Bucket 2 [0.2-0.3): [0.26, 0.21, 0.23]
+Bucket 3 [0.3-0.4): [0.39]
+Bucket 4 [0.4-0.5): 
+Bucket 5 [0.5-0.6): 
+Bucket 6 [0.6-0.7): [0.68]
+Bucket 7 [0.7-0.8): [0.78, 0.72]
+Bucket 8 [0.8-0.9): 
+Bucket 9 [0.9-1.0): [0.94]
+
+Sort each bucket:
+Bucket 1: [0.12, 0.17]
+Bucket 2: [0.21, 0.23, 0.26]
+Bucket 7: [0.72, 0.78]
+
+Concatenate all:
+→ [0.12, 0.17, 0.21, 0.23, 0.26, 0.39, 0.68, 0.72, 0.78, 0.94] ✅
+                    </div>
+                </div>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Create 10 empty buckets for ranges [0,0.1), [0.1,0.2), ...</div><div class="step-state">10 empty buckets</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Distribute: 0.78→bucket 7, 0.17→bucket 1, 0.39→bucket 3, etc.</div><div class="step-state">Elements spread across buckets</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Sort each non-empty bucket (insertion sort — they're small)</div><div class="step-state">Each bucket is sorted internally</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Concatenate buckets 0 through 9 in order</div><div class="step-state">[0.12, 0.17, 0.21, 0.23, 0.26, 0.39, 0.68, 0.72, 0.78, 0.94] ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Case</th><th>Time</th><th>Space</th><th>When?</th></tr></thead>
+                    <tbody>
+                        <tr><td>Best Case</td><td class="best">O(n + k)</td><td class="avg">O(n + k)</td><td>Uniform distribution</td></tr>
+                        <tr><td>Average Case</td><td class="best">O(n + k)</td><td class="avg">O(n + k)</td><td>Roughly uniform</td></tr>
+                        <tr><td>Worst Case</td><td class="worst">O(n²)</td><td class="avg">O(n + k)</td><td>All elements in one bucket</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Using bucket sort on non-uniform data</div>
+                    <p>If all elements fall into one bucket, you're just doing insertion sort on the full array → O(n²). Bucket sort assumes <strong>roughly uniform distribution</strong>.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Wrong bucket index calculation</div>
+                    <p>For floats in [0,1): bucket index = floor(value × n). For arbitrary ranges, normalize: floor((value - min) / range × (k-1)). Always clamp to valid bucket indices.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Bucket sort shines for <strong>uniformly distributed</strong> floating-point numbers.</li>
+                    <li>Average O(n+k), but O(n²) worst case if distribution is skewed.</li>
+                    <li>Not in-place (needs extra space for buckets). Can be stable.</li>
+                    <li>Good follow-up: "How would you sort 1 million floats in [0,1)?" → Bucket sort!</li>
+                    <li>Combined with counting sort (integer buckets) or insertion sort (small buckets).</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Distribute into buckets → sort each bucket → concatenate.</li>
+                    <li>Average: O(n+k). Worst: O(n²). Space: O(n+k).</li>
+                    <li>Best for uniformly distributed data, especially floats.</li>
+                    <li>Number of buckets ≈ n for best performance.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">When does bucket sort degrade to O(n²)?</div>
+                            <div class="flashcard-back">When all elements land in the <strong>same bucket</strong> (highly skewed data). Then sorting that one bucket is O(n²) with insertion sort. Bucket sort requires <strong>uniform distribution</strong> for O(n) performance.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How is bucket sort different from counting sort?</div>
+                            <div class="flashcard-back"><strong>Counting sort</strong> counts exact values (integers only). <strong>Bucket sort</strong> groups into ranges (works for floats). Counting sort is O(n+k) always; bucket sort averages O(n+k) but can degrade.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">164</span><span class="lc-name"><a href="https://leetcode.com/problems/maximum-gap/" target="_blank" rel="noopener">Maximum Gap</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Bucket sort + pigeonhole</span></li>
+                    <li class="leetcode-item"><span class="lc-number">347</span><span class="lc-name"><a href="https://leetcode.com/problems/top-k-frequent-elements/" target="_blank" rel="noopener">Top K Frequent Elements</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Bucket sort by frequency</span></li>
+                    <li class="leetcode-item"><span class="lc-number">451</span><span class="lc-name"><a href="https://leetcode.com/problems/sort-characters-by-frequency/" target="_blank" rel="noopener">Sort Characters By Frequency</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Frequency bucket sort</span></li>
+                    <li class="leetcode-item"><span class="lc-number">220</span><span class="lc-name"><a href="https://leetcode.com/problems/contains-duplicate-iii/" target="_blank" rel="noopener">Contains Duplicate III</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Bucket-based range check</span></li>
+                    <li class="leetcode-item"><span class="lc-number">912</span><span class="lc-name"><a href="https://leetcode.com/problems/sort-an-array/" target="_blank" rel="noopener">Sort an Array</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Various sorting approaches</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

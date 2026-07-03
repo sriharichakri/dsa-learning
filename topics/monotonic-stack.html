@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monotonic Stack - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 7</a><span class="separator">›</span><span class="current">Monotonic Stack</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Monotonic Stack</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 7</span>
+                    <span class="topic-badge difficulty-hard">Hard</span>
+                    <button class="topic-complete-btn" data-topic-id="monotonic-stack">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is a Monotonic Stack?</h2>
+                <p>A <strong>Monotonic Stack</strong> is a stack that maintains its elements in <strong>strictly increasing or decreasing order</strong>. When pushing a new element, you pop all elements that violate the monotonic property. This seemingly simple idea solves many "next greater/smaller element" problems in O(n).</p>
+                <div class="callout tip">
+                    <div class="callout-title">🌍 Real-Life Analogy</div>
+                    <p>Imagine a line of people where only <strong>increasingly taller</strong> people can stay. When a new person arrives, everyone shorter than them must leave the line (from the back). The line always goes from shortest (bottom) to tallest (top). When someone gets "popped out," the new person is their "next taller person" — the answer we're looking for!</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How It Works</h2>
+
+                <h3>Monotonic Decreasing Stack (for Next Greater Element)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function nextGreaterElements(arr) {
+    const n = arr.length;
+    const result = new Array(n).fill(-1);
+    const stack = []; // Stores INDICES, not values
+    
+    for (let i = 0; i < n; i++) {
+        // Pop all elements smaller than current
+        while (stack.length && arr[stack[stack.length - 1]] < arr[i]) {
+            const idx = stack.pop();
+            result[idx] = arr[i]; // arr[i] is the next greater for arr[idx]
+        }
+        stack.push(i);
+    }
+    return result;
+}
+
+// [2, 1, 2, 4, 3] → [4, 2, 4, -1, -1]
+// 2's next greater = 4
+// 1's next greater = 2
+// No next greater for 4 and 3</code></pre>
+
+                <h3>Monotonic Increasing Stack (for Next Smaller Element)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function nextSmallerElements(arr) {
+    const n = arr.length;
+    const result = new Array(n).fill(-1);
+    const stack = [];
+    
+    for (let i = 0; i < n; i++) {
+        while (stack.length && arr[stack[stack.length - 1]] > arr[i]) {
+            const idx = stack.pop();
+            result[idx] = arr[i];
+        }
+        stack.push(i);
+    }
+    return result;
+}</code></pre>
+
+                <h3>Largest Rectangle in Histogram (Classic)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function largestRectangleArea(heights) {
+    const stack = [];
+    let maxArea = 0;
+    
+    for (let i = 0; i <= heights.length; i++) {
+        const h = i === heights.length ? 0 : heights[i];
+        
+        while (stack.length && heights[stack[stack.length - 1]] > h) {
+            const height = heights[stack.pop()];
+            const width = stack.length === 0 ? i : i - stack[stack.length - 1] - 1;
+            maxArea = Math.max(maxArea, height * width);
+        }
+        stack.push(i);
+    }
+    return maxArea;
+}</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run</h2>
+                <p>Find next greater element in <code>[2, 1, 2, 4, 3]</code></p>
+
+                <div class="viz-container">
+                    <div class="viz-title">Monotonic stack processing</div>
+                    <div class="ascii-diagram">
+i=0: arr[0]=2  Stack empty → push 0
+     Stack: [0(2)]
+
+i=1: arr[1]=1  1 < 2 → just push
+     Stack: [0(2), 1(1)]
+
+i=2: arr[2]=2  2 > 1 → pop 1, result[1]=2
+     Stack: [0(2)]
+     2 ≥ 2 → stop popping, push 2
+     Stack: [0(2), 2(2)]
+
+i=3: arr[3]=4  4 > 2 → pop 2, result[2]=4
+                4 > 2 → pop 0, result[0]=4
+     Stack: [3(4)]
+
+i=4: arr[4]=3  3 < 4 → just push
+     Stack: [3(4), 4(3)]
+
+Done! Remaining stack items have no next greater → -1
+Result: [4, 2, 4, -1, -1] ✅
+                    </div>
+                </div>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">i=0, val=2: Stack empty, push 0</div><div class="step-state">Stack: [0] | Result: [-1,-1,-1,-1,-1]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">i=1, val=1: 1 < arr[0]=2, push 1</div><div class="step-state">Stack: [0,1] | Result: [-1,-1,-1,-1,-1]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">i=2, val=2: 2 > arr[1]=1 → pop 1, result[1]=2. Push 2</div><div class="step-state">Stack: [0,2] | Result: [-1,2,-1,-1,-1]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">i=3, val=4: Pop 2 (result[2]=4), pop 0 (result[0]=4). Push 3</div><div class="step-state">Stack: [3] | Result: [4,2,4,-1,-1]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">i=4, val=3: 3 < arr[3]=4, push 4. Done!</div><div class="step-state">Stack: [3,4] | Result: [4,2,4,-1,-1] ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Problem</th><th>Brute Force</th><th>Monotonic Stack</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Next Greater Element</td><td class="worst">O(n²)</td><td class="best">O(n)</td><td class="avg">O(n)</td></tr>
+                        <tr><td>Next Smaller Element</td><td class="worst">O(n²)</td><td class="best">O(n)</td><td class="avg">O(n)</td></tr>
+                        <tr><td>Largest Rectangle</td><td class="worst">O(n²)</td><td class="best">O(n)</td><td class="avg">O(n)</td></tr>
+                        <tr><td>Stock Span</td><td class="worst">O(n²)</td><td class="best">O(n)</td><td class="avg">O(n)</td></tr>
+                    </tbody>
+                </table>
+                <div class="callout info">
+                    <div class="callout-title">💡 Why O(n) and not O(n²)?</div>
+                    <p>Each element is pushed <strong>once</strong> and popped <strong>at most once</strong>. So across all iterations, there are at most 2n operations total = O(n).</p>
+                </div>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Storing values instead of indices</div>
+                    <p>Always store <strong>indices</strong> in the stack, not values. You need the index to set the result at the correct position. Access values with arr[stack[top]].</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Wrong monotonic direction</div>
+                    <p>For <strong>next greater</strong>: maintain decreasing stack (pop smaller). For <strong>next smaller</strong>: maintain increasing stack (pop larger). Getting this backwards gives wrong answers.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting remaining stack elements</div>
+                    <p>Elements left in the stack at the end have no next greater/smaller. Initialize result with -1 to handle this automatically.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Monotonic stack is the pattern behind many medium/hard problems.</li>
+                    <li>Key signal: "find the next greater/smaller element" → monotonic stack.</li>
+                    <li>"Largest Rectangle in Histogram" (LC 84) is one of the most important hard problems.</li>
+                    <li>For circular arrays (Next Greater Element II), iterate through the array twice (or use i % n).</li>
+                    <li>The "temperature" problem (LC 739) is a great entry point to learn this pattern.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Monotonic stack: elements maintain increasing or decreasing order.</li>
+                    <li>Next greater → decreasing stack. Next smaller → increasing stack.</li>
+                    <li>Store indices, not values. Each element pushed/popped at most once → O(n).</li>
+                    <li>Classic problems: Next Greater Element, Largest Rectangle, Stock Span, Daily Temperatures.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why is a monotonic stack O(n) even though it has nested while loops?</div>
+                            <div class="flashcard-back">Each element is pushed <strong>exactly once</strong> and popped <strong>at most once</strong>. Across all iterations: at most n pushes + n pops = 2n total operations. The inner while loop doesn't re-process elements — each pop is final.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">For "next greater element," do you use an increasing or decreasing stack?</div>
+                            <div class="flashcard-back"><strong>Decreasing stack</strong> (from bottom to top). When a new element is larger than the top, you pop — the new element IS the next greater for the popped elements. The stack keeps elements "waiting" for their next greater.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">739</span><span class="lc-name"><a href="https://leetcode.com/problems/daily-temperatures/" target="_blank" rel="noopener">Daily Temperatures</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Next warmer day</span></li>
+                    <li class="leetcode-item"><span class="lc-number">496</span><span class="lc-name"><a href="https://leetcode.com/problems/next-greater-element-i/" target="_blank" rel="noopener">Next Greater Element I</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Basic monotonic stack</span></li>
+                    <li class="leetcode-item"><span class="lc-number">503</span><span class="lc-name"><a href="https://leetcode.com/problems/next-greater-element-ii/" target="_blank" rel="noopener">Next Greater Element II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Circular array variant</span></li>
+                    <li class="leetcode-item"><span class="lc-number">84</span><span class="lc-name"><a href="https://leetcode.com/problems/largest-rectangle-in-histogram/" target="_blank" rel="noopener">Largest Rectangle in Histogram</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Classic monotonic stack</span></li>
+                    <li class="leetcode-item"><span class="lc-number">901</span><span class="lc-name"><a href="https://leetcode.com/problems/online-stock-span/" target="_blank" rel="noopener">Online Stock Span</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Monotonic stack span</span></li>
+                    <li class="leetcode-item"><span class="lc-number">42</span><span class="lc-name"><a href="https://leetcode.com/problems/trapping-rain-water/" target="_blank" rel="noopener">Trapping Rain Water</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Stack-based approach</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

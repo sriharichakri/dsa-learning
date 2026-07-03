@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabulation (Bottom-Up DP) - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 12</a><span class="separator">›</span><span class="current">Tabulation</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Tabulation (Bottom-Up DP)</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 12</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="tabulation">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Tabulation?</h2>
+                <p><strong>Tabulation</strong> (bottom-up DP) solves problems by filling a <strong>DP table iteratively</strong>, starting from the smallest subproblems and building up to the final answer. Unlike memoization, it's <strong>non-recursive</strong> and computes all subproblems in a predefined order.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Tabulation avoids recursion overhead and stack overflow risks. It also makes <strong>space optimization</strong> easier — if dp[i] only depends on dp[i-1] and dp[i-2], you can replace the entire array with just two variables.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🧱 Building a Wall Brick by Brick</div>
+                    <p>You can't build the top row of a brick wall without finishing the bottom rows first. Tabulation works the same way — solve small subproblems first (bottom rows), then use those results to build larger solutions (upper rows), until you reach the final answer (the roof).</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Tabulation Examples</h2>
+
+                <h3>Unique Paths (Grid DP)</h3>
+                <div class="code-header"><span>JavaScript — Unique Paths (LC 62)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function uniquePaths(m, n) {
+    const dp = Array.from({length: m}, () => new Array(n).fill(1));
+
+    for (let i = 1; i < m; i++) {
+        for (let j = 1; j < n; j++) {
+            dp[i][j] = dp[i - 1][j] + dp[i][j - 1]; // From top + from left
+        }
+    }
+    return dp[m - 1][n - 1];
+}
+
+// Space-optimized: O(n) instead of O(m×n)
+function uniquePathsOptimized(m, n) {
+    let prev = new Array(n).fill(1);
+
+    for (let i = 1; i < m; i++) {
+        const curr = new Array(n).fill(1);
+        for (let j = 1; j < n; j++) {
+            curr[j] = prev[j] + curr[j - 1];
+        }
+        prev = curr;
+    }
+    return prev[n - 1];
+}</code></pre>
+
+                <h3>Minimum Path Sum</h3>
+                <div class="code-header"><span>JavaScript — Minimum Path Sum (LC 64)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function minPathSum(grid) {
+    const m = grid.length, n = grid[0].length;
+
+    // Fill first row
+    for (let j = 1; j < n; j++) grid[0][j] += grid[0][j - 1];
+    // Fill first column
+    for (let i = 1; i < m; i++) grid[i][0] += grid[i - 1][0];
+
+    // Fill rest
+    for (let i = 1; i < m; i++) {
+        for (let j = 1; j < n; j++) {
+            grid[i][j] += Math.min(grid[i - 1][j], grid[i][j - 1]);
+        }
+    }
+    return grid[m - 1][n - 1];
+}</code></pre>
+
+                <h3>Coin Change (Bottom-Up)</h3>
+                <div class="code-header"><span>JavaScript — Coin Change Tabulation</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function coinChange(coins, amount) {
+    const dp = new Array(amount + 1).fill(Infinity);
+    dp[0] = 0;
+
+    for (let i = 1; i <= amount; i++) {
+        for (const coin of coins) {
+            if (coin <= i && dp[i - coin] + 1 < dp[i]) {
+                dp[i] = dp[i - coin] + 1;
+            }
+        }
+    }
+    return dp[amount] === Infinity ? -1 : dp[amount];
+}</code></pre>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Unique Paths (3×3)</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Initialize 3×3 grid with all 1s (first row and column have only one path).</div><div class="step-state">dp = [[1,1,1],[1,_,_],[1,_,_]]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">dp[1][1] = dp[0][1] + dp[1][0] = 1 + 1 = 2.</div><div class="step-state">dp = [[1,1,1],[1,2,_],[1,_,_]]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">dp[1][2] = dp[0][2] + dp[1][1] = 1 + 2 = 3.</div><div class="step-state">dp = [[1,1,1],[1,2,3],[1,_,_]]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">dp[2][1] = dp[1][1] + dp[2][0] = 2 + 1 = 3. dp[2][2] = dp[1][2] + dp[2][1] = 3 + 3 = <strong>6</strong>.</div><div class="step-state">dp = [[1,1,1],[1,2,3],[1,3,6]] ✅ Answer: 6</div></div></div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Problem</th><th>Time</th><th>Space (Full)</th><th>Space (Optimized)</th></tr></thead>
+                    <tbody>
+                        <tr><td>Unique Paths</td><td>O(m×n)</td><td>O(m×n)</td><td class="best">O(n)</td></tr>
+                        <tr><td>Min Path Sum</td><td>O(m×n)</td><td class="best">O(1) in-place</td><td class="best">O(1)</td></tr>
+                        <tr><td>Coin Change</td><td>O(n×S)</td><td>O(n)</td><td class="best">O(n)</td></tr>
+                        <tr><td>Climbing Stairs</td><td>O(n)</td><td>O(n)</td><td class="best">O(1)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Wrong iteration order</div>
+                    <p>Tabulation requires filling the table in the correct order. If dp[i] depends on dp[i-1] and dp[i-2], iterate left to right. If it depends on dp[i+1], iterate right to left.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting base cases in the table</div>
+                    <p>Unlike memoization where base cases are in the recursion, tabulation requires explicitly initializing dp[0], dp[1], etc. Missing these leads to incorrect propagation.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Off-by-one in table size</div>
+                    <p>For amount=5, you need dp[0..5] — that's 6 entries, not 5. Create <code>new Array(amount + 1)</code>.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Start with memoization (easier), then convert to tabulation if asked to optimize space.</li>
+                    <li>Space optimization: if dp[i] depends on last row only, use a 1D array. If on last 2 values, use 2 variables.</li>
+                    <li>For 2D DP, can often reduce O(m×n) space to O(n) by processing row by row.</li>
+                    <li>Tabulation is generally faster in practice (no recursion overhead).</li>
+                    <li>In-place modification of input grid saves space but modifies input — mention the tradeoff.</li>
+                </ul>
+            </div>
+
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Tabulation = iterative DP. Fill table from smallest subproblem to largest.</li>
+                    <li>No recursion → no stack overflow. Easier space optimization.</li>
+                    <li>Space tricks: 2D→1D (row-by-row), 1D→O(1) (rolling variables).</li>
+                    <li>Must determine correct iteration order based on dependencies.</li>
+                    <li>Always initialize base cases explicitly in the DP table.</li>
+                </ul>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you optimize a 2D DP table to O(n) space?</div>
+                            <div class="flashcard-back">If each row only depends on the previous row, keep only two 1D arrays: <code>prev</code> and <code>curr</code>. After processing each row, set <code>prev = curr</code>. This reduces O(m×n) space to O(n).</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">When should you choose tabulation over memoization?</div>
+                            <div class="flashcard-back">Choose tabulation when: (1) you need space optimization (rolling arrays/variables), (2) the input is large (avoid stack overflow), (3) all subproblems are needed (tabulation doesn't waste effort). Choose memoization when only a subset of subproblems is needed.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">62</span><span class="lc-name"><a href="https://leetcode.com/problems/unique-paths/" target="_blank" rel="noopener">Unique Paths</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">2D tabulation</span></li>
+                    <li class="leetcode-item"><span class="lc-number">64</span><span class="lc-name"><a href="https://leetcode.com/problems/minimum-path-sum/" target="_blank" rel="noopener">Minimum Path Sum</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Grid DP in-place</span></li>
+                    <li class="leetcode-item"><span class="lc-number">322</span><span class="lc-name"><a href="https://leetcode.com/problems/coin-change/" target="_blank" rel="noopener">Coin Change</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">1D tabulation</span></li>
+                    <li class="leetcode-item"><span class="lc-number">518</span><span class="lc-name"><a href="https://leetcode.com/problems/coin-change-ii/" target="_blank" rel="noopener">Coin Change II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Unbounded knapsack</span></li>
+                    <li class="leetcode-item"><span class="lc-number">120</span><span class="lc-name"><a href="https://leetcode.com/problems/triangle/" target="_blank" rel="noopener">Triangle</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Bottom-up grid DP</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memoization (Top-Down DP) - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 12</a><span class="separator">›</span><span class="current">Memoization</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Memoization (Top-Down DP)</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 12</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="memoization">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Memoization?</h2>
+                <p><strong>Memoization</strong> is the technique of caching the results of expensive recursive function calls and returning the cached result when the same inputs occur again. It transforms a recursive solution into a <strong>top-down DP</strong> solution.</p>
+                <p>Formula: <strong>Recursion + Cache = Memoization</strong>. Write the naive recursive solution first, then add a memo object/array to store computed results.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Memoization is the <strong>easiest way to convert brute force into DP</strong>. You don't need to figure out the iteration order or table dimensions — just add a cache to your recursive solution. It only computes subproblems that are actually needed (unlike tabulation which computes all).</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">📒 Student's Formula Sheet</div>
+                    <p>Instead of re-deriving the quadratic formula every time you need it, you write it on a formula sheet (cache). First time: derive it (compute). Every subsequent time: look at the sheet (cached lookup). That's memoization — compute once, look up forever.</p>
+                </div>
+                <ul>
+                    <li><strong>Browser cache:</strong> First visit downloads the page. Subsequent visits load from cache.</li>
+                    <li><strong>Cooking:</strong> Calculate the recipe for 1 batch, then scale — don't re-derive each time.</li>
+                </ul>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Memoization Patterns</h2>
+
+                <h3>Pattern 1: Climbing Stairs</h3>
+                <div class="code-header"><span>JavaScript — Climbing Stairs with Memoization</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Step 1: Naive recursion — O(2^n) ❌
+function climbNaive(n) {
+    if (n <= 2) return n;
+    return climbNaive(n - 1) + climbNaive(n - 2);
+}
+
+// Step 2: Add memoization — O(n) ✅
+function climbStairs(n, memo = {}) {
+    if (n <= 2) return n;
+    if (memo[n] !== undefined) return memo[n];
+
+    memo[n] = climbStairs(n - 1, memo) + climbStairs(n - 2, memo);
+    return memo[n];
+}</code></pre>
+
+                <h3>Pattern 2: House Robber</h3>
+                <div class="code-header"><span>JavaScript — House Robber with Memoization</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function rob(nums) {
+    const memo = {};
+
+    function dp(i) {
+        if (i >= nums.length) return 0;
+        if (memo[i] !== undefined) return memo[i];
+
+        // Choice: rob this house (skip next) OR skip this house
+        memo[i] = Math.max(
+            nums[i] + dp(i + 2),  // Rob house i
+            dp(i + 1)             // Skip house i
+        );
+        return memo[i];
+    }
+
+    return dp(0);
+}</code></pre>
+
+                <h3>Pattern 3: Coin Change</h3>
+                <div class="code-header"><span>JavaScript — Coin Change with Memoization</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function coinChange(coins, amount) {
+    const memo = {};
+
+    function dp(remaining) {
+        if (remaining === 0) return 0;
+        if (remaining < 0) return Infinity;
+        if (memo[remaining] !== undefined) return memo[remaining];
+
+        let minCoins = Infinity;
+        for (const coin of coins) {
+            const result = dp(remaining - coin);
+            minCoins = Math.min(minCoins, result + 1);
+        }
+
+        memo[remaining] = minCoins;
+        return minCoins;
+    }
+
+    const result = dp(amount);
+    return result === Infinity ? -1 : result;
+}
+// coinChange([1,5,10,25], 30) → 2 (25+5)</code></pre>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Coin Change([1,3,4], 6)</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">dp(6): try coin 1→dp(5), coin 3→dp(3), coin 4→dp(2).</div><div class="step-state">memo = {}</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">dp(3): try coin 1→dp(2), coin 3→dp(0)=0 → returns 1. memo[3]=1.</div><div class="step-state">memo = {3: 1}</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">dp(2): try coin 1→dp(1)→dp(0)=0+1=1 → dp(2)=min(2,∞,∞)=2. memo[2]=2.</div><div class="step-state">memo = {3:1, 2:2, 1:1}</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">dp(5): dp(4)→coin 4→dp(0)=0+1=1. dp(5)=min(dp(4)+1, dp(2)+1, dp(1)+1)=2.</div><div class="step-state">memo = {3:1, 2:2, 1:1, 4:1, 5:2}</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">dp(6): min(dp(5)+1, dp(3)+1, dp(2)+1) = min(3, 2, 3) = <strong>2</strong>.</div><div class="step-state">Answer: 2 coins (3+3) ✅</div></div></div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Problem</th><th>Without Memo</th><th>With Memo</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Climbing Stairs</td><td class="worst">O(2ⁿ)</td><td class="best">O(n)</td><td>O(n)</td></tr>
+                        <tr><td>House Robber</td><td class="worst">O(2ⁿ)</td><td class="best">O(n)</td><td>O(n)</td></tr>
+                        <tr><td>Coin Change</td><td class="worst">O(S^n)</td><td class="best">O(n × S)</td><td>O(n)</td></tr>
+                        <tr><td>Fibonacci</td><td class="worst">O(2ⁿ)</td><td class="best">O(n)</td><td>O(n)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Stack overflow on deep recursion</div>
+                    <p>Memoization is still recursive. For n > ~10,000, you may hit the call stack limit. Convert to tabulation (bottom-up) for large inputs.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Wrong memo key</div>
+                    <p>The memo key must capture ALL state that affects the result. If your function depends on both index and remaining capacity, the key should be <code>`${index},${capacity}`</code>, not just index.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Mutating shared state without restoring</div>
+                    <p>If you modify arrays/objects during recursion (like backtracking), make sure to undo changes before returning — or the memoized result will be based on corrupted state.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Start with brute force recursion. Draw the recursion tree. Add memoization. This is the standard DP interview workflow.</li>
+                    <li>Memoization is easier to write than tabulation — use it as your first DP attempt.</li>
+                    <li>If interviewer asks to optimize space, convert to tabulation (bottom-up).</li>
+                    <li>Memo keys: for 1D DP use index, for 2D use (i, j), for knapsack use (index, capacity).</li>
+                    <li>Python's <code>@lru_cache</code> / <code>@cache</code> gives you memoization for free.</li>
+                </ul>
+            </div>
+
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Memoization = recursion + cache. Top-down DP approach.</li>
+                    <li>Workflow: write recursion → identify overlapping subproblems → add memo.</li>
+                    <li>Memo key must capture all state variables.</li>
+                    <li>Advantage: only computes needed subproblems. Disadvantage: stack overflow risk.</li>
+                    <li>Convert to tabulation for space optimization or to avoid stack limits.</li>
+                </ul>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the difference between memoization and tabulation?</div>
+                            <div class="flashcard-back"><strong>Memoization (top-down):</strong> recursive, caches results lazily, only computes needed subproblems, risk of stack overflow.<br><strong>Tabulation (bottom-up):</strong> iterative, fills table eagerly, computes all subproblems, no stack risk, easier to optimize space.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you convert brute-force recursion to memoized DP?</div>
+                            <div class="flashcard-back">1. Write the recursive solution. 2. Identify the state (function parameters that change). 3. Add a memo object/map. 4. Before computing, check if result is already cached. 5. After computing, store the result in memo. 6. Return cached result.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">70</span><span class="lc-name"><a href="https://leetcode.com/problems/climbing-stairs/" target="_blank" rel="noopener">Climbing Stairs</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">1D Memoization</span></li>
+                    <li class="leetcode-item"><span class="lc-number">198</span><span class="lc-name"><a href="https://leetcode.com/problems/house-robber/" target="_blank" rel="noopener">House Robber</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Take/Skip memo</span></li>
+                    <li class="leetcode-item"><span class="lc-number">322</span><span class="lc-name"><a href="https://leetcode.com/problems/coin-change/" target="_blank" rel="noopener">Coin Change</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Unbounded knapsack memo</span></li>
+                    <li class="leetcode-item"><span class="lc-number">139</span><span class="lc-name"><a href="https://leetcode.com/problems/word-break/" target="_blank" rel="noopener">Word Break</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">String memoization</span></li>
+                    <li class="leetcode-item"><span class="lc-number">494</span><span class="lc-name"><a href="https://leetcode.com/problems/target-sum/" target="_blank" rel="noopener">Target Sum</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">2D memo (index, sum)</span></li>
+                    <li class="leetcode-item"><span class="lc-number">377</span><span class="lc-name"><a href="https://leetcode.com/problems/combination-sum-iv/" target="_blank" rel="noopener">Combination Sum IV</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Top-down counting</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

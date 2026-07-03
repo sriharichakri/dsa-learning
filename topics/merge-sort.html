@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merge Sort - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 4</a><span class="separator">›</span><span class="current">Merge Sort</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Merge Sort</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 4</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="merge-sort">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Merge Sort?</h2>
+                <p>Merge Sort is a <strong>divide and conquer</strong> algorithm. It divides the array into two halves, recursively sorts each half, and then <strong>merges</strong> the two sorted halves into one sorted array.</p>
+                <p>It's guaranteed O(n log n) in <strong>all cases</strong> — best, average, and worst — making it one of the most reliable sorting algorithms.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>The "magic" of Merge Sort is in the <strong>merge step</strong>. Merging two sorted arrays into one sorted array is easy and takes O(n). The recursion ensures we always merge sorted subarrays.</p>
+                </div>
+            </div>
+
+            <!-- Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">📝 Sorting Exam Papers</div>
+                    <p>Imagine a teacher has 100 unsorted exam papers. Instead of sorting all 100, she <strong>splits the pile in half</strong> and gives 50 to two assistants. Each assistant splits their pile again, and so on. When someone has just <strong>1 paper</strong>, it's trivially "sorted." Then everyone <strong>merges their sorted piles</strong> back together by comparing the top papers from each pile. The final result: all 100 papers perfectly sorted!</p>
+                </div>
+                <ul>
+                    <li><strong>Merging two sorted decks of cards:</strong> Take the smaller top card from either deck, repeat until done</li>
+                    <li><strong>Team sorting competition:</strong> Split work among teams, each team sorts their portion, then combine results</li>
+                    <li><strong>Library catalog merge:</strong> Two libraries merging their alphabetically sorted book lists into one</li>
+                </ul>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How Merge Sort Works</h2>
+
+                <div class="viz-container">
+                    <div class="viz-title">Merge Sort: Splitting and Merging [38, 27, 43, 3, 9, 82, 10]</div>
+                    <div class="ascii-diagram">
+                    [38, 27, 43, 3, 9, 82, 10]          ← Original
+                   /                          \
+          [38, 27, 43]                [3, 9, 82, 10]    ← Split
+          /         \                 /            \
+      [38]      [27, 43]        [3, 9]        [82, 10]  ← Split
+                /      \        /    \         /     \
+             [27]    [43]    [3]    [9]     [82]   [10]  ← Base cases
+
+             [27]    [43]    [3]    [9]     [82]   [10]
+                \      /        \    /         \     /
+             [27, 43]          [3, 9]        [10, 82]    ← Merge
+          \         /                 \            /
+      [27, 38, 43]                [3, 9, 10, 82]        ← Merge
+                   \                          /
+            [3, 9, 10, 27, 38, 43, 82]                   ← Final Merge ✅
+                    </div>
+                </div>
+
+                <div class="code-header"><span>JavaScript — Merge Sort</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function mergeSort(arr) {
+    // Base case: array of 0 or 1 element is already sorted
+    if (arr.length <= 1) return arr;
+    
+    // Divide: split array in half
+    const mid = Math.floor(arr.length / 2);
+    const left = mergeSort(arr.slice(0, mid));
+    const right = mergeSort(arr.slice(mid));
+    
+    // Conquer: merge two sorted halves
+    return merge(left, right);
+}
+
+function merge(left, right) {
+    const result = [];
+    let i = 0, j = 0;
+    
+    // Compare elements from both arrays, pick the smaller one
+    while (i < left.length && j < right.length) {
+        if (left[i] <= right[j]) {
+            result.push(left[i]);
+            i++;
+        } else {
+            result.push(right[j]);
+            j++;
+        }
+    }
+    
+    // Append remaining elements
+    while (i < left.length) result.push(left[i++]);
+    while (j < right.length) result.push(right[j++]);
+    
+    return result;
+}</code></pre>
+            </div>
+
+            <!-- Merge Step Detail -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔗</span> The Merge Step — Heart of the Algorithm</h2>
+                <div class="viz-container">
+                    <div class="viz-title">Merging [3, 27, 38] and [9, 10, 82]</div>
+                    <div class="ascii-diagram">
+Left:  [3, 27, 38]    Right: [9, 10, 82]    Result: []
+        ^i                    ^j
+
+Step 1: 3 < 9   → pick 3     Result: [3]
+Step 2: 27 > 9  → pick 9     Result: [3, 9]
+Step 3: 27 > 10 → pick 10    Result: [3, 9, 10]
+Step 4: 27 < 82 → pick 27    Result: [3, 9, 10, 27]
+Step 5: 38 < 82 → pick 38    Result: [3, 9, 10, 27, 38]
+Step 6: Right remaining → 82  Result: [3, 9, 10, 27, 38, 82] ✅
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: mergeSort([5, 2, 8, 1])</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">mergeSort([5, 2, 8, 1]) → mid=2, split into [5, 2] and [8, 1]</div><div class="step-state">Recursing left: [5, 2]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">mergeSort([5, 2]) → mid=1, split into [5] and [2]</div><div class="step-state">Both base cases → merge([5], [2])</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">merge([5], [2]): 2 < 5 → pick 2, then 5</div><div class="step-state">Returns [2, 5]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">mergeSort([8, 1]) → mid=1, split into [8] and [1]</div><div class="step-state">Both base cases → merge([8], [1])</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">merge([8], [1]): 1 < 8 → pick 1, then 8</div><div class="step-state">Returns [1, 8]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">6</div><div class="step-content"><div class="step-desc">Back at top: merge([2, 5], [1, 8]): 1 < 2 → 1, 2 < 8 → 2, 5 < 8 → 5, 8</div><div class="step-state">Returns [1, 2, 5, 8] ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Time & Space Complexity</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Case</th><th>Time</th><th>Why?</th></tr></thead>
+                    <tbody>
+                        <tr><td>Best</td><td class="best">O(n log n)</td><td>Always splits and merges, even if sorted</td></tr>
+                        <tr><td>Average</td><td class="best">O(n log n)</td><td>log n levels of splitting × n work per level</td></tr>
+                        <tr><td>Worst</td><td class="best">O(n log n)</td><td>Same — divide and conquer guarantees this</td></tr>
+                        <tr><td>Space</td><td class="worst">O(n)</td><td>Needs extra array for merging</td></tr>
+                    </tbody>
+                </table>
+                <div class="callout info">
+                    <div class="callout-title">💡 Why O(n log n)?</div>
+                    <p>There are <strong>log n levels</strong> of recursive splitting (halving n until 1). At each level, the merge step processes all <strong>n elements</strong>. Total: n × log n.</p>
+                </div>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting to Handle Remaining Elements</div>
+                    <p>After the main merge loop, one array may still have elements. You <strong>must append</strong> all remaining elements from both arrays.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Incorrect Mid Calculation</div>
+                    <pre><code>// ❌ For even-length arrays this can cause infinite recursion
+let mid = Math.ceil(arr.length / 2); // May not reduce size
+
+// ✅ Safe: always reduces problem size
+let mid = Math.floor(arr.length / 2);</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not Using Stable Comparison (<=)</div>
+                    <p>Using <code>&lt;</code> instead of <code>&lt;=</code> in the merge makes it <strong>unstable</strong>. Use <code>&lt;=</code> to preserve relative order of equal elements.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Ignoring Space Complexity</div>
+                    <p>Merge Sort needs O(n) extra space. If memory is tight, consider in-place algorithms like Quick Sort or Heap Sort.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Tips</h2>
+                <ul>
+                    <li><strong>Go-to for guaranteed O(n log n):</strong> Unlike Quick Sort, Merge Sort never degrades to O(n²)</li>
+                    <li><strong>Linked list sorting:</strong> Merge Sort is ideal for linked lists (no random access needed, O(1) extra space)</li>
+                    <li><strong>"Count inversions" problems:</strong> Modified Merge Sort can count inversions in O(n log n)</li>
+                    <li><strong>External sorting:</strong> Merge Sort is used for sorting data that doesn't fit in memory (database sorting)</li>
+                    <li><strong>Stable sort:</strong> When stability matters, Merge Sort is preferred over Quick Sort</li>
+                </ul>
+            </div>
+
+            <!-- Real-world -->
+            <div class="section-card">
+                <h2><span class="section-icon">🏗️</span> Where Merge Sort Is Used</h2>
+                <ul>
+                    <li><strong>Python's Timsort:</strong> Python's built-in sort is a hybrid of Merge Sort and Insertion Sort</li>
+                    <li><strong>Java's Arrays.sort():</strong> Uses Merge Sort for object arrays (stability required)</li>
+                    <li><strong>External sorting:</strong> Databases use Merge Sort to sort data too large for memory</li>
+                    <li><strong>Git merge:</strong> The merge operation in version control follows a similar merge strategy</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Merge Sort = split in half → recursively sort → merge sorted halves</li>
+                    <li>Always O(n log n) — best, average, and worst case</li>
+                    <li>Space: O(n) — needs extra array for merging</li>
+                    <li>Stable sort — equal elements keep original order</li>
+                    <li>Ideal for linked lists, external sorting, and counting inversions</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the time complexity of Merge Sort in ALL cases?</div>
+                            <div class="flashcard-back">O(n log n) — always. It always splits into log n levels and does n work per level. No worst-case degradation.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the space complexity of Merge Sort and why?</div>
+                            <div class="flashcard-back">O(n) — because the merge step needs an auxiliary array to hold the merged result. This is the main drawback vs Quick Sort.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How can Merge Sort count inversions?</div>
+                            <div class="flashcard-back">During the merge step, when an element from the right array is picked before remaining left elements, count += (remaining elements in left). Total count = number of inversions.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why is Merge Sort preferred for linked lists?</div>
+                            <div class="flashcard-back">Linked lists don't support random access. Merge Sort only needs sequential access. Also, merging linked lists requires O(1) extra space (just rewire pointers).</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode Problems -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">912</span><span class="lc-name"><a href="https://leetcode.com/problems/sort-an-array/" target="_blank" rel="noopener">Sort an Array</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Merge Sort</span></li>
+                    <li class="leetcode-item"><span class="lc-number">88</span><span class="lc-name"><a href="https://leetcode.com/problems/merge-sorted-array/" target="_blank" rel="noopener">Merge Sorted Array</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Merge Step</span></li>
+                    <li class="leetcode-item"><span class="lc-number">21</span><span class="lc-name"><a href="https://leetcode.com/problems/merge-two-sorted-lists/" target="_blank" rel="noopener">Merge Two Sorted Lists</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Merge</span></li>
+                    <li class="leetcode-item"><span class="lc-number">148</span><span class="lc-name"><a href="https://leetcode.com/problems/sort-list/" target="_blank" rel="noopener">Sort List</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Merge Sort on LL</span></li>
+                    <li class="leetcode-item"><span class="lc-number">315</span><span class="lc-name"><a href="https://leetcode.com/problems/count-of-smaller-numbers-after-self/" target="_blank" rel="noopener">Count of Smaller Numbers After Self</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Modified Merge Sort</span></li>
+                    <li class="leetcode-item"><span class="lc-number">493</span><span class="lc-name"><a href="https://leetcode.com/problems/reverse-pairs/" target="_blank" rel="noopener">Reverse Pairs</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Merge Sort + Count</span></li>
+                    <li class="leetcode-item"><span class="lc-number">23</span><span class="lc-name"><a href="https://leetcode.com/problems/merge-k-sorted-lists/" target="_blank" rel="noopener">Merge k Sorted Lists</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Divide & Conquer</span></li>
+                    <li class="leetcode-item"><span class="lc-number">56</span><span class="lc-name"><a href="https://leetcode.com/problems/merge-intervals/" target="_blank" rel="noopener">Merge Intervals</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Sort + Merge</span></li>
+                    <li class="leetcode-item"><span class="lc-number">327</span><span class="lc-name"><a href="https://leetcode.com/problems/count-of-range-sum/" target="_blank" rel="noopener">Count of Range Sum</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Merge Sort</span></li>
+                    <li class="leetcode-item"><span class="lc-number">75</span><span class="lc-name"><a href="https://leetcode.com/problems/sort-colors/" target="_blank" rel="noopener">Sort Colors</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Sorting</span></li>
+                </ul>
+            </div>
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

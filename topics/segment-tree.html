@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Segment Tree - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 9</a><span class="separator">›</span><span class="current">Segment Tree</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Segment Tree</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 9</span>
+                    <span class="topic-badge difficulty-hard">Hard</span>
+                    <button class="topic-complete-btn" data-topic-id="segment-tree">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is a Segment Tree?</h2>
+                <p>A <strong>Segment Tree</strong> is a binary tree data structure used for efficiently performing <strong>range queries</strong> (like sum, min, max over a subarray) and <strong>point updates</strong> on an array. Both operations run in <strong>O(log n)</strong> time.</p>
+                <p>Each node in the tree stores the result of a query (e.g., sum) for a specific <strong>segment (range)</strong> of the array. The root stores the result for the entire array, and leaves store individual elements.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Without a segment tree, range sum is O(n) per query (or O(1) with prefix sums but then updates are O(n)). Segment trees give you <strong>O(log n) for both queries AND updates</strong> — the best of both worlds.</p>
+                </div>
+            </div>
+
+            <!-- Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🏆 Tournament Bracket</div>
+                    <p>Think of a sports tournament bracket. Each match determines the winner (max/min) of two players. Quarter-finals combine pairs, semi-finals combine quarters, and the final gives the overall champion. If a player's score changes, you only need to re-evaluate the matches they participated in — not the entire tournament. That's exactly how a segment tree works!</p>
+                </div>
+                <ul>
+                    <li><strong>Corporate hierarchy:</strong> Each manager knows the total salary of their department. Change one employee's salary → only update managers up to the CEO.</li>
+                    <li><strong>School grading:</strong> Class averages are precomputed. One student's grade changes → update section → department → school average.</li>
+                </ul>
+            </div>
+
+            <!-- Structure -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Segment Tree Structure</h2>
+                <div class="viz-container">
+                    <div class="viz-title">Segment Tree for array [1, 3, 5, 7, 9, 11] — Range Sum</div>
+                    <div class="ascii-diagram">
+Array: [1, 3, 5, 7, 9, 11]  (indices 0-5)
+
+                    [36]           ← sum(0..5)
+                   /    \
+              [9]         [27]     ← sum(0..2), sum(3..5)
+             /   \       /    \
+          [4]    [5]   [16]   [11]  ← sum(0..1), sum(2..2), sum(3..4), sum(5..5)
+         /  \         /   \
+       [1]  [3]     [7]   [9]      ← individual elements
+
+Query sum(1..4):  → 3 + 5 + 7 + 9 = 24
+  Decompose: sum(1..2) from left + sum(3..4) from right
+  Nodes visited: O(log n) = 3 nodes
+
+Update arr[2] = 10:  (5 → 10, diff = +5)
+  Update leaf → parent → ... → root
+  [5]→[10], [9]→[14], [36]→[41]
+  Nodes updated: O(log n) = 3 nodes
+                    </div>
+                </div>
+            </div>
+
+            <!-- Implementation -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔧</span> Segment Tree Implementation</h2>
+                <div class="code-header"><span>JavaScript — Segment Tree (Range Sum)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>class SegmentTree {
+    constructor(arr) {
+        this.n = arr.length;
+        this.tree = new Array(4 * this.n).fill(0); // 4n is safe upper bound
+        this.build(arr, 1, 0, this.n - 1);
+    }
+
+    // Build the tree — O(n)
+    build(arr, node, start, end) {
+        if (start === end) {
+            this.tree[node] = arr[start]; // Leaf node
+            return;
+        }
+        const mid = Math.floor((start + end) / 2);
+        this.build(arr, 2 * node, start, mid);       // Left child
+        this.build(arr, 2 * node + 1, mid + 1, end); // Right child
+        this.tree[node] = this.tree[2 * node] + this.tree[2 * node + 1]; // Merge
+    }
+
+    // Point Update — O(log n)
+    update(idx, val, node = 1, start = 0, end = this.n - 1) {
+        if (start === end) {
+            this.tree[node] = val; // Update leaf
+            return;
+        }
+        const mid = Math.floor((start + end) / 2);
+        if (idx <= mid) {
+            this.update(idx, val, 2 * node, start, mid);
+        } else {
+            this.update(idx, val, 2 * node + 1, mid + 1, end);
+        }
+        this.tree[node] = this.tree[2 * node] + this.tree[2 * node + 1]; // Re-merge
+    }
+
+    // Range Query — O(log n)
+    query(l, r, node = 1, start = 0, end = this.n - 1) {
+        if (r < start || end < l) return 0;       // No overlap
+        if (l <= start && end <= r) return this.tree[node]; // Total overlap
+        const mid = Math.floor((start + end) / 2);
+        return this.query(l, r, 2 * node, start, mid) +
+               this.query(l, r, 2 * node + 1, mid + 1, end); // Partial overlap
+    }
+}
+
+// Usage
+const st = new SegmentTree([1, 3, 5, 7, 9, 11]);
+console.log(st.query(1, 4)); // 3+5+7+9 = 24
+st.update(2, 10);            // arr[2] = 10 (was 5)
+console.log(st.query(1, 4)); // 3+10+7+9 = 29</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: query(1, 4) on [1, 3, 5, 7, 9, 11]</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Node 1 covers [0,5]. Partial overlap with [1,4] → recurse both children.</div><div class="step-state">Go to node 2 [0,2] and node 3 [3,5]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Node 2 covers [0,2]. Partial overlap → recurse. Node 4 [0,1]: partial. Node 5 [2,2]: total overlap → return 5.</div><div class="step-state">Node 5 returns 5</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Node 4 covers [0,1]. Node 8 [0,0]: no overlap → 0. Node 9 [1,1]: total overlap → return 3.</div><div class="step-state">Node 4 returns 0 + 3 = 3</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Node 3 covers [3,5]. Node 6 [3,4]: total overlap → 16. Node 7 [5,5]: no overlap → 0.</div><div class="step-state">Node 3 returns 16 + 0 = 16</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">Combine: Node 2 = 3+5 = 8. Node 1 = 8 + 16 = <strong>24</strong></div><div class="step-state">Answer: 24 ✅ (3+5+7+9)</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Prefix Sum Array</th><th>Segment Tree</th></tr></thead>
+                    <tbody>
+                        <tr><td>Build</td><td class="best">O(n)</td><td>O(n)</td></tr>
+                        <tr><td>Range Query</td><td class="best">O(1)</td><td class="avg">O(log n)</td></tr>
+                        <tr><td>Point Update</td><td class="worst">O(n)</td><td class="best">O(log n)</td></tr>
+                        <tr><td>Space</td><td>O(n)</td><td>O(4n)</td></tr>
+                    </tbody>
+                </table>
+                <p>Use prefix sums for static arrays (no updates). Use segment trees when you need both queries and updates.</p>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Array size too small</div>
+                    <p>The segment tree array needs <strong>4 × n</strong> space, not 2 × n. Using 2n can cause index out of bounds for non-power-of-2 array sizes.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Wrong overlap check in query</div>
+                    <p>Three cases: no overlap (return identity), total overlap (return node value), partial overlap (recurse both). Getting the boundary conditions wrong leads to incorrect results.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting to re-merge after update</div>
+                    <p>After updating a leaf, you must propagate the change upward by re-computing parent nodes. Missing this leaves the tree inconsistent.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Segment trees appear in <strong>"Range Query + Update"</strong> problems. If you see both operations required, think segment tree or BIT.</li>
+                    <li>For range sum + point update, a <strong>Fenwick tree (BIT)</strong> is simpler to code. Use segment tree for range min/max or range updates.</li>
+                    <li>Advanced: <strong>Lazy Propagation</strong> enables range updates in O(log n) — asked in competitive programming more than interviews.</li>
+                    <li>Practice implementing from scratch — interviewers may ask you to build one.</li>
+                    <li>Key pattern: if a brute-force approach does O(n) per query and there are Q queries, segment tree brings it to O(Q log n).</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Segment Tree: binary tree where each node stores info about a range (segment) of the array.</li>
+                    <li>Build O(n), Query O(log n), Update O(log n), Space O(4n).</li>
+                    <li>Three cases in query: no overlap → return identity; total overlap → return node; partial → recurse.</li>
+                    <li>Children of node i: left = 2i, right = 2i+1.</li>
+                    <li>Use Fenwick Tree (BIT) for simpler range sum problems; Segment Tree for min/max/complex queries.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What are the three overlap cases in a segment tree query?</div>
+                            <div class="flashcard-back">1. <strong>No overlap:</strong> query range doesn't intersect node range → return identity (0 for sum). 2. <strong>Total overlap:</strong> node range is fully inside query → return node value. 3. <strong>Partial overlap:</strong> recurse on both children and merge results.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why is the segment tree array size 4n?</div>
+                            <div class="flashcard-back">A segment tree is a complete binary tree with n leaves. The number of nodes can be up to 2×(next power of 2 ≥ n) − 1. Using 4n guarantees enough space for any n, even when n is not a power of 2.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">When to use Segment Tree vs Prefix Sum vs BIT?</div>
+                            <div class="flashcard-back"><strong>Prefix Sum:</strong> static array, O(1) queries, no updates. <strong>BIT (Fenwick):</strong> point updates + prefix/range sum, simpler code. <strong>Segment Tree:</strong> point/range updates + any associative query (sum, min, max, GCD).</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">307</span><span class="lc-name"><a href="https://leetcode.com/problems/range-sum-query-mutable/" target="_blank" rel="noopener">Range Sum Query - Mutable</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Classic Segment Tree</span></li>
+                    <li class="leetcode-item"><span class="lc-number">315</span><span class="lc-name"><a href="https://leetcode.com/problems/count-of-smaller-numbers-after-self/" target="_blank" rel="noopener">Count of Smaller Numbers After Self</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Segment Tree / BIT</span></li>
+                    <li class="leetcode-item"><span class="lc-number">218</span><span class="lc-name"><a href="https://leetcode.com/problems/the-skyline-problem/" target="_blank" rel="noopener">The Skyline Problem</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Segment Tree / Sweep Line</span></li>
+                    <li class="leetcode-item"><span class="lc-number">493</span><span class="lc-name"><a href="https://leetcode.com/problems/reverse-pairs/" target="_blank" rel="noopener">Reverse Pairs</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Segment Tree / Merge Sort</span></li>
+                    <li class="leetcode-item"><span class="lc-number">699</span><span class="lc-name"><a href="https://leetcode.com/problems/falling-squares/" target="_blank" rel="noopener">Falling Squares</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Segment Tree with Lazy</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

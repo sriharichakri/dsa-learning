@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitmask DP - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 12</a><span class="separator">›</span><span class="current">Bitmask DP</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Bitmask DP</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 12</span>
+                    <span class="topic-badge difficulty-hard">Hard</span>
+                    <button class="topic-complete-btn" data-topic-id="bitmask-dp">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Bitmask DP?</h2>
+                <p><strong>Bitmask DP</strong> uses a bitmask (integer) to represent a <strong>subset of elements</strong> as the DP state. Each bit position represents whether an element is included (1) or excluded (0). This allows tracking which items have been used/visited in O(1) per check.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>For n elements, there are 2ⁿ possible subsets. A bitmask integer from 0 to 2ⁿ-1 uniquely represents each subset. dp[mask] = answer when the elements corresponding to set bits in mask have been used. Works for n ≤ 20 (2²⁰ ≈ 1M states).</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">💡 Light Switches</div>
+                    <p>Imagine a row of light switches. Each switch is either on (1) or off (0). The combination of all switches represents a state. With 4 switches, "1010" means switches 1 and 3 are on. Bitmask DP tries all combinations of switches and finds the optimal one.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Bitmask DP Examples</h2>
+
+                <h3>Can I Win (LC 464)</h3>
+                <div class="code-header"><span>JavaScript — Can I Win</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function canIWin(maxChoosableInteger, desiredTotal) {
+    if (maxChoosableInteger * (maxChoosableInteger + 1) / 2 < desiredTotal) return false;
+    if (desiredTotal <= 0) return true;
+
+    const memo = new Map();
+
+    function dp(usedMask, remaining) {
+        if (memo.has(usedMask)) return memo.get(usedMask);
+
+        for (let i = 1; i <= maxChoosableInteger; i++) {
+            const bit = 1 << i;
+            if (usedMask & bit) continue; // Already used
+
+            // If choosing i wins, or opponent loses after we choose i
+            if (i >= remaining || !dp(usedMask | bit, remaining - i)) {
+                memo.set(usedMask, true);
+                return true;
+            }
+        }
+
+        memo.set(usedMask, false);
+        return false;
+    }
+
+    return dp(0, desiredTotal);
+}</code></pre>
+
+                <h3>Partition to K Equal Sum Subsets</h3>
+                <div class="code-header"><span>JavaScript — Partition to K Equal Sum Subsets (LC 698)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function canPartitionKSubsets(nums, k) {
+    const total = nums.reduce((a, b) => a + b, 0);
+    if (total % k !== 0) return false;
+    const target = total / k;
+    const n = nums.length;
+
+    nums.sort((a, b) => b - a); // Optimization: try larger numbers first
+    if (nums[0] > target) return false;
+
+    const memo = new Map();
+
+    function dp(mask, currentSum) {
+        if (mask === (1 << n) - 1) return true; // All numbers used
+        if (memo.has(mask)) return memo.get(mask);
+
+        for (let i = 0; i < n; i++) {
+            if (mask & (1 << i)) continue; // Already used
+            const newSum = currentSum + nums[i];
+            if (newSum > target) continue; // Exceeds target
+
+            const newMask = mask | (1 << i);
+            // If bucket full, start new bucket; else continue filling
+            if (dp(newMask, newSum === target ? 0 : newSum)) {
+                memo.set(mask, true);
+                return true;
+            }
+        }
+
+        memo.set(mask, false);
+        return false;
+    }
+
+    return dp(0, 0);
+}</code></pre>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Bitmask for subset {0,2} of [a,b,c]</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">3 elements: a(bit 0), b(bit 1), c(bit 2). Subset {a,c} = bits 0 and 2 set.</div><div class="step-state">mask = 101₂ = 5</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Check if 'b' is in subset: mask & (1 << 1) = 5 & 2 = 0 → No.</div><div class="step-state">b is NOT in subset</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Add 'b' to subset: mask | (1 << 1) = 5 | 2 = 7 = 111₂.</div><div class="step-state">New mask = 7 → subset {a,b,c}</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">All elements used check: mask === (1 << 3) - 1 = 7 → Yes ✅</div><div class="step-state">All used! ✅</div></div></div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Aspect</th><th>Value</th></tr></thead>
+                    <tbody>
+                        <tr><td>States</td><td>O(2ⁿ) subsets</td></tr>
+                        <tr><td>Per state</td><td>O(n) to try each element</td></tr>
+                        <tr><td>Total Time</td><td class="avg">O(n × 2ⁿ)</td></tr>
+                        <tr><td>Space</td><td>O(2ⁿ)</td></tr>
+                        <tr><td>Practical limit</td><td>n ≤ 20</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Using bitmask DP for n > 20</div>
+                    <p>2²⁰ ≈ 1 million states. 2²⁵ ≈ 33 million. Beyond n=20, bitmask DP is too slow/memory-intensive.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Wrong bit operations</div>
+                    <p>Check bit i: <code>mask & (1 << i)</code>. Set bit i: <code>mask | (1 << i)</code>. Clear bit i: <code>mask & ~(1 << i)</code>. Using wrong operators corrupts the state.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Bitmask DP appears when n is small (≤ 20) and you need to track which elements are used.</li>
+                    <li>Classic problems: TSP (Traveling Salesman), partition into subsets, game theory.</li>
+                    <li>Recognize the pattern: "partition n items into groups" or "assign n items optimally."</li>
+                    <li>Often combined with memoization using the mask as the key.</li>
+                </ul>
+            </div>
+
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Bitmask: integer represents a subset. Bit i = 1 means element i is included.</li>
+                    <li>dp[mask] = answer for subset represented by mask.</li>
+                    <li>Time: O(n × 2ⁿ). Only works for n ≤ 20.</li>
+                    <li>Common operations: check (mask & (1<<i)), set (mask | (1<<i)), clear (mask & ~(1<<i)).</li>
+                    <li>All used check: mask === (1 << n) - 1.</li>
+                </ul>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What does a bitmask represent in bitmask DP?</div>
+                            <div class="flashcard-back">A bitmask is an integer where each bit represents whether an element is included (1) or excluded (0) from the current subset. For n=4, mask=1010₂=10 means elements at positions 1 and 3 are included. There are 2ⁿ possible masks.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">When should you use bitmask DP?</div>
+                            <div class="flashcard-back">When: (1) n is small (≤ 20), (2) you need to track which elements have been used/visited, (3) the problem involves partitioning, assignment, or subset selection. Examples: TSP, Can I Win, Partition to K Equal Sum Subsets.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">464</span><span class="lc-name"><a href="https://leetcode.com/problems/can-i-win/" target="_blank" rel="noopener">Can I Win</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Game theory + bitmask</span></li>
+                    <li class="leetcode-item"><span class="lc-number">698</span><span class="lc-name"><a href="https://leetcode.com/problems/partition-to-k-equal-sum-subsets/" target="_blank" rel="noopener">Partition to K Equal Sum Subsets</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Subset partition</span></li>
+                    <li class="leetcode-item"><span class="lc-number">473</span><span class="lc-name"><a href="https://leetcode.com/problems/matchsticks-to-square/" target="_blank" rel="noopener">Matchsticks to Square</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Partition into 4</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1494</span><span class="lc-name"><a href="https://leetcode.com/problems/parallel-courses-ii/" target="_blank" rel="noopener">Parallel Courses II</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Bitmask + BFS</span></li>
+                    <li class="leetcode-item"><span class="lc-number">847</span><span class="lc-name"><a href="https://leetcode.com/problems/shortest-path-visiting-all-nodes/" target="_blank" rel="noopener">Shortest Path Visiting All Nodes</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">BFS + bitmask state</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

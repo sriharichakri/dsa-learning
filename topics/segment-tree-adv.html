@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Segment Tree with Lazy Propagation - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 15</a><span class="separator">›</span><span class="current">Segment Tree with Lazy Propagation</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Segment Tree with Lazy Propagation</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 15</span>
+                    <span class="topic-badge difficulty-hard">Hard</span>
+                    <button class="topic-complete-btn" data-topic-id="segment-tree-adv">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Lazy Propagation?</h2>
+                <p><strong>Lazy Propagation</strong> is an optimization technique for Segment Trees that enables efficient <strong>range updates</strong> in O(log n) time, in addition to range queries. Without lazy propagation, updating every element in a range individually takes O(n log n). With it, pending updates are stored in a "lazy" array and only applied when needed.</p>
+                <p>The core idea is <strong>procrastination</strong> — don't do work until you absolutely must. When you update a range, mark the node as "pending" and move on. Only propagate the pending update downward when a child is actually accessed.</p>
+                <div class="callout tip">
+                    <div class="callout-title">🏫 Real-Life Analogy: Lazy Teacher's Grade Book</div>
+                    <p>Imagine a teacher needs to add 5 bonus marks to every student in sections A, B, and C. Instead of updating each student's score individually, the teacher writes "+5" on the section folder cover. Only when a specific student's score is needed (e.g., a parent inquires) does the teacher open that folder and apply the bonus. This "write it on the folder and deal with it later" approach is exactly lazy propagation!</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How Lazy Propagation Works</h2>
+                <div class="viz-container">
+                    <div class="viz-title">Range Update: Add 3 to indices [1, 4] on array [1, 3, 5, 7, 9, 11]</div>
+                    <div class="ascii-diagram">
+Before update:
+                    [36]               lazy: [0]
+                   /    \
+              [9]         [27]         lazy: [0, 0]
+             /   \       /    \
+          [4]    [5]   [16]   [11]     lazy: [0, 0, 0, 0]
+         /  \         /   \
+       [1]  [3]     [7]   [9]
+
+Range update: add 3 to [1, 4]
+
+Step 1: Node [0,2] — partial overlap with [1,4]
+  → Recurse children
+  → Node [0,1] partial: Node [0,0] no overlap, Node [1,1] full → add 3
+  → Node [2,2] full overlap → add 3, set lazy
+
+Step 2: Node [3,5] — partial overlap with [1,4]
+  → Node [3,4] full overlap → update sum += 3×2 = 6, set lazy[6] = 3
+  → Node [5,5] no overlap → skip
+
+After update:
+                    [48]               lazy: [0]
+                   /    \
+             [15]         [33]         lazy: [0, 0]
+             /   \       /    \
+          [4]    [8]   [22]   [11]     lazy: [0, 0, 3, 0]
+         /  \         /   \                     ↑ pending!
+       [1]  [6]     [7]   [9]    ← [3,4] children NOT updated yet
+                    </div>
+                </div>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Node [3,4] has sum=22 (correct: 10+12=22) but its children still show old values [7,9]. The lazy value 3 will be pushed down only when we query or update a child of that node.</p>
+                </div>
+            </div>
+
+            <!-- Implementation -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔧</span> Implementation</h2>
+                <div class="code-header"><span>JavaScript — Segment Tree with Lazy Propagation</span><button class="copy-btn">Copy</button></div>
+                <pre><code>class LazySegmentTree {
+    constructor(arr) {
+        this.n = arr.length;
+        this.tree = new Array(4 * this.n).fill(0);
+        this.lazy = new Array(4 * this.n).fill(0);
+        this.build(arr, 1, 0, this.n - 1);
+    }
+
+    build(arr, node, start, end) {
+        if (start === end) {
+            this.tree[node] = arr[start];
+            return;
+        }
+        const mid = (start + end) >> 1;
+        this.build(arr, 2 * node, start, mid);
+        this.build(arr, 2 * node + 1, mid + 1, end);
+        this.tree[node] = this.tree[2 * node] + this.tree[2 * node + 1];
+    }
+
+    // Push pending lazy updates to children
+    pushDown(node, start, end) {
+        if (this.lazy[node] !== 0) {
+            const mid = (start + end) >> 1;
+            // Apply to left child
+            this.tree[2 * node] += this.lazy[node] * (mid - start + 1);
+            this.lazy[2 * node] += this.lazy[node];
+            // Apply to right child
+            this.tree[2 * node + 1] += this.lazy[node] * (end - mid);
+            this.lazy[2 * node + 1] += this.lazy[node];
+            // Clear lazy for current node
+            this.lazy[node] = 0;
+        }
+    }
+
+    // Range Update: add val to all elements in [l, r]
+    updateRange(l, r, val, node = 1, start = 0, end = this.n - 1) {
+        if (r < start || end < l) return;           // No overlap
+        if (l <= start && end <= r) {                // Total overlap
+            this.tree[node] += val * (end - start + 1);
+            this.lazy[node] += val;
+            return;
+        }
+        this.pushDown(node, start, end);             // Partial overlap
+        const mid = (start + end) >> 1;
+        this.updateRange(l, r, val, 2 * node, start, mid);
+        this.updateRange(l, r, val, 2 * node + 1, mid + 1, end);
+        this.tree[node] = this.tree[2 * node] + this.tree[2 * node + 1];
+    }
+
+    // Range Query: sum of elements in [l, r]
+    query(l, r, node = 1, start = 0, end = this.n - 1) {
+        if (r < start || end < l) return 0;          // No overlap
+        if (l <= start && end <= r) return this.tree[node]; // Total overlap
+        this.pushDown(node, start, end);              // Partial overlap
+        const mid = (start + end) >> 1;
+        return this.query(l, r, 2 * node, start, mid) +
+               this.query(l, r, 2 * node + 1, mid + 1, end);
+    }
+}
+
+// Usage
+const lst = new LazySegmentTree([1, 3, 5, 7, 9, 11]);
+console.log(lst.query(1, 4));       // 3+5+7+9 = 24
+lst.updateRange(1, 4, 3);           // Add 3 to indices 1..4
+console.log(lst.query(1, 4));       // 6+8+10+12 = 36
+console.log(lst.query(0, 5));       // 1+6+8+10+12+11 = 48</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: updateRange(1, 4, 3) then query(2, 3)</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">updateRange(1,4,3): Node 1 [0,5] — partial overlap → pushDown, recurse children.</div><div class="step-state">tree[1]=36, lazy[1]=0</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Node 2 [0,2] — partial overlap. Node 4 [0,1]: partial. Node 8 [0,0]: no overlap. Node 9 [1,1]: full → tree[9]+=3, lazy[9]+=3.</div><div class="step-state">tree[9]=6, lazy[9]=3</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Node 5 [2,2]: full overlap → tree[5]+=3×1=3, lazy[5]=3.</div><div class="step-state">tree[5]=8, lazy[5]=3</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Node 3 [3,5]: partial. Node 6 [3,4]: full overlap → tree[6]+=3×2=6, lazy[6]=3. Node 7 [5,5]: no overlap.</div><div class="step-state">tree[6]=22, lazy[6]=3</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">query(2,3): Node 1 [0,5] partial → pushDown(1). Node 2 [0,2] partial → Node 5 [2,2] full → return 8. Node 3 [3,5] partial → pushDown(3), Node 6 [3,4] partial → pushDown(6): push lazy=3 to children 12,13. Node 12 [3,3] full → return 10.</div><div class="step-state">Result: 8 + 10 = 18 ✅ (original 5+7=12, +3 each = 18)</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Without Lazy</th><th>With Lazy Propagation</th></tr></thead>
+                    <tbody>
+                        <tr><td>Build</td><td>O(n)</td><td>O(n)</td></tr>
+                        <tr><td>Point Update</td><td class="best">O(log n)</td><td>O(log n)</td></tr>
+                        <tr><td>Range Update</td><td class="worst">O(n log n)</td><td class="best">O(log n)</td></tr>
+                        <tr><td>Range Query</td><td class="best">O(log n)</td><td>O(log n)</td></tr>
+                        <tr><td>Space</td><td>O(4n)</td><td>O(4n) + O(4n) lazy</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting to pushDown before recursing</div>
+                    <p>In both <code>updateRange</code> and <code>query</code>, you must call pushDown before recursing into children on partial overlap. Otherwise, stale lazy values corrupt child nodes.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not scaling the lazy value by range length</div>
+                    <p>When applying a lazy "add val" to a node covering [start, end], the sum increases by <code>val × (end - start + 1)</code>, not just <code>val</code>. This is the most common bug.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Mixing up assignment vs addition lazy</div>
+                    <p>If your range update is "set all to val" (assignment), the lazy logic is different from "add val to all" (increment). Assignment lazy must override, not accumulate. Be clear which operation your tree supports.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Lazy propagation is <strong>rarely asked in standard interviews</strong> but common in competitive programming and system design.</li>
+                    <li>If an interviewer asks for efficient range updates + range queries, mention lazy propagation as the approach.</li>
+                    <li>Understand the difference between <strong>point update</strong> (standard segment tree) and <strong>range update</strong> (needs lazy).</li>
+                    <li>Can combine with other operations: range set, range add, range max — just change the merge logic and lazy application.</li>
+                    <li>Alternative: <strong>BIT with range update trick</strong> works for range add + point query, but lazy segment tree is more general.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Lazy propagation = "procrastinate updates until needed."</li>
+                    <li>Extra lazy[] array stores pending updates for each node.</li>
+                    <li>pushDown: apply lazy to children, clear parent's lazy.</li>
+                    <li>Range update O(log n): on total overlap, update node + set lazy; on partial, pushDown then recurse.</li>
+                    <li>Always pushDown before accessing children in both update and query.</li>
+                    <li>For "add" lazy: sum += val × range_size, lazy accumulates. For "set" lazy: sum = val × range_size, lazy overrides.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What problem does lazy propagation solve?</div>
+                            <div class="flashcard-back">It enables <strong>range updates</strong> in O(log n) instead of O(n log n). Without it, updating every element in a range requires visiting each element individually. With lazy, we defer updates and only propagate when a node is actually accessed.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">When must you call pushDown?</div>
+                            <div class="flashcard-back">Before recursing into children during <strong>partial overlap</strong> in both updateRange and query. This ensures children have up-to-date values before we access them. On total overlap or no overlap, pushDown is not needed.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How does lazy "add" differ from lazy "set"?</div>
+                            <div class="flashcard-back"><strong>Add:</strong> lazy values accumulate (lazy[node] += val). <strong>Set:</strong> lazy values override (lazy[node] = val, clear children's lazy). Set operations need a flag to distinguish "no pending" from "set to 0."</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">699</span><span class="lc-name"><a href="https://leetcode.com/problems/falling-squares/" target="_blank" rel="noopener">Falling Squares</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Lazy Propagation / Coordinate Compression</span></li>
+                    <li class="leetcode-item"><span class="lc-number">307</span><span class="lc-name"><a href="https://leetcode.com/problems/range-sum-query-mutable/" target="_blank" rel="noopener">Range Sum Query - Mutable</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Segment Tree (extend with lazy for range update)</span></li>
+                    <li class="leetcode-item"><span class="lc-number">715</span><span class="lc-name"><a href="https://leetcode.com/problems/range-module/" target="_blank" rel="noopener">Range Module</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Segment Tree with Lazy / Intervals</span></li>
+                    <li class="leetcode-item"><span class="lc-number">732</span><span class="lc-name"><a href="https://leetcode.com/problems/my-calendar-iii/" target="_blank" rel="noopener">My Calendar III</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Segment Tree with Lazy / Sweep</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

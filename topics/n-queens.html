@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N-Queens Problem - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 13</a><span class="separator">›</span><span class="current">N-Queens Problem</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>N-Queens Problem</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 13</span>
+                    <span class="topic-badge difficulty-hard">Hard</span>
+                    <button class="topic-complete-btn" data-topic-id="n-queens">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is the N-Queens Problem?</h2>
+                <p>Place <strong>N queens</strong> on an N×N chessboard such that <strong>no two queens attack each other</strong>. Queens attack along rows, columns, and both diagonals. This is the classic <strong>constraint satisfaction</strong> backtracking problem.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Place one queen per row (eliminating row conflicts). For each row, try each column. Check column conflicts with a set, and diagonal conflicts using the property: cells on the same diagonal have the same <code>row-col</code> (main diagonal) or <code>row+col</code> (anti-diagonal).</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">♟️ Chess Tournament Seating</div>
+                    <p>Imagine seating N VIPs in an N×N grid such that no two can see each other horizontally, vertically, or diagonally. You try placing one per row, and if a conflict arises, you move the last placed person and try the next seat.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> N-Queens Implementation</h2>
+                <div class="viz-container">
+                    <div class="viz-title">One solution for 4-Queens</div>
+                    <div class="ascii-diagram">
+  . Q . .     Column:    1
+  . . . Q     Column:    3
+  Q . . .     Column:    0
+  . . Q .     Column:    2
+
+  No two queens share a row, column, or diagonal ✅
+
+  Constraint tracking:
+  - columns: Set {0, 1, 2, 3}
+  - main diagonals (row-col): Set {-1, 0, 1, 2}  (each unique)
+  - anti-diagonals (row+col): Set {1, 3, 3, 5}  wait, 3 repeats?
+    Actually for valid solution: {1, 4, 2, 5} ← all unique ✅
+                    </div>
+                </div>
+
+                <div class="code-header"><span>JavaScript — N-Queens (LC 51)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function solveNQueens(n) {
+    const result = [];
+    const cols = new Set();
+    const diag1 = new Set(); // row - col (main diagonal)
+    const diag2 = new Set(); // row + col (anti-diagonal)
+    const board = Array.from({length: n}, () => '.'.repeat(n));
+
+    function backtrack(row) {
+        if (row === n) {
+            result.push([...board]);
+            return;
+        }
+
+        for (let col = 0; col < n; col++) {
+            if (cols.has(col) || diag1.has(row - col) || diag2.has(row + col)) {
+                continue; // Conflict — prune!
+            }
+
+            // Place queen
+            cols.add(col);
+            diag1.add(row - col);
+            diag2.add(row + col);
+            board[row] = '.'.repeat(col) + 'Q' + '.'.repeat(n - col - 1);
+
+            backtrack(row + 1);
+
+            // Remove queen (backtrack)
+            cols.delete(col);
+            diag1.delete(row - col);
+            diag2.delete(row + col);
+            board[row] = '.'.repeat(n);
+        }
+    }
+
+    backtrack(0);
+    return result;
+}
+
+// N-Queens II: just count solutions
+function totalNQueens(n) {
+    let count = 0;
+    const cols = new Set(), d1 = new Set(), d2 = new Set();
+
+    function backtrack(row) {
+        if (row === n) { count++; return; }
+        for (let col = 0; col < n; col++) {
+            if (cols.has(col) || d1.has(row-col) || d2.has(row+col)) continue;
+            cols.add(col); d1.add(row-col); d2.add(row+col);
+            backtrack(row + 1);
+            cols.delete(col); d1.delete(row-col); d2.delete(row+col);
+        }
+    }
+
+    backtrack(0);
+    return count;
+}</code></pre>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: 4-Queens</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Row 0: try col 0. Place Q at (0,0). cols={0}, d1={0}, d2={0}.</div><div class="step-state">Board: [Q...][....][....][....]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Row 1: col 0 (col conflict), col 1 (d2=0+0, 1+1=2 ok, but d1=1-1=0 conflict!), col 2: all clear! Place (1,2).</div><div class="step-state">Board: [Q...][..Q.][....][....]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Row 2: all columns conflict with existing queens → backtrack! Remove (1,2), try col 3 → (1,3).</div><div class="step-state">Backtrack and try (1,3)</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Continue exploring... Eventually find: (0,1),(1,3),(2,0),(3,2) → valid solution!</div><div class="step-state">[.Q..][...Q][Q...][..Q.] ✅</div></div></div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Aspect</th><th>Value</th></tr></thead>
+                    <tbody>
+                        <tr><td>Time (upper bound)</td><td>O(n!)</td></tr>
+                        <tr><td>Space</td><td>O(n) for sets + O(n²) for board</td></tr>
+                        <tr><td>Solutions for n=8</td><td>92</td></tr>
+                        <tr><td>Solutions for n=4</td><td>2</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting diagonal checks</div>
+                    <p>Checking only row and column conflicts misses diagonal attacks. Use row-col for main diagonals and row+col for anti-diagonals.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not restoring board state on backtrack</div>
+                    <p>Must remove the queen from sets AND reset the board string when backtracking.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>N-Queens is THE classic backtracking interview problem. Know it well.</li>
+                    <li>The diagonal trick (row-col, row+col) is elegant — explain it clearly.</li>
+                    <li>Using Sets for O(1) conflict checking is better than scanning the board.</li>
+                    <li>N-Queens II (just count) is simpler — no board construction needed.</li>
+                </ul>
+            </div>
+
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Place one queen per row. Try each column. Check column + 2 diagonals.</li>
+                    <li>Main diagonal: same row-col. Anti-diagonal: same row+col.</li>
+                    <li>Use Sets for O(1) conflict checking.</li>
+                    <li>Time: O(n!) with pruning. Space: O(n).</li>
+                </ul>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you check diagonal conflicts in N-Queens?</div>
+                            <div class="flashcard-back">Two cells (r1,c1) and (r2,c2) are on the same <strong>main diagonal</strong> if r1-c1 === r2-c2, and on the same <strong>anti-diagonal</strong> if r1+c1 === r2+c2. Track used values in Sets for O(1) lookup.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why place one queen per row in N-Queens?</div>
+                            <div class="flashcard-back">Since no two queens can share a row, there must be exactly one queen per row. This reduces the problem from placing N queens on N² cells to choosing one column per row — a much smaller search space (N^N worst case, N! with pruning).</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">51</span><span class="lc-name"><a href="https://leetcode.com/problems/n-queens/" target="_blank" rel="noopener">N-Queens</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Return all solutions</span></li>
+                    <li class="leetcode-item"><span class="lc-number">52</span><span class="lc-name"><a href="https://leetcode.com/problems/n-queens-ii/" target="_blank" rel="noopener">N-Queens II</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Count solutions</span></li>
+                    <li class="leetcode-item"><span class="lc-number">36</span><span class="lc-name"><a href="https://leetcode.com/problems/valid-sudoku/" target="_blank" rel="noopener">Valid Sudoku</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Constraint validation</span></li>
+                    <li class="leetcode-item"><span class="lc-number">37</span><span class="lc-name"><a href="https://leetcode.com/problems/sudoku-solver/" target="_blank" rel="noopener">Sudoku Solver</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Constraint backtracking</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1001</span><span class="lc-name"><a href="https://leetcode.com/problems/grid-illumination/" target="_blank" rel="noopener">Grid Illumination</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Queen attack patterns</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

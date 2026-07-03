@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grid DP - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 12</a><span class="separator">›</span><span class="current">Grid DP</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Grid DP</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 12</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="grid-dp">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Grid DP?</h2>
+                <p><strong>Grid DP</strong> solves optimization or counting problems on 2D grids. Typical problems: count paths from top-left to bottom-right, find minimum cost path, or determine if a path exists with certain constraints.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>In grid DP, each cell's value depends on its neighbors (usually top and left for top-to-bottom traversal). The recurrence is: <code>dp[i][j] = f(dp[i-1][j], dp[i][j-1])</code> where f is sum (counting), min (optimization), or max. Always handle the first row and first column as base cases.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🗺️ City Block Navigation</div>
+                    <p>Imagine walking from the top-left corner of a city grid to the bottom-right, only allowed to go right or down. How many different routes can you take? Each intersection's count equals the sum of routes from the intersection above and to the left.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Grid DP Problems</h2>
+
+                <h3>1. Unique Paths with Obstacles</h3>
+                <div class="code-header"><span>JavaScript — Unique Paths II (LC 63)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function uniquePathsWithObstacles(grid) {
+    const m = grid.length, n = grid[0].length;
+    if (grid[0][0] === 1) return 0;
+
+    const dp = Array.from({length: m}, () => new Array(n).fill(0));
+    dp[0][0] = 1;
+
+    // First row: stop at first obstacle
+    for (let j = 1; j < n; j++) dp[0][j] = grid[0][j] === 1 ? 0 : dp[0][j-1];
+    // First column: stop at first obstacle
+    for (let i = 1; i < m; i++) dp[i][0] = grid[i][0] === 1 ? 0 : dp[i-1][0];
+
+    for (let i = 1; i < m; i++) {
+        for (let j = 1; j < n; j++) {
+            dp[i][j] = grid[i][j] === 1 ? 0 : dp[i-1][j] + dp[i][j-1];
+        }
+    }
+    return dp[m-1][n-1];
+}</code></pre>
+
+                <h3>2. Minimum Path Sum</h3>
+                <div class="code-header"><span>JavaScript — Minimum Path Sum (LC 64)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function minPathSum(grid) {
+    const m = grid.length, n = grid[0].length;
+    for (let j = 1; j < n; j++) grid[0][j] += grid[0][j-1];
+    for (let i = 1; i < m; i++) grid[i][0] += grid[i-1][0];
+
+    for (let i = 1; i < m; i++) {
+        for (let j = 1; j < n; j++) {
+            grid[i][j] += Math.min(grid[i-1][j], grid[i][j-1]);
+        }
+    }
+    return grid[m-1][n-1];
+}</code></pre>
+
+                <h3>3. Dungeon Game (reverse DP)</h3>
+                <div class="code-header"><span>JavaScript — Dungeon Game (LC 174)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function calculateMinimumHP(dungeon) {
+    const m = dungeon.length, n = dungeon[0].length;
+    const dp = Array.from({length: m + 1}, () => new Array(n + 1).fill(Infinity));
+    dp[m][n-1] = dp[m-1][n] = 1; // Need at least 1 HP to survive
+
+    for (let i = m - 1; i >= 0; i--) {
+        for (let j = n - 1; j >= 0; j--) {
+            const minHP = Math.min(dp[i+1][j], dp[i][j+1]) - dungeon[i][j];
+            dp[i][j] = Math.max(1, minHP); // At least 1 HP needed
+        }
+    }
+    return dp[0][0];
+}</code></pre>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Min Path Sum on [[1,3,1],[1,5,1],[4,2,1]]</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Fill first row: [1, 4, 5]. Fill first col: [1, 2, 6].</div><div class="step-state">grid = [[1,4,5],[2,_,_],[6,_,_]]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">dp[1][1] = 5 + min(4, 2) = 7. dp[1][2] = 1 + min(5, 7) = 6.</div><div class="step-state">grid = [[1,4,5],[2,7,6],[6,_,_]]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">dp[2][1] = 2 + min(7, 6) = 8. dp[2][2] = 1 + min(6, 8) = <strong>7</strong>.</div><div class="step-state">Answer: 7 (path: 1→3→1→1→1) ✅</div></div></div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Problem</th><th>Time</th><th>Space</th><th>Space Optimized</th></tr></thead>
+                    <tbody>
+                        <tr><td>Unique Paths</td><td>O(m×n)</td><td>O(m×n)</td><td class="best">O(n)</td></tr>
+                        <tr><td>Min Path Sum</td><td>O(m×n)</td><td class="best">O(1) in-place</td><td class="best">O(1)</td></tr>
+                        <tr><td>Dungeon Game</td><td>O(m×n)</td><td>O(m×n)</td><td class="best">O(n)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Wrong traversal direction</div>
+                    <p>Most grid DP goes top-left to bottom-right. But Dungeon Game requires <strong>bottom-right to top-left</strong> because you need to know future damage to decide current HP.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting obstacles block the entire row/column</div>
+                    <p>In Unique Paths II, an obstacle in the first row blocks all cells to its right. An obstacle in the first column blocks all cells below it.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Grid DP is one of the most common DP patterns — especially Unique Paths and Min Path Sum.</li>
+                    <li>Always ask: can I modify the input grid in-place? This gives O(1) space.</li>
+                    <li>Know when to traverse forward (counting/min cost) vs backward (Dungeon Game).</li>
+                    <li>Space optimization: process row by row, keep only current + previous row.</li>
+                </ul>
+            </div>
+
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Grid DP: 2D table where dp[i][j] depends on top (dp[i-1][j]) and left (dp[i][j-1]).</li>
+                    <li>Counting paths: dp[i][j] = dp[i-1][j] + dp[i][j-1].</li>
+                    <li>Min cost: dp[i][j] = grid[i][j] + min(dp[i-1][j], dp[i][j-1]).</li>
+                    <li>Handle first row and column separately as base cases.</li>
+                    <li>Dungeon Game: reverse DP from bottom-right to top-left.</li>
+                </ul>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why does the Dungeon Game require reverse DP?</div>
+                            <div class="flashcard-back">Because the minimum HP needed at each cell depends on <strong>future</strong> rooms (what damage/healing lies ahead). Forward DP can't determine the minimum starting HP since it doesn't know what's coming. Reverse DP starts at the destination and works backward.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you handle obstacles in grid DP?</div>
+                            <div class="flashcard-back">Set dp[i][j] = 0 (or Infinity for min cost) when grid[i][j] is an obstacle. For the first row/column, once you hit an obstacle, all subsequent cells in that row/column are also 0 (unreachable).</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">62</span><span class="lc-name"><a href="https://leetcode.com/problems/unique-paths/" target="_blank" rel="noopener">Unique Paths</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Path counting</span></li>
+                    <li class="leetcode-item"><span class="lc-number">63</span><span class="lc-name"><a href="https://leetcode.com/problems/unique-paths-ii/" target="_blank" rel="noopener">Unique Paths II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">With obstacles</span></li>
+                    <li class="leetcode-item"><span class="lc-number">64</span><span class="lc-name"><a href="https://leetcode.com/problems/minimum-path-sum/" target="_blank" rel="noopener">Minimum Path Sum</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Min cost path</span></li>
+                    <li class="leetcode-item"><span class="lc-number">174</span><span class="lc-name"><a href="https://leetcode.com/problems/dungeon-game/" target="_blank" rel="noopener">Dungeon Game</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Reverse grid DP</span></li>
+                    <li class="leetcode-item"><span class="lc-number">931</span><span class="lc-name"><a href="https://leetcode.com/problems/minimum-falling-path-sum/" target="_blank" rel="noopener">Minimum Falling Path Sum</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Grid DP (3 directions)</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1289</span><span class="lc-name"><a href="https://leetcode.com/problems/minimum-falling-path-sum-ii/" target="_blank" rel="noopener">Minimum Falling Path Sum II</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Grid DP optimized</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sliding Window - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 5</a><span class="separator">›</span><span class="current">Sliding Window</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Sliding Window</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 5</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="sliding-window">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is the Sliding Window Technique?</h2>
+                <p>The <strong>Sliding Window</strong> technique is a method for solving problems that involve <strong>contiguous subarrays or substrings</strong>. Instead of recalculating everything from scratch for each position, you "slide" a window across the data, adding a new element and removing an old one — updating the answer incrementally.</p>
+                <p>This converts an O(n × k) brute force into an O(n) solution.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Sliding Window works when the problem asks about <strong>contiguous sequences</strong> (subarrays, substrings) and you need to find a maximum, minimum, or count. The "window" maintains a running state that you update cheaply as it moves.</p>
+                </div>
+            </div>
+
+            <!-- Real-Life Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🚂 Looking Through a Train Window</div>
+                    <p>Imagine you're on a train, looking through a window of fixed width. As the train moves forward, you see new scenery on the right side while old scenery disappears on the left. You don't have to look at the entire landscape — just what's visible in your window. The window <strong>slides</strong> along, and you only track what enters and exits.</p>
+                </div>
+                <ul>
+                    <li><strong>Security camera frame:</strong> The camera shows a fixed-width view that pans across a scene. At each position, only the new and disappearing parts change.</li>
+                    <li><strong>7-day moving average:</strong> Stock analysts look at the average of the last 7 days. Each new day: add today, remove the day from 8 days ago.</li>
+                    <li><strong>Conveyor belt with a sensor:</strong> The sensor monitors k items at a time. As the belt moves, one item enters the view and one leaves.</li>
+                </ul>
+            </div>
+
+            <!-- Fixed-Size Window -->
+            <div class="section-card">
+                <h2><span class="section-icon">📐</span> Fixed-Size Sliding Window</h2>
+                <p>The window size <code>k</code> stays constant. You slide it one position at a time.</p>
+
+                <div class="viz-container">
+                    <div class="viz-title">Sliding Window: Max sum of 3 consecutive elements in [2, 1, 5, 1, 3, 2]</div>
+                    <div class="ascii-diagram">
+Array: [2, 1, 5, 1, 3, 2]    k = 3
+
+Step 1: [2, 1, 5] 1, 3, 2    sum = 8
+         └──────┘
+Step 2:  2 [1, 5, 1] 3, 2    sum = 8 - 2 + 1 = 7
+            └──────┘
+Step 3:  2, 1 [5, 1, 3] 2    sum = 7 - 1 + 3 = 9  ← MAX!
+               └──────┘
+Step 4:  2, 1, 5 [1, 3, 2]   sum = 9 - 5 + 2 = 6
+                  └──────┘
+
+Answer: 9 (window [5, 1, 3])
+                    </div>
+                </div>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function maxSumSubarray(arr, k) {
+    // Step 1: Calculate sum of first window
+    let windowSum = 0;
+    for (let i = 0; i < k; i++) {
+        windowSum += arr[i];
+    }
+    let maxSum = windowSum;
+    
+    // Step 2: Slide the window
+    for (let i = k; i < arr.length; i++) {
+        windowSum += arr[i];       // Add new element (right)
+        windowSum -= arr[i - k];   // Remove old element (left)
+        maxSum = Math.max(maxSum, windowSum);
+    }
+    return maxSum;
+}
+
+maxSumSubarray([2, 1, 5, 1, 3, 2], 3); // 9</code></pre>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Initial window [2,1,5]: sum = 8, maxSum = 8</div><div class="step-state">windowSum=8, maxSum=8</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Slide: +arr[3]=1, -arr[0]=2 → sum = 8+1-2 = 7</div><div class="step-state">windowSum=7, maxSum=8</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Slide: +arr[4]=3, -arr[1]=1 → sum = 7+3-1 = 9 → <strong>new max!</strong></div><div class="step-state">windowSum=9, maxSum=9</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Slide: +arr[5]=2, -arr[2]=5 → sum = 9+2-5 = 6</div><div class="step-state">windowSum=6, maxSum=9 ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Variable-Size Window -->
+            <div class="section-card">
+                <h2><span class="section-icon">📏</span> Variable-Size Sliding Window</h2>
+                <p>The window expands and contracts based on a condition. Two pointers (left, right) define the boundaries.</p>
+
+                <h3>Longest Substring Without Repeating Characters</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function lengthOfLongestSubstring(s) {
+    const charSet = new Set();
+    let left = 0, maxLen = 0;
+    
+    for (let right = 0; right < s.length; right++) {
+        // Shrink window while duplicate exists
+        while (charSet.has(s[right])) {
+            charSet.delete(s[left]);
+            left++;
+        }
+        // Expand window
+        charSet.add(s[right]);
+        maxLen = Math.max(maxLen, right - left + 1);
+    }
+    return maxLen;
+}
+
+lengthOfLongestSubstring("abcabcbb"); // 3 ("abc")</code></pre>
+
+                <div class="viz-container">
+                    <div class="viz-title">Variable Window: "abcabcbb" → Find longest substring without repeats</div>
+                    <div class="ascii-diagram">
+String:  a  b  c  a  b  c  b  b
+         L        R              set={a,b,c}  len=3
+                  L  R           'a' repeats → shrink
+                  L     R        set={c,a,b}  len=3
+                     L     R     'c' repeats → shrink
+                     L        R  set={b,c}    len=2
+
+Best: length 3 ("abc")
+                    </div>
+                </div>
+            </div>
+
+            <!-- Template -->
+            <div class="section-card">
+                <h2><span class="section-icon">📋</span> Sliding Window Templates</h2>
+
+                <h3>Fixed Window Template</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function fixedWindow(arr, k) {
+    // 1. Build first window
+    let state = /* initial state from arr[0..k-1] */;
+    let answer = /* initial answer */;
+    
+    // 2. Slide
+    for (let i = k; i < arr.length; i++) {
+        state = /* add arr[i], remove arr[i-k] */;
+        answer = /* update answer */;
+    }
+    return answer;
+}</code></pre>
+
+                <h3>Variable Window Template</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function variableWindow(arr) {
+    let left = 0;
+    let state = /* initial */;
+    let answer = /* initial */;
+    
+    for (let right = 0; right < arr.length; right++) {
+        // Expand: add arr[right] to state
+        
+        while (/* window is invalid */) {
+            // Shrink: remove arr[left] from state
+            left++;
+        }
+        
+        // Update answer with current valid window
+        answer = /* update */;
+    }
+    return answer;
+}</code></pre>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Approach</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Brute force (check all subarrays)</td><td class="worst">O(n × k) or O(n²)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Fixed sliding window</td><td class="best">O(n)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Variable sliding window</td><td class="best">O(n)</td><td class="avg">O(k) for set/map</td></tr>
+                    </tbody>
+                </table>
+                <div class="callout info">
+                    <div class="callout-title">💡 Why is variable window O(n)?</div>
+                    <p>Even though there's a while loop inside the for loop, each element is added and removed <strong>at most once</strong>. The left pointer never moves backward. So total operations across all iterations = 2n = O(n).</p>
+                </div>
+            </div>
+
+            <!-- When to Use -->
+            <div class="section-card">
+                <h2><span class="section-icon">🎯</span> When to Use Sliding Window</h2>
+                <p>Look for these keywords in the problem:</p>
+                <ul>
+                    <li>"<strong>Contiguous</strong> subarray/substring"</li>
+                    <li>"<strong>Maximum/minimum</strong> sum/length of subarray of size k"</li>
+                    <li>"<strong>Longest/shortest</strong> substring with some property"</li>
+                    <li>"<strong>At most k</strong> distinct characters"</li>
+                    <li>"Find a substring containing all characters of another string"</li>
+                </ul>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting to handle window smaller than k</div>
+                    <pre><code>// ❌ If array has fewer than k elements, no valid window exists
+function maxSum(arr, k) {
+    if (arr.length < k) return -1; // Handle edge case!
+    // ...
+}</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Off-by-one in window boundaries</div>
+                    <p>Window size = <code>right - left + 1</code>, not <code>right - left</code>. A window from index 2 to 4 has 3 elements, not 2.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Using sliding window on non-contiguous problems</div>
+                    <p>Sliding window only works for <strong>contiguous</strong> subarrays/substrings. If the problem asks for subsequences (non-contiguous), you likely need DP or two pointers.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>If you see "subarray of size k" → immediately think <strong>fixed sliding window</strong>.</li>
+                    <li>If you see "longest/shortest substring with condition" → think <strong>variable sliding window</strong>.</li>
+                    <li>Always start with brute force, then explain how sliding window optimizes it.</li>
+                    <li>Know how to combine sliding window with <strong>HashMap</strong> (frequency counting inside the window).</li>
+                    <li>Practice the variable window template until it's muscle memory.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Fixed window: size k stays constant. Slide by adding right, removing left. O(n).</li>
+                    <li>Variable window: expand right, shrink left when condition violated. O(n).</li>
+                    <li>Window size = right - left + 1.</li>
+                    <li>Keywords: contiguous, subarray, substring, maximum/minimum, at most k.</li>
+                    <li>Each element enters and exits the window at most once → amortized O(n).</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the difference between fixed and variable sliding window?</div>
+                            <div class="flashcard-back">Fixed: window size k is constant, slide one position at a time. Variable: window size changes dynamically — expand right pointer, shrink left pointer based on a condition.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why is the variable sliding window O(n) despite having a while loop inside a for loop?</div>
+                            <div class="flashcard-back">Each element is added (by right pointer) at most once and removed (by left pointer) at most once. Total operations = 2n = O(n). The left pointer never moves backward.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">When should you use sliding window vs two pointers?</div>
+                            <div class="flashcard-back">Sliding window: contiguous subarrays/substrings with a running state. Two pointers: sorted arrays, searching pairs, or problems where elements aren't necessarily contiguous.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">643</span><span class="lc-name"><a href="https://leetcode.com/problems/maximum-average-subarray-i/" target="_blank" rel="noopener">Maximum Average Subarray I</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Fixed Window</span></li>
+                    <li class="leetcode-item"><span class="lc-number">3</span><span class="lc-name"><a href="https://leetcode.com/problems/longest-substring-without-repeating-characters/" target="_blank" rel="noopener">Longest Substring Without Repeating Characters</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Variable Window</span></li>
+                    <li class="leetcode-item"><span class="lc-number">76</span><span class="lc-name"><a href="https://leetcode.com/problems/minimum-window-substring/" target="_blank" rel="noopener">Minimum Window Substring</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Variable Window + HashMap</span></li>
+                    <li class="leetcode-item"><span class="lc-number">567</span><span class="lc-name"><a href="https://leetcode.com/problems/permutation-in-string/" target="_blank" rel="noopener">Permutation in String</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Fixed Window + Frequency</span></li>
+                    <li class="leetcode-item"><span class="lc-number">209</span><span class="lc-name"><a href="https://leetcode.com/problems/minimum-size-subarray-sum/" target="_blank" rel="noopener">Minimum Size Subarray Sum</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Variable Window</span></li>
+                    <li class="leetcode-item"><span class="lc-number">239</span><span class="lc-name"><a href="https://leetcode.com/problems/sliding-window-maximum/" target="_blank" rel="noopener">Sliding Window Maximum</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Monotonic Deque</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

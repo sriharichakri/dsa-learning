@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z Algorithm - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 15</a><span class="separator">›</span><span class="current">Z Algorithm</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Z Algorithm</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 15</span>
+                    <span class="topic-badge difficulty-hard">Hard</span>
+                    <button class="topic-complete-btn" data-topic-id="z-algorithm">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is the Z Algorithm?</h2>
+                <p>The <strong>Z Algorithm</strong> constructs a <strong>Z-array</strong> for a string in O(n) time. Z[i] is the length of the longest substring starting at position i that matches a prefix of the string. This array enables pattern matching, period detection, and many other string operations.</p>
+                <p>For pattern matching, concatenate <code>pattern + "$" + text</code> and build the Z-array. Any position where Z[i] = pattern.length indicates a match.</p>
+                <div class="callout tip">
+                    <div class="callout-title">🔍 Real-Life Analogy: Comparing Book Openings</div>
+                    <p>Imagine you have a long book and you want to find every paragraph that starts the same way as the book's opening line. For each paragraph, you compare it character by character with the start. But cleverly, if you already compared ahead and found a matching stretch, you reuse that information for nearby paragraphs. The Z-array is exactly this: for each position, how far does the text match the beginning?</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> The Z-Array</h2>
+                <div class="viz-container">
+                    <div class="viz-title">Z-Array for "aabxaab"</div>
+                    <div class="ascii-diagram">
+String: a  a  b  x  a  a  b
+Index:  0  1  2  3  4  5  6
+
+Z[0] is undefined (conventionally 0 or n).
+Z[1]: "abxaab" vs "aabxaab" → "a" matches → Z[1] = 1
+Z[2]: "bxaab"  vs "aabxaab" → no match    → Z[2] = 0
+Z[3]: "xaab"   vs "aabxaab" → no match    → Z[3] = 0
+Z[4]: "aab"    vs "aabxaab" → "aab" match → Z[4] = 3
+Z[5]: "ab"     vs "aabxaab" → "a" match   → Z[5] = 1  (but reused from Z[1])
+Z[6]: "b"      vs "aabxaab" → no match    → Z[6] = 0
+
+Z = [-, 1, 0, 0, 3, 1, 0]
+
+Pattern matching: pattern="aab", text="xaabxaab"
+Concat: "aab$xaabxaab"
+Z =     [-, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0]
+                              ↑           ↑
+         Z[5]=3=|pattern|  Z[9]=3=|pattern|
+         → Match at text index 5-4=1 and 9-4=5
+                    </div>
+                </div>
+            </div>
+
+            <!-- Implementation -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔧</span> Implementation</h2>
+                <div class="code-header"><span>JavaScript — Z Algorithm</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function zFunction(s) {
+    const n = s.length;
+    const z = new Array(n).fill(0);
+    let l = 0, r = 0; // [l, r] = rightmost Z-box
+
+    for (let i = 1; i < n; i++) {
+        if (i < r) {
+            // Reuse previously computed info
+            z[i] = Math.min(r - i, z[i - l]);
+        }
+        // Extend as far as possible
+        while (i + z[i] < n && s[z[i]] === s[i + z[i]]) {
+            z[i]++;
+        }
+        // Update the Z-box if we extended past r
+        if (i + z[i] > r) {
+            l = i;
+            r = i + z[i];
+        }
+    }
+    return z;
+}
+
+// Pattern matching using Z-algorithm — O(n + m)
+function zSearch(text, pattern) {
+    const combined = pattern + "$" + text;
+    const z = zFunction(combined);
+    const results = [];
+    const m = pattern.length;
+
+    for (let i = m + 1; i < combined.length; i++) {
+        if (z[i] === m) {
+            results.push(i - m - 1); // Convert to text index
+        }
+    }
+    return results;
+}
+
+// Usage
+console.log(zFunction("aabxaab"));   // [0, 1, 0, 0, 3, 1, 0]
+console.log(zSearch("xaabxaab", "aab")); // [1, 5]</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: zFunction("aabcaab")</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">i=1: i≥r(0). Compare s[0]='a' with s[1]='a' → match. s[1]='a' vs s[2]='b' → mismatch. z[1]=1. Update l=1, r=2.</div><div class="step-state">z=[0,1,_,_,_,_,_], l=1, r=2</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">i=2: i≥r(2)? No, i=r. Compare s[0]='a' with s[2]='b' → mismatch. z[2]=0.</div><div class="step-state">z=[0,1,0,_,_,_,_]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">i=3: i≥r. Compare s[0]='a' with s[3]='c' → mismatch. z[3]=0.</div><div class="step-state">z=[0,1,0,0,_,_,_]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">i=4: i≥r. Compare: s[0..2]="aab" with s[4..6]="aab" → 3 chars match. z[4]=3. Update l=4, r=7.</div><div class="step-state">z=[0,1,0,0,3,_,_], l=4, r=7</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">i=5: i &lt; r(7). z[5] = min(r-i, z[i-l]) = min(2, z[1]) = min(2,1) = 1. Try extend: s[1]='a' vs s[6]='b' → mismatch. z[5]=1.</div><div class="step-state">z=[0,1,0,0,3,1,0] ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Build Z-array</td><td class="best">O(n)</td><td>O(n)</td></tr>
+                        <tr><td>Pattern Matching</td><td class="best">O(n + m)</td><td>O(n + m)</td></tr>
+                    </tbody>
+                </table>
+                <p>The inner while loop is bounded by the total advancement of r, which goes from 0 to n. So total work is O(n).</p>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting the separator character in pattern matching</div>
+                    <p>When concatenating pattern + text, use a separator (like '$') that doesn't appear in either string. Without it, the Z-array may find matches that span across the boundary.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not capping z[i] at r - i before extending</div>
+                    <p>When i is inside the current Z-box [l, r), z[i] should start at min(r - i, z[i - l]). Without the min, you might use a value that goes beyond r, which hasn't been verified.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing Z-array with LPS array (KMP)</div>
+                    <p>Z[i] = length of longest match between s[0..] and s[i..]. LPS[i] = length of longest proper prefix of s[0..i] that equals a suffix. They encode similar but different information.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Z-algorithm is a powerful <strong>alternative to KMP</strong> for pattern matching, often easier to understand and implement.</li>
+                    <li>Can detect if a string is a rotation of another: check if pattern appears in text+text.</li>
+                    <li>Period detection: the string has period p if z[p] ≥ n - p (and p divides n).</li>
+                    <li>Less commonly asked than KMP in interviews, but equally valid as an answer.</li>
+                    <li>The Z-box trick ([l, r] window) is what makes it linear — understand this to explain complexity.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Z[i] = length of longest substring starting at i that matches a prefix of the string.</li>
+                    <li>Built in O(n) using the Z-box optimization [l, r].</li>
+                    <li>Pattern matching: build Z-array on "pattern$text", look for Z[i] = m.</li>
+                    <li>Z-box: rightmost interval [l, r) where s[l..r) = s[0..r-l). Reuse info for i inside the box.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What does Z[i] represent?</div>
+                            <div class="flashcard-back">Z[i] is the length of the <strong>longest substring</strong> starting at position i in the string that is also a <strong>prefix</strong> of the string. For example, in "aabxaab", Z[4]=3 because s[4..6]="aab" matches the prefix "aab".</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How does the Z-box make Z-algorithm O(n)?</div>
+                            <div class="flashcard-back">The Z-box [l, r] tracks the rightmost interval matching a prefix. For i inside [l, r), we reuse z[i-l] (already computed). The explicit comparisons only happen when extending beyond r, and r only moves forward, so total comparisons are O(n).</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">28</span><span class="lc-name"><a href="https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/" target="_blank" rel="noopener">Find the Index of First Occurrence in a String</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Z Algorithm / KMP</span></li>
+                    <li class="leetcode-item"><span class="lc-number">459</span><span class="lc-name"><a href="https://leetcode.com/problems/repeated-substring-pattern/" target="_blank" rel="noopener">Repeated Substring Pattern</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Z Algorithm (period detection)</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1392</span><span class="lc-name"><a href="https://leetcode.com/problems/longest-happy-prefix/" target="_blank" rel="noopener">Longest Happy Prefix</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Z Algorithm / KMP</span></li>
+                    <li class="leetcode-item"><span class="lc-number">214</span><span class="lc-name"><a href="https://leetcode.com/problems/shortest-palindrome/" target="_blank" rel="noopener">Shortest Palindrome</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Z Algorithm on s + "#" + reverse(s)</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

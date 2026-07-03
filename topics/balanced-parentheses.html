@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balanced Parentheses - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 7</a><span class="separator">›</span><span class="current">Balanced Parentheses</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Balanced Parentheses</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 7</span>
+                    <span class="topic-badge difficulty-easy">Easy</span>
+                    <button class="topic-complete-btn" data-topic-id="balanced-parentheses">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is the Balanced Parentheses Problem?</h2>
+                <p>Given a string containing brackets — <code>()</code>, <code>{}</code>, <code>[]</code> — determine if every opening bracket has a <strong>matching closing bracket</strong> in the correct order. This is the quintessential stack problem!</p>
+                <div class="callout tip">
+                    <div class="callout-title">🌍 Real-Life Analogy</div>
+                    <p>Think of <strong>nesting Russian dolls</strong> (matryoshka). Each doll you open must be closed before the doll that contains it. If you open a big doll, then a medium, then a small, you must close the small first, then medium, then big. Opening in wrong order or leaving one unclosed = imbalanced!</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How It Works</h2>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function isValid(s) {
+    const stack = [];
+    const map = { ')': '(', '}': '{', ']': '[' };
+    
+    for (let ch of s) {
+        if (ch === '(' || ch === '{' || ch === '[') {
+            stack.push(ch);  // Opening → push
+        } else {
+            // Closing → check if matches top of stack
+            if (stack.length === 0 || stack[stack.length - 1] !== map[ch]) {
+                return false;
+            }
+            stack.pop();
+        }
+    }
+    return stack.length === 0;  // Stack must be empty!
+}
+
+// isValid("()")       → true
+// isValid("()[]{}")   → true
+// isValid("(]")       → false
+// isValid("([)]")     → false
+// isValid("{[]}")     → true</code></pre>
+
+                <h3>Generate All Valid Parentheses</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function generateParenthesis(n) {
+    const result = [];
+    
+    function backtrack(current, open, close) {
+        if (current.length === 2 * n) {
+            result.push(current);
+            return;
+        }
+        if (open < n) backtrack(current + '(', open + 1, close);
+        if (close < open) backtrack(current + ')', open, close + 1);
+    }
+    
+    backtrack('', 0, 0);
+    return result;
+}
+
+// generateParenthesis(3) →
+// ["((()))","(()())","(())()","()(())","()()()"]</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run</h2>
+                <p>Check if <code>{[()]}</code> is valid</p>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Read '{': opening bracket → push</div><div class="step-state">Stack: [{]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Read '[': opening bracket → push</div><div class="step-state">Stack: [{, []</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Read '(': opening bracket → push</div><div class="step-state">Stack: [{, [, (]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Read ')': closing. Top is '(' = match! → pop</div><div class="step-state">Stack: [{, []</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">Read ']': closing. Top is '[' = match! → pop</div><div class="step-state">Stack: [{]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">6</div><div class="step-content"><div class="step-desc">Read '}': closing. Top is '{' = match! → pop</div><div class="step-state">Stack: [] (empty) ✅ Valid!</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Valid Parentheses Check</td><td class="best">O(n)</td><td class="avg">O(n)</td></tr>
+                        <tr><td>Generate All Valid (n pairs)</td><td class="avg">O(4ⁿ/√n)</td><td class="avg">O(n)</td></tr>
+                        <tr><td>Min Removals for Valid</td><td class="best">O(n)</td><td class="avg">O(n)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not checking stack empty at the end</div>
+                    <pre><code>// ❌ "(((" has no mismatches but stack is not empty!
+return true; // Wrong — unclosed brackets remain
+
+// ✅ Must verify stack is empty
+return stack.length === 0;</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not checking stack empty before popping</div>
+                    <p>If you encounter a closing bracket and the stack is empty, it's invalid. Don't try to pop from an empty stack — check <code>stack.length === 0</code> first.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>This is the <strong>classic stack problem</strong> — often the first stack question in interviews.</li>
+                    <li>Use a hash map for bracket matching: <code>{ ')': '(', ']': '[', '}': '{' }</code>.</li>
+                    <li>"Generate Parentheses" is a classic <strong>backtracking</strong> problem — know both validation and generation.</li>
+                    <li>Variations: minimum removals to make valid, longest valid parentheses substring.</li>
+                    <li>For only '(' and ')': can solve with a counter instead of a stack (O(1) space).</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Opening bracket → push. Closing bracket → check top matches, pop.</li>
+                    <li>Return true only if stack is empty at the end.</li>
+                    <li>Use hash map for O(1) bracket matching.</li>
+                    <li>Time: O(n). Space: O(n) for the stack.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why is a stack the perfect data structure for bracket matching?</div>
+                            <div class="flashcard-back">Brackets follow <strong>LIFO</strong> order — the most recently opened bracket must be closed first. This exactly matches stack behavior: push on open, pop on close. If the popped bracket matches, it's valid.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Can you check balanced parentheses without a stack?</div>
+                            <div class="flashcard-back">Only for <strong>single type</strong> brackets like '(' and ')'. Use a counter: increment on '(', decrement on ')'. If counter goes negative or isn't 0 at the end → invalid. For multiple types, you NEED a stack.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">20</span><span class="lc-name"><a href="https://leetcode.com/problems/valid-parentheses/" target="_blank" rel="noopener">Valid Parentheses</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Classic stack</span></li>
+                    <li class="leetcode-item"><span class="lc-number">22</span><span class="lc-name"><a href="https://leetcode.com/problems/generate-parentheses/" target="_blank" rel="noopener">Generate Parentheses</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Backtracking</span></li>
+                    <li class="leetcode-item"><span class="lc-number">32</span><span class="lc-name"><a href="https://leetcode.com/problems/longest-valid-parentheses/" target="_blank" rel="noopener">Longest Valid Parentheses</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Stack / DP</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1249</span><span class="lc-name"><a href="https://leetcode.com/problems/minimum-remove-to-make-valid-parentheses/" target="_blank" rel="noopener">Minimum Remove to Make Valid</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Stack + string manipulation</span></li>
+                    <li class="leetcode-item"><span class="lc-number">921</span><span class="lc-name"><a href="https://leetcode.com/problems/minimum-add-to-make-parentheses-valid/" target="_blank" rel="noopener">Minimum Add to Make Valid</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Counter approach</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

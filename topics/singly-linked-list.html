@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Singly Linked List - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 6</a><span class="separator">›</span><span class="current">Singly Linked List</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Singly Linked List</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 6</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="singly-linked-list">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is a Singly Linked List?</h2>
+                <p>A <strong>Singly Linked List</strong> is a linear data structure where each element (called a <strong>node</strong>) contains a <strong>value</strong> and a <strong>pointer to the next node</strong>. Unlike arrays, nodes are NOT stored in contiguous memory — they can be scattered anywhere, connected by pointers.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Linked lists trade <strong>random access</strong> (arrays' strength) for <strong>efficient insertion/deletion</strong>. Adding or removing a node takes O(1) if you have a reference to the position — no shifting needed. But finding that position takes O(n) since you must traverse from the head.</p>
+                </div>
+            </div>
+
+            <!-- Real-Life Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🗺️ Treasure Hunt with Clues</div>
+                    <p>Imagine a treasure hunt where each location has a clue pointing to the <strong>next location</strong>. You start at clue #1 (the <strong>head</strong>). Each clue tells you where to go next. The final clue says "STOP" (points to <strong>null</strong>). You can't jump to clue #5 directly — you must follow the chain from the beginning.</p>
+                </div>
+                <ul>
+                    <li><strong>Train carriages:</strong> Each carriage is connected to the next. You walk through them in order. You can detach a carriage (delete) or insert a new one without moving the others.</li>
+                    <li><strong>Scavenger hunt:</strong> Each clue leads to the next clue's location.</li>
+                    <li><strong>Conga line:</strong> Each person holds the shoulders of the person in front. Adding someone = they grab the person ahead.</li>
+                </ul>
+            </div>
+
+            <!-- Node Structure -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Node Structure &amp; Visualization</h2>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>class Node {
+    constructor(value) {
+        this.value = value;
+        this.next = null;  // Pointer to next node
+    }
+}
+
+class LinkedList {
+    constructor() {
+        this.head = null;  // Points to first node
+        this.size = 0;
+    }
+}</code></pre>
+
+                <div class="viz-container">
+                    <div class="viz-title">Linked List: 10 → 20 → 30 → null</div>
+                    <div class="ll-viz">
+                        <div class="ll-node-box">
+                            <div class="ll-val">10</div>
+                            <div class="ll-next">next</div>
+                        </div>
+                        <div class="ll-arrow">→</div>
+                        <div class="ll-node-box">
+                            <div class="ll-val">20</div>
+                            <div class="ll-next">next</div>
+                        </div>
+                        <div class="ll-arrow">→</div>
+                        <div class="ll-node-box">
+                            <div class="ll-val">30</div>
+                            <div class="ll-next">next</div>
+                        </div>
+                        <div class="ll-arrow">→</div>
+                        <div class="ll-node-box" style="background: #555; color: #fff;">
+                            <div class="ll-val">null</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ascii-diagram">
+Memory (NOT contiguous — scattered!):
+
+Address 0x100:  [10 | 0x250]   ← head points here
+Address 0x250:  [20 | 0x400]
+Address 0x400:  [30 | null ]   ← tail (last node)
+                </div>
+            </div>
+
+            <!-- Operations -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔧</span> Common Operations</h2>
+
+                <h3>Insert at Head — O(1)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>insertAtHead(value) {
+    const newNode = new Node(value);
+    newNode.next = this.head;  // Point new node to current head
+    this.head = newNode;       // Update head to new node
+    this.size++;
+}</code></pre>
+
+                <h3>Insert at Tail — O(n)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>insertAtTail(value) {
+    const newNode = new Node(value);
+    if (!this.head) {
+        this.head = newNode;
+    } else {
+        let current = this.head;
+        while (current.next) {    // Walk to the last node
+            current = current.next;
+        }
+        current.next = newNode;   // Link last node to new node
+    }
+    this.size++;
+}</code></pre>
+
+                <h3>Delete a Node — O(n) to find, O(1) to remove</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>delete(value) {
+    if (!this.head) return;
+    if (this.head.value === value) {
+        this.head = this.head.next;  // Remove head
+        this.size--;
+        return;
+    }
+    let current = this.head;
+    while (current.next && current.next.value !== value) {
+        current = current.next;
+    }
+    if (current.next) {
+        current.next = current.next.next; // Skip the node
+        this.size--;
+    }
+}</code></pre>
+
+                <h3>Traversal — O(n)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>traverse() {
+    let current = this.head;
+    const values = [];
+    while (current) {
+        values.push(current.value);
+        current = current.next;
+    }
+    return values; // [10, 20, 30]
+}</code></pre>
+            </div>
+
+            <!-- Reverse Linked List -->
+            <div class="section-card">
+                <h2><span class="section-icon">⭐</span> Classic: Reverse a Linked List</h2>
+                <p>The most commonly asked linked list interview question.</p>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function reverseList(head) {
+    let prev = null;
+    let current = head;
+    
+    while (current) {
+        let next = current.next;  // Save next
+        current.next = prev;      // Reverse pointer
+        prev = current;           // Move prev forward
+        current = next;           // Move current forward
+    }
+    return prev; // New head
+}</code></pre>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Initial: 1→2→3→null. prev=null, curr=1</div><div class="step-state">null ← ? 1 → 2 → 3 → null</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Save next=2. Reverse: 1.next=null. Move: prev=1, curr=2</div><div class="step-state">null ← 1  2 → 3 → null</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Save next=3. Reverse: 2.next=1. Move: prev=2, curr=3</div><div class="step-state">null ← 1 ← 2  3 → null</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Save next=null. Reverse: 3.next=2. Move: prev=3, curr=null</div><div class="step-state">null ← 1 ← 2 ← 3 ✅ New head = 3</div></div></div>
+                </div>
+            </div>
+
+            <!-- Array vs Linked List -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Array vs Linked List</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Array</th><th>Linked List</th></tr></thead>
+                    <tbody>
+                        <tr><td>Access by index</td><td class="best">O(1)</td><td class="worst">O(n)</td></tr>
+                        <tr><td>Search</td><td class="avg">O(n)</td><td class="avg">O(n)</td></tr>
+                        <tr><td>Insert at beginning</td><td class="worst">O(n)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Insert at end</td><td class="best">O(1)*</td><td class="avg">O(n)**</td></tr>
+                        <tr><td>Delete from beginning</td><td class="worst">O(n)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Delete from middle</td><td class="worst">O(n)</td><td class="best">O(1)***</td></tr>
+                        <tr><td>Memory</td><td>Contiguous</td><td>Scattered + pointer overhead</td></tr>
+                    </tbody>
+                </table>
+                <p class="text-muted">* Amortized for dynamic arrays. ** O(1) with tail pointer. *** O(1) after locating the node.</p>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Losing reference to the list (forgetting to save next)</div>
+                    <pre><code>// ❌ When reversing, if you change current.next 
+//    without saving current.next first, you lose the rest!
+current.next = prev;  // ← rest of list is now lost!
+
+// ✅ Save next BEFORE reversing
+let next = current.next;  // Save reference
+current.next = prev;      // Now safe to reverse</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not handling null/empty list</div>
+                    <pre><code>// ❌ NullPointerException!
+head.next.value; // What if head is null? 💥
+
+// ✅ Always check for null
+if (head && head.next) { ... }</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting to update head after operations</div>
+                    <p>When deleting the head node or reversing the list, you must update the <code>head</code> pointer to the new first node.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li><strong>Reversing a linked list</strong> is asked in ~70% of linked list interviews. Know it cold.</li>
+                    <li>Use a <strong>dummy node</strong> before the head to simplify edge cases (inserting/deleting at head).</li>
+                    <li><strong>Fast-slow pointers:</strong> Find middle, detect cycle, find cycle start.</li>
+                    <li>Draw the nodes on paper during the interview — pointer manipulation is error-prone without visualization.</li>
+                    <li>Know the trade-offs: linked lists are better for frequent insertions/deletions; arrays are better for random access.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Node = {value, next}. Head points to first node. Last node.next = null.</li>
+                    <li>Insert at head: O(1). Insert at tail: O(n) without tail pointer.</li>
+                    <li>No random access — must traverse from head to reach any node.</li>
+                    <li>Reverse: use three pointers (prev, current, next). Save next before reversing.</li>
+                    <li>Dummy node simplifies edge cases. Fast-slow finds middle in O(n).</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why is insertion at the head of a linked list O(1)?</div>
+                            <div class="flashcard-back">Create a new node, point its next to the current head, update head to the new node. Only 2 pointer operations — no elements need to be shifted (unlike arrays).</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you reverse a singly linked list?</div>
+                            <div class="flashcard-back">Use three pointers: prev (starts null), current (starts at head), next (saved each iteration). For each node: save next, reverse pointer (current.next = prev), advance prev and current. Return prev as new head.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you find the middle of a linked list in one pass?</div>
+                            <div class="flashcard-back">Use fast-slow pointers. Slow moves 1 step, fast moves 2 steps. When fast reaches the end, slow is at the middle. O(n) time, O(1) space.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">206</span><span class="lc-name"><a href="https://leetcode.com/problems/reverse-linked-list/" target="_blank" rel="noopener">Reverse Linked List</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Three Pointers</span></li>
+                    <li class="leetcode-item"><span class="lc-number">21</span><span class="lc-name"><a href="https://leetcode.com/problems/merge-two-sorted-lists/" target="_blank" rel="noopener">Merge Two Sorted Lists</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Dummy Node</span></li>
+                    <li class="leetcode-item"><span class="lc-number">19</span><span class="lc-name"><a href="https://leetcode.com/problems/remove-nth-node-from-end-of-list/" target="_blank" rel="noopener">Remove Nth Node From End of List</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Two Pointers + Gap</span></li>
+                    <li class="leetcode-item"><span class="lc-number">141</span><span class="lc-name"><a href="https://leetcode.com/problems/linked-list-cycle/" target="_blank" rel="noopener">Linked List Cycle</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Fast-Slow</span></li>
+                    <li class="leetcode-item"><span class="lc-number">234</span><span class="lc-name"><a href="https://leetcode.com/problems/palindrome-linked-list/" target="_blank" rel="noopener">Palindrome Linked List</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Fast-Slow + Reverse</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

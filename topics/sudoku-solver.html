@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku Solver - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 13</a><span class="separator">›</span><span class="current">Sudoku Solver</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Sudoku Solver</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 13</span>
+                    <span class="topic-badge difficulty-hard">Hard</span>
+                    <button class="topic-complete-btn" data-topic-id="sudoku-solver">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Sudoku Solving?</h2>
+                <p>A <strong>Sudoku Solver</strong> fills a 9×9 grid so that each row, column, and 3×3 sub-box contains digits 1-9 exactly once. This is a <strong>constraint satisfaction problem</strong> solved with backtracking — try a number, check constraints, backtrack if invalid.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>For each empty cell, try digits 1-9. Check validity against three constraints: row, column, and 3×3 box. If valid, place it and move to the next empty cell. If no digit works, backtrack. The 3×3 box index is <code>3*Math.floor(row/3) + Math.floor(col/3)</code>.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🧩 Crossword Puzzle</div>
+                    <p>Solving Sudoku is like filling in a crossword: you try a word (number), check if it fits the constraints (row/column/box), and if you get stuck, you erase and try a different word. The constraints narrow down possibilities at each step.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Sudoku Solver Implementation</h2>
+                <div class="code-header"><span>JavaScript — Sudoku Solver (LC 37)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function solveSudoku(board) {
+    solve(board);
+}
+
+function solve(board) {
+    for (let row = 0; row < 9; row++) {
+        for (let col = 0; col < 9; col++) {
+            if (board[row][col] !== '.') continue;
+
+            for (let num = 1; num <= 9; num++) {
+                const char = String(num);
+                if (isValid(board, row, col, char)) {
+                    board[row][col] = char;  // Place number
+
+                    if (solve(board)) return true; // Solved!
+
+                    board[row][col] = '.';   // Backtrack
+                }
+            }
+            return false; // No valid number for this cell → backtrack
+        }
+    }
+    return true; // All cells filled
+}
+
+function isValid(board, row, col, char) {
+    for (let i = 0; i < 9; i++) {
+        // Check row
+        if (board[row][i] === char) return false;
+        // Check column
+        if (board[i][col] === char) return false;
+        // Check 3x3 box
+        const boxRow = 3 * Math.floor(row / 3) + Math.floor(i / 3);
+        const boxCol = 3 * Math.floor(col / 3) + (i % 3);
+        if (board[boxRow][boxCol] === char) return false;
+    }
+    return true;
+}
+
+// Optimized version using Sets for O(1) lookup
+function solveSudokuOptimized(board) {
+    const rows = Array.from({length: 9}, () => new Set());
+    const cols = Array.from({length: 9}, () => new Set());
+    const boxes = Array.from({length: 9}, () => new Set());
+    const empty = [];
+
+    // Initialize constraints from given numbers
+    for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+            if (board[r][c] !== '.') {
+                const num = board[r][c];
+                rows[r].add(num);
+                cols[c].add(num);
+                boxes[3 * Math.floor(r/3) + Math.floor(c/3)].add(num);
+            } else {
+                empty.push([r, c]);
+            }
+        }
+    }
+
+    function backtrack(idx) {
+        if (idx === empty.length) return true;
+        const [r, c] = empty[idx];
+        const box = 3 * Math.floor(r/3) + Math.floor(c/3);
+
+        for (let num = 1; num <= 9; num++) {
+            const ch = String(num);
+            if (rows[r].has(ch) || cols[c].has(ch) || boxes[box].has(ch)) continue;
+
+            board[r][c] = ch;
+            rows[r].add(ch); cols[c].add(ch); boxes[box].add(ch);
+
+            if (backtrack(idx + 1)) return true;
+
+            board[r][c] = '.';
+            rows[r].delete(ch); cols[c].delete(ch); boxes[box].delete(ch);
+        }
+        return false;
+    }
+
+    backtrack(0);
+}</code></pre>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Solving a cell</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Find first empty cell, say (0,2). Row 0 has {5,3,7}. Col 2 has {8,6,1}. Box 0 has {5,3,6}.</div><div class="step-state">Try digits 1-9 for cell (0,2)</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Try 1: in col 2 → skip. Try 2: not in row/col/box → valid! Place 2.</div><div class="step-state">board[0][2] = '2'. Move to next empty cell.</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Continue filling cells. If a cell has no valid options → return false → backtrack to previous cell.</div><div class="step-state">Backtrack undoes placement, tries next digit.</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">When all cells are filled → return true. Solution found! ✅</div><div class="step-state">Board completely solved ✅</div></div></div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Aspect</th><th>Value</th></tr></thead>
+                    <tbody>
+                        <tr><td>Time (worst case)</td><td>O(9^(empty cells)) ≈ O(9^81)</td></tr>
+                        <tr><td>Practical time</td><td class="best">Much faster due to constraint pruning</td></tr>
+                        <tr><td>Space</td><td>O(81) for board + O(empty) recursion</td></tr>
+                    </tbody>
+                </table>
+                <p>In practice, backtracking with constraint checking solves most Sudoku puzzles very quickly.</p>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Wrong 3×3 box index calculation</div>
+                    <p>Box index = <code>3 * Math.floor(row/3) + Math.floor(col/3)</code>. Getting this wrong means the box constraint check fails silently.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not returning false when no digit works</div>
+                    <p>After trying all 9 digits for an empty cell without success, you MUST return false to trigger backtracking. Missing this causes the algorithm to skip cells.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Sudoku Solver is a classic constraint-satisfaction backtracking problem.</li>
+                    <li>The optimized version (pre-collecting empty cells and using Sets) shows coding maturity.</li>
+                    <li>Valid Sudoku (LC 36) is the validation-only version — much simpler, often asked first.</li>
+                    <li>Advanced: constraint propagation + backtracking (like Knuth's Algorithm X) solves harder variants.</li>
+                </ul>
+            </div>
+
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Sudoku: fill 9×9 grid with 1-9. Each row, col, 3×3 box has unique digits.</li>
+                    <li>Backtracking: try 1-9 for each empty cell. Check row + col + box. Backtrack if stuck.</li>
+                    <li>Box index: 3*(row/3) + (col/3) (integer division).</li>
+                    <li>Optimize with Sets for O(1) constraint checking.</li>
+                </ul>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What are the three constraints in Sudoku?</div>
+                            <div class="flashcard-back">1. Each <strong>row</strong> contains 1-9 exactly once. 2. Each <strong>column</strong> contains 1-9 exactly once. 3. Each <strong>3×3 sub-box</strong> contains 1-9 exactly once. A number placement must satisfy all three simultaneously.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you calculate the 3×3 box index from (row, col)?</div>
+                            <div class="flashcard-back"><code>boxIndex = 3 * Math.floor(row / 3) + Math.floor(col / 3)</code>. This maps (0-2, 0-2)→box 0, (0-2, 3-5)→box 1, etc. There are 9 boxes numbered 0-8.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">37</span><span class="lc-name"><a href="https://leetcode.com/problems/sudoku-solver/" target="_blank" rel="noopener">Sudoku Solver</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Constraint backtracking</span></li>
+                    <li class="leetcode-item"><span class="lc-number">36</span><span class="lc-name"><a href="https://leetcode.com/problems/valid-sudoku/" target="_blank" rel="noopener">Valid Sudoku</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Constraint validation</span></li>
+                    <li class="leetcode-item"><span class="lc-number">51</span><span class="lc-name"><a href="https://leetcode.com/problems/n-queens/" target="_blank" rel="noopener">N-Queens</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Similar constraint satisfaction</span></li>
+                    <li class="leetcode-item"><span class="lc-number">79</span><span class="lc-name"><a href="https://leetcode.com/problems/word-search/" target="_blank" rel="noopener">Word Search</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Grid backtracking</span></li>
+                    <li class="leetcode-item"><span class="lc-number">212</span><span class="lc-name"><a href="https://leetcode.com/problems/word-search-ii/" target="_blank" rel="noopener">Word Search II</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Trie + backtracking</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

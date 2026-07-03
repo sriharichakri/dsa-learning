@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interval Scheduling - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 11</a><span class="separator">›</span><span class="current">Interval Scheduling</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Interval Scheduling</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 11</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="interval-scheduling">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Interval Scheduling?</h2>
+                <p><strong>Interval Scheduling</strong> problems involve selecting, merging, or counting intervals (ranges with start and end points). The classic problem: given a set of intervals, find the <strong>maximum number of non-overlapping intervals</strong>.</p>
+                <p>The greedy strategy: <strong>sort by end time</strong>, then greedily select intervals that don't overlap with the last selected one. This is provably optimal.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Sorting by <strong>end time</strong> (not start time!) is the key. By always picking the interval that ends earliest, you leave the most room for future intervals. This greedy choice leads to the global optimum.</p>
+                </div>
+            </div>
+
+            <!-- Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">📅 Conference Room Booking</div>
+                    <p>You're a conference room manager with many meeting requests. Each meeting has a start and end time. To fit the <strong>most meetings</strong> in one room, always schedule the meeting that <strong>ends earliest</strong> — it frees up the room soonest for the next meeting.</p>
+                </div>
+                <ul>
+                    <li><strong>TV show scheduling:</strong> Watch the most shows by picking those ending earliest.</li>
+                    <li><strong>Job interviews:</strong> Schedule the most candidates by picking shortest/earliest-ending slots.</li>
+                    <li><strong>Classroom allocation:</strong> Assign classes to rooms with minimum rooms needed.</li>
+                </ul>
+            </div>
+
+            <!-- Merge Intervals -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Key Interval Problems</h2>
+
+                <h3>1. Merge Intervals</h3>
+                <div class="code-header"><span>JavaScript — Merge Intervals (LC 56)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function merge(intervals) {
+    intervals.sort((a, b) => a[0] - b[0]); // Sort by start time
+    const merged = [intervals[0]];
+
+    for (let i = 1; i < intervals.length; i++) {
+        const last = merged[merged.length - 1];
+        if (intervals[i][0] <= last[1]) {
+            // Overlapping — extend the end
+            last[1] = Math.max(last[1], intervals[i][1]);
+        } else {
+            // Non-overlapping — add new interval
+            merged.push(intervals[i]);
+        }
+    }
+    return merged;
+}
+// merge([[1,3],[2,6],[8,10],[15,18]]) → [[1,6],[8,10],[15,18]]</code></pre>
+
+                <h3>2. Non-overlapping Intervals (Maximum intervals to keep)</h3>
+                <div class="code-header"><span>JavaScript — Erase Overlap Intervals (LC 435)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function eraseOverlapIntervals(intervals) {
+    intervals.sort((a, b) => a[1] - b[1]); // Sort by END time
+    let count = 0;
+    let lastEnd = -Infinity;
+
+    for (const [start, end] of intervals) {
+        if (start >= lastEnd) {
+            // No overlap — keep this interval
+            lastEnd = end;
+        } else {
+            // Overlap — remove this interval (greedy: keep earlier ending)
+            count++;
+        }
+    }
+    return count;
+}
+// eraseOverlapIntervals([[1,2],[2,3],[3,4],[1,3]]) → 1 (remove [1,3])</code></pre>
+
+                <h3>3. Meeting Rooms II (Minimum rooms needed)</h3>
+                <div class="code-header"><span>JavaScript — Meeting Rooms II (LC 253)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function minMeetingRooms(intervals) {
+    const starts = intervals.map(i => i[0]).sort((a, b) => a - b);
+    const ends = intervals.map(i => i[1]).sort((a, b) => a - b);
+    
+    let rooms = 0, maxRooms = 0;
+    let s = 0, e = 0;
+
+    while (s < starts.length) {
+        if (starts[s] < ends[e]) {
+            rooms++;  // A meeting starts before another ends → need new room
+            s++;
+        } else {
+            rooms--;  // A meeting ended → free up a room
+            e++;
+        }
+        maxRooms = Math.max(maxRooms, rooms);
+    }
+    return maxRooms;
+}
+// minMeetingRooms([[0,30],[5,10],[15,20]]) → 2</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Non-overlapping Intervals</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Input: [[1,2],[2,3],[3,4],[1,3]]. Sort by end: [[1,2],[2,3],[1,3],[3,4]].</div><div class="step-state">lastEnd = -∞, count = 0</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">[1,2]: start(1) >= lastEnd(-∞)? Yes → keep. lastEnd = 2.</div><div class="step-state">count = 0, lastEnd = 2</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">[2,3]: start(2) >= lastEnd(2)? Yes → keep. lastEnd = 3.</div><div class="step-state">count = 0, lastEnd = 3</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">[1,3]: start(1) >= lastEnd(3)? No → overlap! Remove it. count++.</div><div class="step-state">count = 1, lastEnd = 3</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">[3,4]: start(3) >= lastEnd(3)? Yes → keep. lastEnd = 4.</div><div class="step-state">count = 1 ✅ (remove 1 interval)</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Problem</th><th>Time</th><th>Space</th><th>Key Technique</th></tr></thead>
+                    <tbody>
+                        <tr><td>Merge Intervals</td><td>O(n log n)</td><td>O(n)</td><td>Sort by start</td></tr>
+                        <tr><td>Non-overlapping</td><td>O(n log n)</td><td>O(1)</td><td>Sort by end</td></tr>
+                        <tr><td>Meeting Rooms II</td><td>O(n log n)</td><td>O(n)</td><td>Two-pointer on events</td></tr>
+                        <tr><td>Insert Interval</td><td>O(n)</td><td>O(n)</td><td>Linear scan + merge</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Sorting by start time for non-overlapping intervals</div>
+                    <p>For maximum non-overlapping, sort by <strong>end time</strong>. Sorting by start time with a greedy approach doesn't give the optimal solution.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Using < instead of <= for overlap check</div>
+                    <p>Are [1,2] and [2,3] overlapping? Depends on the problem! Some treat touching endpoints as non-overlapping (>=), others as overlapping (>). Read carefully.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not handling merge correctly</div>
+                    <p>When merging, take <code>max(last[1], curr[1])</code> for the end, not just <code>curr[1]</code>. The current interval might end before the last one.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Interval problems are <strong>extremely common</strong> in interviews — know all three patterns.</li>
+                    <li>First instinct: <strong>sort the intervals</strong>. Then decide: by start or end?</li>
+                    <li>Merge → sort by start. Non-overlapping max → sort by end. Min rooms → event sweepline.</li>
+                    <li>"Meeting Rooms" has I (can attend all?) and II (how many rooms?). Know both.</li>
+                    <li>Line sweep (event-based) approach is powerful: +1 at start, -1 at end, max prefix sum = max overlap.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Merge intervals: sort by start, extend end if overlap.</li>
+                    <li>Max non-overlapping: sort by END, greedily keep non-overlapping.</li>
+                    <li>Min rooms: separate starts/ends, two-pointer sweep.</li>
+                    <li>All interval problems start with sorting — O(n log n) dominates.</li>
+                    <li>Always clarify: are touching endpoints [1,2],[2,3] considered overlapping?</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why sort by end time for maximum non-overlapping intervals?</div>
+                            <div class="flashcard-back">Sorting by end time ensures we pick the interval that <strong>finishes earliest</strong>, leaving the most room for subsequent intervals. This greedy choice is provably optimal — it never excludes a better solution.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you find the minimum number of meeting rooms?</div>
+                            <div class="flashcard-back">Separate start times and end times, sort both. Use two pointers: if next start < next end → need a new room (rooms++). Otherwise → a room freed up (rooms--). Track the maximum rooms at any point.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">56</span><span class="lc-name"><a href="https://leetcode.com/problems/merge-intervals/" target="_blank" rel="noopener">Merge Intervals</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Sort + merge</span></li>
+                    <li class="leetcode-item"><span class="lc-number">435</span><span class="lc-name"><a href="https://leetcode.com/problems/non-overlapping-intervals/" target="_blank" rel="noopener">Non-overlapping Intervals</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Sort by end + greedy</span></li>
+                    <li class="leetcode-item"><span class="lc-number">253</span><span class="lc-name"><a href="https://leetcode.com/problems/meeting-rooms-ii/" target="_blank" rel="noopener">Meeting Rooms II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Sweep line / heap</span></li>
+                    <li class="leetcode-item"><span class="lc-number">57</span><span class="lc-name"><a href="https://leetcode.com/problems/insert-interval/" target="_blank" rel="noopener">Insert Interval</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Linear scan + merge</span></li>
+                    <li class="leetcode-item"><span class="lc-number">252</span><span class="lc-name"><a href="https://leetcode.com/problems/meeting-rooms/" target="_blank" rel="noopener">Meeting Rooms</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Sort + check overlaps</span></li>
+                    <li class="leetcode-item"><span class="lc-number">986</span><span class="lc-name"><a href="https://leetcode.com/problems/interval-list-intersections/" target="_blank" rel="noopener">Interval List Intersections</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Two pointer intersection</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

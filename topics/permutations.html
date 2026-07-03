@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permutations - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 13</a><span class="separator">›</span><span class="current">Permutations</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Permutations</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 13</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="permutations">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What are Permutations?</h2>
+                <p>A <strong>permutation</strong> is an arrangement of all elements in a specific order. For n distinct elements, there are <strong>n!</strong> (n factorial) permutations. Generating permutations is a classic <strong>backtracking</strong> problem.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Permutations use the choose-explore-unchoose pattern. At each position, try each unused element. Track used elements with a boolean array or by swapping. For duplicates (Permutations II), sort first and skip consecutive duplicates at the same level.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🏃 Race Finishing Order</div>
+                    <p>In a race with 3 runners (A, B, C), how many different finishing orders are possible? ABC, ACB, BAC, BCA, CAB, CBA — that's 3! = 6 permutations. Each position must have a different runner.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> Permutation Implementations</h2>
+
+                <h3>Permutations (Distinct Elements)</h3>
+                <div class="code-header"><span>JavaScript — Permutations (LC 46)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function permute(nums) {
+    const result = [];
+
+    function backtrack(path, used) {
+        if (path.length === nums.length) {
+            result.push([...path]);
+            return;
+        }
+
+        for (let i = 0; i < nums.length; i++) {
+            if (used[i]) continue;
+
+            path.push(nums[i]);     // Choose
+            used[i] = true;
+            backtrack(path, used);   // Explore
+            path.pop();              // Unchoose
+            used[i] = false;
+        }
+    }
+
+    backtrack([], new Array(nums.length).fill(false));
+    return result;
+}
+// permute([1,2,3]) → [[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]</code></pre>
+
+                <h3>Permutations II (With Duplicates)</h3>
+                <div class="code-header"><span>JavaScript — Permutations II (LC 47)</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function permuteUnique(nums) {
+    const result = [];
+    nums.sort((a, b) => a - b); // Sort to group duplicates
+
+    function backtrack(path, used) {
+        if (path.length === nums.length) {
+            result.push([...path]);
+            return;
+        }
+
+        for (let i = 0; i < nums.length; i++) {
+            if (used[i]) continue;
+            // Skip duplicate: same value as previous, and previous wasn't used at this level
+            if (i > 0 && nums[i] === nums[i - 1] && !used[i - 1]) continue;
+
+            path.push(nums[i]);
+            used[i] = true;
+            backtrack(path, used);
+            path.pop();
+            used[i] = false;
+        }
+    }
+
+    backtrack([], new Array(nums.length).fill(false));
+    return result;
+}</code></pre>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: permute([1, 2, 3])</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Start with empty path. Try 1, 2, 3 at position 0.</div><div class="step-state">path=[], try i=0 (num=1)</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">path=[1]. Try 2, 3 at position 1. Choose 2 → path=[1,2]. Choose 3 → path=[1,2,3]. Complete!</div><div class="step-state">result = [[1,2,3]]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Backtrack: pop 3, pop 2. Try 3 → [1,3]. Try 2 → [1,3,2]. Complete!</div><div class="step-state">result = [[1,2,3],[1,3,2]]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Continue with 2 and 3 as first elements. Total: 3! = 6 permutations.</div><div class="step-state">result = all 6 permutations ✅</div></div></div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Problem</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Permutations (distinct)</td><td>O(n × n!)</td><td>O(n) recursion</td></tr>
+                        <tr><td>Permutations II (dupes)</td><td>O(n × n!)</td><td>O(n)</td></tr>
+                    </tbody>
+                </table>
+                <p>n! permutations, each of length n → O(n × n!) total work.</p>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Pushing path reference instead of copy</div>
+                    <p>Use <code>result.push([...path])</code>, not <code>result.push(path)</code>. Without copying, all entries point to the same array, which ends up empty after backtracking.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Wrong duplicate skipping condition</div>
+                    <p>For Permutations II, the condition <code>i > 0 && nums[i] === nums[i-1] && !used[i-1]</code> ensures we only use the first of identical elements at each recursion level.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Permutations is a fundamental backtracking problem — know it by heart.</li>
+                    <li>Follow-up: "What if there are duplicates?" → Sort + skip condition.</li>
+                    <li>The swap-based approach avoids the used array but is harder to handle duplicates with.</li>
+                    <li>Next Permutation (LC 31) generates the lexicographically next permutation in O(n) — different algorithm.</li>
+                </ul>
+            </div>
+
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Permutations: all orderings of n elements. n! total.</li>
+                    <li>Backtracking: choose → explore → unchoose. Track used elements.</li>
+                    <li>Duplicates: sort array, skip if nums[i] === nums[i-1] && !used[i-1].</li>
+                    <li>Always push a COPY of the path array to results.</li>
+                    <li>Time: O(n × n!). Space: O(n) for recursion.</li>
+                </ul>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you handle duplicates in Permutations II?</div>
+                            <div class="flashcard-back">1. <strong>Sort</strong> the array to group duplicates. 2. Skip if <code>nums[i] === nums[i-1] && !used[i-1]</code>. This ensures that among identical elements, we only use them in order (first occurrence before second), avoiding duplicate permutations.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the time complexity of generating all permutations?</div>
+                            <div class="flashcard-back">O(n × n!). There are n! permutations, and each takes O(n) to copy into the result. The recursion tree has n! leaves and O(n) depth.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">46</span><span class="lc-name"><a href="https://leetcode.com/problems/permutations/" target="_blank" rel="noopener">Permutations</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Basic backtracking</span></li>
+                    <li class="leetcode-item"><span class="lc-number">47</span><span class="lc-name"><a href="https://leetcode.com/problems/permutations-ii/" target="_blank" rel="noopener">Permutations II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Duplicates handling</span></li>
+                    <li class="leetcode-item"><span class="lc-number">31</span><span class="lc-name"><a href="https://leetcode.com/problems/next-permutation/" target="_blank" rel="noopener">Next Permutation</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">O(n) next permutation</span></li>
+                    <li class="leetcode-item"><span class="lc-number">60</span><span class="lc-name"><a href="https://leetcode.com/problems/permutation-sequence/" target="_blank" rel="noopener">Permutation Sequence</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">K-th permutation</span></li>
+                    <li class="leetcode-item"><span class="lc-number">567</span><span class="lc-name"><a href="https://leetcode.com/problems/permutation-in-string/" target="_blank" rel="noopener">Permutation in String</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Sliding window anagram</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

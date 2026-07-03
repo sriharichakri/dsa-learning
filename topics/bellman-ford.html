@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bellman-Ford Algorithm - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 10</a><span class="separator">›</span><span class="current">Bellman-Ford Algorithm</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Bellman-Ford Algorithm</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 10</span>
+                    <span class="topic-badge difficulty-hard">Hard</span>
+                    <button class="topic-complete-btn" data-topic-id="bellman-ford">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is the Bellman-Ford Algorithm?</h2>
+                <p><strong>Bellman-Ford</strong> finds the shortest path from a source vertex to all other vertices in a weighted graph, even when edges have <strong>negative weights</strong>. Unlike Dijkstra's, it can also <strong>detect negative-weight cycles</strong>.</p>
+                <p>The algorithm works by <strong>relaxing</strong> all edges <strong>V-1 times</strong> (where V is the number of vertices). After V-1 iterations, all shortest paths are found. A V-th iteration check detects negative cycles.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Any shortest path has at most V-1 edges (otherwise it has a cycle). Each iteration of Bellman-Ford guarantees at least one more edge of the shortest path is finalized. So after V-1 iterations, ALL shortest paths are found. If a V-th pass still reduces a distance, a negative cycle exists.</p>
+                </div>
+            </div>
+
+            <!-- Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">💱 Currency Exchange</div>
+                    <p>Imagine exchanging currencies: USD → EUR → GBP → USD. If after a round trip you end up with MORE money than you started, you've found a negative cycle (an arbitrage opportunity). Bellman-Ford can detect such cycles. It's also useful when some "exchange rates" might make you lose money (negative edges) — Dijkstra can't handle this.</p>
+                </div>
+                <ul>
+                    <li><strong>Delivery routes with tolls and rebates:</strong> Some roads have tolls (positive weight), others give rebates (negative weight).</li>
+                    <li><strong>Game mechanics:</strong> Some paths have penalties and others have bonuses.</li>
+                </ul>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How Bellman-Ford Works</h2>
+                <div class="viz-container">
+                    <div class="viz-title">Bellman-Ford from node A (note negative edge B→C = -2)</div>
+                    <div class="ascii-diagram">
+Graph:  A --4→ B --(-2)→ C
+        |              ↗
+        6            3
+        |          /
+        D --------
+
+Edges: (A,B,4), (A,D,6), (D,C,3), (B,C,-2)
+
+Iteration 0 (init):  dist = {A:0, B:∞, C:∞, D:∞}
+
+Iteration 1 (relax all edges):
+  (A,B,4): dist[B] = min(∞, 0+4) = 4
+  (A,D,6): dist[D] = min(∞, 0+6) = 6
+  (D,C,3): dist[C] = min(∞, 6+3) = 9
+  (B,C,-2): dist[C] = min(9, 4+(-2)) = 2   ← Negative edge!
+
+  dist = {A:0, B:4, C:2, D:6}
+
+Iteration 2: No changes → converged ✅
+
+Iteration 3 (V-1=3): No changes → No negative cycle ✅
+                    </div>
+                </div>
+
+                <div class="code-header"><span>JavaScript — Bellman-Ford Algorithm</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function bellmanFord(vertices, edges, source) {
+    // Initialize distances
+    const dist = new Array(vertices).fill(Infinity);
+    dist[source] = 0;
+
+    // Relax all edges V-1 times
+    for (let i = 0; i < vertices - 1; i++) {
+        for (const [u, v, weight] of edges) {
+            if (dist[u] !== Infinity && dist[u] + weight < dist[v]) {
+                dist[v] = dist[u] + weight;
+            }
+        }
+    }
+
+    // Check for negative-weight cycles (V-th iteration)
+    for (const [u, v, weight] of edges) {
+        if (dist[u] !== Infinity && dist[u] + weight < dist[v]) {
+            return null; // Negative cycle detected!
+        }
+    }
+
+    return dist;
+}
+
+// Cheapest Flights Within K Stops (modified Bellman-Ford)
+function findCheapestPrice(n, flights, src, dst, k) {
+    let prices = new Array(n).fill(Infinity);
+    prices[src] = 0;
+
+    for (let i = 0; i <= k; i++) {  // At most k+1 edges
+        const temp = [...prices]; // Copy to avoid using updates from this round
+        for (const [u, v, w] of flights) {
+            if (prices[u] !== Infinity && prices[u] + w < temp[v]) {
+                temp[v] = prices[u] + w;
+            }
+        }
+        prices = temp;
+    }
+    return prices[dst] === Infinity ? -1 : prices[dst];
+}</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Bellman-Ford on 4 vertices</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Edges: [(0,1,4),(0,3,6),(3,2,3),(1,2,-2)]. Source=0. Init dist=[0,∞,∞,∞].</div><div class="step-state">dist = [0, ∞, ∞, ∞]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Iteration 1: Relax (0,1,4)→dist[1]=4. (0,3,6)→dist[3]=6. (3,2,3)→dist[2]=9. (1,2,-2)→dist[2]=min(9,2)=2.</div><div class="step-state">dist = [0, 4, 2, 6]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Iteration 2: No distances change → converged early.</div><div class="step-state">dist = [0, 4, 2, 6]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Iteration 3 (V-1): No changes. Check V-th pass: no negative cycles.</div><div class="step-state">Final: [0, 4, 2, 6] ✅ No negative cycles.</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Algorithm</th><th>Time</th><th>Space</th><th>Negative Edges</th><th>Negative Cycles</th></tr></thead>
+                    <tbody>
+                        <tr><td>Dijkstra's</td><td class="best">O((V+E) log V)</td><td>O(V+E)</td><td class="worst">No</td><td class="worst">No</td></tr>
+                        <tr><td>Bellman-Ford</td><td class="worst">O(V × E)</td><td class="best">O(V)</td><td class="best">Yes</td><td class="best">Detects</td></tr>
+                        <tr><td>Floyd-Warshall</td><td class="worst">O(V³)</td><td>O(V²)</td><td class="best">Yes</td><td class="best">Detects</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Running only 1 iteration instead of V-1</div>
+                    <p>One iteration only relaxes edges reachable in 1 hop. You need V-1 iterations to propagate distances through the longest possible shortest path.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Using Dijkstra's with negative edges</div>
+                    <p>Dijkstra's greedy approach fails with negative edges because a "finalized" node's distance might decrease later via a negative edge. Always use Bellman-Ford for negative weights.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ K-stops variant: not copying the distance array</div>
+                    <p>In "Cheapest Flights Within K Stops", you must use a copy of the distance array each iteration. Otherwise, updates from the current round cascade and allow more stops than k.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>"Cheapest Flights Within K Stops" (LC 787) is the most common Bellman-Ford interview problem.</li>
+                    <li>Know when to use Bellman-Ford vs Dijkstra: negative edges → Bellman-Ford.</li>
+                    <li>Bellman-Ford is simpler to code than Dijkstra (no priority queue needed).</li>
+                    <li>The algorithm can be optimized with early termination if no relaxation occurs in an iteration.</li>
+                    <li>SPFA (Shortest Path Faster Algorithm) is a queue-based optimization of Bellman-Ford.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Bellman-Ford: relax ALL edges V-1 times. Handles negative weights.</li>
+                    <li>V-th iteration check: if any distance decreases → negative cycle exists.</li>
+                    <li>Time O(VE), Space O(V). Slower than Dijkstra but more general.</li>
+                    <li>K-stops variant: run only k+1 iterations, use array copy per iteration.</li>
+                    <li>Use Dijkstra for non-negative weights (faster). Use Bellman-Ford when negative edges exist.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why does Bellman-Ford relax edges V-1 times?</div>
+                            <div class="flashcard-back">The shortest path between any two vertices has at most V-1 edges. Each iteration guarantees that shortest paths using at most i edges are correct. After V-1 iterations, all shortest paths (up to V-1 edges) are finalized.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How does Bellman-Ford detect negative cycles?</div>
+                            <div class="flashcard-back">After V-1 iterations, run one more pass over all edges. If any distance can still be reduced, it means there's a negative cycle — because without a cycle, V-1 iterations would have found all shortest paths.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">787</span><span class="lc-name"><a href="https://leetcode.com/problems/cheapest-flights-within-k-stops/" target="_blank" rel="noopener">Cheapest Flights Within K Stops</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Modified Bellman-Ford</span></li>
+                    <li class="leetcode-item"><span class="lc-number">743</span><span class="lc-name"><a href="https://leetcode.com/problems/network-delay-time/" target="_blank" rel="noopener">Network Delay Time</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Shortest path (BF or Dijkstra)</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1334</span><span class="lc-name"><a href="https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance/" target="_blank" rel="noopener">Find the City With Smallest Neighbors</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">All-pairs shortest path</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1514</span><span class="lc-name"><a href="https://leetcode.com/problems/path-with-maximum-probability/" target="_blank" rel="noopener">Path with Maximum Probability</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Modified shortest path</span></li>
+                    <li class="leetcode-item"><span class="lc-number">505</span><span class="lc-name"><a href="https://leetcode.com/problems/the-maze-ii/" target="_blank" rel="noopener">The Maze II</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Shortest path in grid</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

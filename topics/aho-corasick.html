@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aho-Corasick Algorithm - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 15</a><span class="separator">›</span><span class="current">Aho-Corasick Algorithm</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Aho-Corasick Algorithm</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 15</span>
+                    <span class="topic-badge difficulty-hard">Hard</span>
+                    <button class="topic-complete-btn" data-topic-id="aho-corasick">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is the Aho-Corasick Algorithm?</h2>
+                <p><strong>Aho-Corasick</strong> is a multi-pattern string matching algorithm that finds all occurrences of multiple patterns in a text simultaneously in <strong>O(n + m + z)</strong> time, where n is the text length, m is the total length of all patterns, and z is the number of matches. It combines a <strong>Trie</strong> with <strong>failure links</strong> (similar to KMP's failure function) to create an automaton.</p>
+                <p>While KMP handles one pattern at a time, Aho-Corasick handles thousands of patterns in a single pass through the text — making it ideal for applications like virus scanning, spam filtering, and DNA sequence analysis.</p>
+                <div class="callout tip">
+                    <div class="callout-title">🕵️ Real-Life Analogy: Airport Security Watchlist</div>
+                    <p>Imagine airport security checking every passenger name against a watchlist of thousands of names. Instead of scanning the list for each name separately, they build a smart lookup structure. As each character of a passenger name is read, the system simultaneously checks all possible watchlist matches. If a partial match fails, it jumps to the longest alternative partial match (failure link) rather than starting over. Aho-Corasick is this smart lookup system!</p>
+                </div>
+            </div>
+
+            <!-- Structure -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How Aho-Corasick Works</h2>
+                <div class="viz-container">
+                    <div class="viz-title">Aho-Corasick Automaton for patterns: ["he", "she", "his", "hers"]</div>
+                    <div class="ascii-diagram">
+Step 1: Build Trie
+         root
+        / |  \
+       h  s   (other chars → root)
+      / \   \
+     e   i   h
+     |   |   |
+     r   s   e
+     |
+     s
+
+Step 2: Add Failure Links (BFS)
+  Fail link of each node = longest proper suffix that is
+  also a prefix of some pattern in the trie.
+
+  'h' → root (no suffix "h" starts another pattern... well "h" does but it's self)
+  's' → root
+  "he" → root (suffix "e" not in trie as prefix)
+  "sh" → 'h' (suffix "h" is a prefix in trie!)
+  "she" → "he" (suffix "he" is in the trie!)
+         ↑ This means when we match "she", we also match "he"!
+
+Step 3: Search text "ahishers"
+  a → root (no match)
+  h → node 'h'
+  i → node 'hi'
+  s → node 'his' → OUTPUT "his" at pos 1
+      fail → 's' (continue)
+  h → node 'sh'
+  e → node 'she' → OUTPUT "she" at pos 3
+      fail link → 'he' → OUTPUT "he" at pos 4
+  r → node 'her'
+  s → node 'hers' → OUTPUT "hers" at pos 4
+                    </div>
+                </div>
+            </div>
+
+            <!-- Implementation -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔧</span> Implementation</h2>
+                <div class="code-header"><span>JavaScript — Aho-Corasick Multi-Pattern Matching</span><button class="copy-btn">Copy</button></div>
+                <pre><code>class AhoCorasick {
+    constructor() {
+        this.goto = [{}];       // Trie transitions: goto[state][char] = nextState
+        this.fail = [0];        // Failure links
+        this.output = [[]];     // Output: which patterns end at this state
+        this.stateCount = 1;
+    }
+
+    // Add a pattern to the trie
+    addPattern(pattern, id) {
+        let state = 0;
+        for (const ch of pattern) {
+            if (!(ch in this.goto[state])) {
+                this.goto[state][ch] = this.stateCount;
+                this.goto.push({});
+                this.fail.push(0);
+                this.output.push([]);
+                this.stateCount++;
+            }
+            state = this.goto[state][ch];
+        }
+        this.output[state].push({ id, pattern });
+    }
+
+    // Build failure links using BFS
+    build() {
+        const queue = [];
+
+        // Depth-1 nodes: fail links point to root
+        for (const ch in this.goto[0]) {
+            const s = this.goto[0][ch];
+            this.fail[s] = 0;
+            queue.push(s);
+        }
+
+        while (queue.length > 0) {
+            const u = queue.shift();
+            for (const ch in this.goto[u]) {
+                const v = this.goto[u][ch];
+                queue.push(v);
+
+                // Find failure state
+                let f = this.fail[u];
+                while (f !== 0 && !(ch in this.goto[f])) {
+                    f = this.fail[f];
+                }
+                this.fail[v] = ch in this.goto[f] ? this.goto[f][ch] : 0;
+
+                // Merge output with failure link's output
+                this.output[v] = this.output[v].concat(this.output[this.fail[v]]);
+            }
+        }
+    }
+
+    // Search text for all pattern occurrences
+    search(text) {
+        const results = [];
+        let state = 0;
+
+        for (let i = 0; i < text.length; i++) {
+            const ch = text[i];
+
+            // Follow failure links until we find a transition or reach root
+            while (state !== 0 && !(ch in this.goto[state])) {
+                state = this.fail[state];
+            }
+            state = ch in this.goto[state] ? this.goto[state][ch] : 0;
+
+            // Record all matches at this state
+            for (const match of this.output[state]) {
+                results.push({
+                    pattern: match.pattern,
+                    position: i - match.pattern.length + 1
+                });
+            }
+        }
+        return results;
+    }
+}
+
+// Usage
+const ac = new AhoCorasick();
+ac.addPattern("he", 0);
+ac.addPattern("she", 1);
+ac.addPattern("his", 2);
+ac.addPattern("hers", 3);
+ac.build();
+
+console.log(ac.search("ahishers"));
+// [{pattern:"his", position:1}, {pattern:"she", position:3},
+//  {pattern:"he", position:4}, {pattern:"hers", position:4}]</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: search("ushers") with patterns ["he", "she", "hers"]</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">i=0, ch='u': No transition from root for 'u'. state stays 0.</div><div class="step-state">state=0, no output</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">i=1, ch='s': Transition root→'s' (state for "s"). state=s_node.</div><div class="step-state">state=s_node, no output</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">i=2, ch='h': Transition s→sh. state=sh_node.</div><div class="step-state">state=sh_node, no output</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">i=3, ch='e': Transition sh→she. Output: "she" at pos 1. Fail link to "he" → Output: "he" at pos 2.</div><div class="step-state">"she" at 1, "he" at 2 ✅</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">i=4, ch='r': From "he" state (via fail), transition to "her". i=5, ch='s': transition to "hers". Output: "hers" at pos 2.</div><div class="step-state">"hers" at 2 ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Build Trie</td><td>O(m) total</td><td>O(m × Σ)</td></tr>
+                        <tr><td>Build Failure Links</td><td>O(m × Σ)</td><td>O(m)</td></tr>
+                        <tr><td>Search</td><td class="best">O(n + z)</td><td>-</td></tr>
+                        <tr><td>Total</td><td>O(m × Σ + n + z)</td><td>O(m × Σ)</td></tr>
+                    </tbody>
+                </table>
+                <p>m = total pattern length, n = text length, z = number of matches, Σ = alphabet size.</p>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting to merge output along failure links</div>
+                    <p>A node's output should include not just patterns ending there, but also all patterns at its failure link chain. Without merging, shorter patterns embedded in longer ones are missed (e.g., "he" inside "she").</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not calling build() before search()</div>
+                    <p>Failure links are computed by build() using BFS. Searching without building first means all failure links are 0 (root), and the automaton won't find overlapping patterns.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Incorrect failure link for depth-1 nodes</div>
+                    <p>All nodes at depth 1 (direct children of root) must have their failure links set to root. Some implementations miss this, causing infinite loops.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Aho-Corasick is the <strong>standard answer</strong> for "search for multiple patterns in a text efficiently."</li>
+                    <li>Real-world uses: antivirus engines, network intrusion detection, DNA matching, search engines.</li>
+                    <li>Combines two ideas: <strong>Trie</strong> (for multi-pattern storage) + <strong>KMP failure function</strong> (for efficient backtracking).</li>
+                    <li>Rarely asked to implement in full during interviews, but knowing the concept shows advanced knowledge.</li>
+                    <li>If asked about multi-pattern matching, mention Aho-Corasick even if you implement Rabin-Karp (simpler but less optimal).</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Aho-Corasick = Trie + failure links (KMP-like) → multi-pattern automaton.</li>
+                    <li>Build: insert all patterns into trie, then BFS to compute failure links.</li>
+                    <li>Search: traverse automaton on text, follow failure links on mismatch, collect outputs.</li>
+                    <li>Time: O(n + m + z). Space: O(m × Σ).</li>
+                    <li>Output merging: each node's output = own patterns + failure link's output.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What two data structures does Aho-Corasick combine?</div>
+                            <div class="flashcard-back">1. <strong>Trie</strong> — stores all patterns and provides forward transitions (goto function). 2. <strong>Failure links</strong> (like KMP's failure function) — when a mismatch occurs, jump to the longest proper suffix of the current match that is also a prefix of some pattern. Together they form a finite automaton.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why is output merging along failure links necessary?</div>
+                            <div class="flashcard-back">A longer pattern's node might have a failure link to a shorter pattern's node. When we reach the longer pattern's node, we should also report the shorter pattern. Example: "she" node fails to "he" node — when "she" is matched, "he" is also matched at the same position. Without merging, "he" would be missed.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">1032</span><span class="lc-name"><a href="https://leetcode.com/problems/stream-of-characters/" target="_blank" rel="noopener">Stream of Characters</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Aho-Corasick / Trie</span></li>
+                    <li class="leetcode-item"><span class="lc-number">472</span><span class="lc-name"><a href="https://leetcode.com/problems/concatenated-words/" target="_blank" rel="noopener">Concatenated Words</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Trie / Aho-Corasick / DP</span></li>
+                    <li class="leetcode-item"><span class="lc-number">616</span><span class="lc-name"><a href="https://leetcode.com/problems/add-bold-tag-in-string/" target="_blank" rel="noopener">Add Bold Tag in String</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Multi-pattern matching</span></li>
+                    <li class="leetcode-item"><span class="lc-number">212</span><span class="lc-name"><a href="https://leetcode.com/problems/word-search-ii/" target="_blank" rel="noopener">Word Search II</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Trie + Backtracking (Aho-Corasick concept)</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backtracking - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 13</a><span class="separator">›</span><span class="current">Backtracking</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Backtracking Fundamentals</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 13</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="backtracking-intro">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Backtracking?</h2>
+                <p><strong>Backtracking</strong> is an algorithmic technique that builds solutions incrementally, one piece at a time, and <strong>abandons ("backtracks" from) a path</strong> as soon as it determines that path cannot lead to a valid solution.</p>
+                <p>It's essentially a <strong>refined brute force</strong> — it tries all possibilities but <strong>prunes</strong> (cuts off) branches that are clearly invalid, avoiding unnecessary work.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Backtracking = DFS through a <strong>decision tree</strong>. At each node, you make a choice. If the choice leads to a dead end, you <strong>undo</strong> it (backtrack) and try the next option. Think: "choose → explore → unchoose." This pattern solves subsets, permutations, combinations, and constraint satisfaction problems.</p>
+                </div>
+            </div>
+
+            <!-- Real-Life Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🏰 Navigating a Maze</div>
+                    <p>You're in a maze. At each intersection, you pick a path and walk forward. If you hit a <strong>dead end</strong>, you walk <strong>back</strong> to the last intersection and try a different path. You keep doing this until you find the exit or exhaust all paths. That's backtracking! You don't explore paths that obviously loop back.</p>
+                </div>
+                <ul>
+                    <li><strong>Trying on clothes:</strong> Try a shirt. Doesn't match? Take it off (backtrack). Try the next one.</li>
+                    <li><strong>Solving a Sudoku puzzle:</strong> Place a number. Conflict? Erase it and try the next number.</li>
+                    <li><strong>Planning a trip:</strong> Try route A. Too expensive? Backtrack and try route B.</li>
+                    <li><strong>Password cracking (ethical!):</strong> Try each combination. Wrong? Try the next one. Skip impossible prefixes (pruning).</li>
+                </ul>
+            </div>
+
+            <!-- The Pattern -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> The Backtracking Template</h2>
+
+                <div class="code-header"><span>JavaScript — General Template</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function backtrack(candidates, path, result) {
+    // Base case: found a valid solution
+    if (isComplete(path)) {
+        result.push([...path]); // Save a COPY of the path
+        return;
+    }
+    
+    for (let candidate of candidates) {
+        if (!isValid(candidate)) continue; // Prune!
+        
+        path.push(candidate);        // 1. CHOOSE
+        backtrack(remaining, path, result); // 2. EXPLORE
+        path.pop();                  // 3. UN-CHOOSE (backtrack!)
+    }
+}</code></pre>
+
+                <div class="ascii-diagram">
+The Backtracking Decision Tree for generating subsets of [1, 2]:
+
+                    []
+                   /  \
+           include 1   exclude 1
+              /  \       /  \
+         inc 2  exc 2  inc 2  exc 2
+          /      \      /      \
+       [1,2]    [1]   [2]     []
+
+Subsets: [[], [1], [2], [1,2]]
+
+At each level, we make one decision (include or exclude).
+If a branch can't lead to a valid solution, we PRUNE it.
+                </div>
+            </div>
+
+            <!-- Subsets -->
+            <div class="section-card">
+                <h2><span class="section-icon">⭐</span> Classic: Generate All Subsets</h2>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function subsets(nums) {
+    const result = [];
+    
+    function backtrack(start, path) {
+        result.push([...path]); // Every path is a valid subset
+        
+        for (let i = start; i < nums.length; i++) {
+            path.push(nums[i]);      // Choose
+            backtrack(i + 1, path);   // Explore (i+1 to avoid duplicates)
+            path.pop();              // Un-choose
+        }
+    }
+    
+    backtrack(0, []);
+    return result;
+}
+
+subsets([1, 2, 3]);
+// [[], [1], [1,2], [1,2,3], [1,3], [2], [2,3], [3]]</code></pre>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Start: path=[], add [] to result. Try i=0: push 1.</div><div class="step-state">path=[1], result=[[], [1]]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">From [1], try i=1: push 2. From [1,2], try i=2: push 3.</div><div class="step-state">result=[...,[1,2],[1,2,3]]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Backtrack: pop 3, pop 2. From [1], try i=2: push 3.</div><div class="step-state">result=[...,[1,3]]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Backtrack: pop 3, pop 1. Try i=1: push 2, then i=2: push 3...</div><div class="step-state">result=[...,[2],[2,3],[3]] ✅ Complete!</div></div></div>
+                </div>
+            </div>
+
+            <!-- Permutations -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔄</span> Classic: Permutations</h2>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function permute(nums) {
+    const result = [];
+    
+    function backtrack(path, used) {
+        if (path.length === nums.length) {
+            result.push([...path]); // Found a complete permutation
+            return;
+        }
+        
+        for (let i = 0; i < nums.length; i++) {
+            if (used[i]) continue; // Skip already used numbers
+            
+            used[i] = true;        // Choose
+            path.push(nums[i]);
+            backtrack(path, used);  // Explore
+            path.pop();            // Un-choose
+            used[i] = false;
+        }
+    }
+    
+    backtrack([], new Array(nums.length).fill(false));
+    return result;
+}
+
+permute([1, 2, 3]);
+// [[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]</code></pre>
+            </div>
+
+            <!-- N-Queens Preview -->
+            <div class="section-card">
+                <h2><span class="section-icon">♛</span> Classic: N-Queens (The Ultimate Backtracking Problem)</h2>
+                <p>Place N queens on an N×N chessboard so no two queens attack each other.</p>
+
+                <div class="ascii-diagram">
+4-Queens Solution:
+
+  . Q . .      Constraints (pruning):
+  . . . Q      • Only 1 queen per row
+  Q . . .      • Only 1 queen per column
+  . . Q .      • Only 1 queen per diagonal
+
+At each row, try placing a queen in each column.
+If it conflicts → prune (don't explore further).
+If safe → place it and move to next row.
+If no column works → backtrack to previous row.
+                </div>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function solveNQueens(n) {
+    const result = [];
+    const board = Array.from({length: n}, () => '.'.repeat(n));
+    
+    function isValid(row, col) {
+        for (let i = 0; i < row; i++) {
+            if (board[i][col] === 'Q') return false;              // Same column
+            if (col-(row-i) >= 0 && board[i][col-(row-i)] === 'Q') return false; // Left diagonal
+            if (col+(row-i) < n && board[i][col+(row-i)] === 'Q') return false;  // Right diagonal
+        }
+        return true;
+    }
+    
+    function backtrack(row) {
+        if (row === n) {
+            result.push([...board]);
+            return;
+        }
+        for (let col = 0; col < n; col++) {
+            if (!isValid(row, col)) continue;  // Prune!
+            board[row] = board[row].substring(0,col) + 'Q' + board[row].substring(col+1);
+            backtrack(row + 1);
+            board[row] = board[row].substring(0,col) + '.' + board[row].substring(col+1);
+        }
+    }
+    
+    backtrack(0);
+    return result;
+}</code></pre>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Problem</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Subsets</td><td class="worst">O(2ⁿ × n)</td><td class="avg">O(n)</td></tr>
+                        <tr><td>Permutations</td><td class="worst">O(n! × n)</td><td class="avg">O(n)</td></tr>
+                        <tr><td>Combination Sum</td><td class="worst">O(2ⁿ)</td><td class="avg">O(target/min)</td></tr>
+                        <tr><td>N-Queens</td><td class="worst">O(n!)</td><td class="avg">O(n)</td></tr>
+                        <tr><td>Sudoku Solver</td><td class="worst">O(9^(empty cells))</td><td class="avg">O(81)</td></tr>
+                    </tbody>
+                </table>
+                <div class="callout info">
+                    <div class="callout-title">💡 Pruning Makes it Feasible</div>
+                    <p>Without pruning, we'd explore ALL possible configurations. Pruning eliminates entire subtrees of the decision tree, making these exponential problems solvable in practice. Good pruning can reduce running time by orders of magnitude.</p>
+                </div>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting to make a COPY when storing results</div>
+                    <pre><code>// ❌ Stores references — all entries end up as []
+result.push(path);   // path gets modified later!
+
+// ✅ Store a copy
+result.push([...path]);     // Spread operator
+result.push(path.slice());  // Or slice()</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting to un-choose (backtrack)</div>
+                    <pre><code>// ❌ Missing path.pop() — state accumulates!
+path.push(nums[i]);
+backtrack(i + 1, path);
+// Missing: path.pop(); ← MUST undo the choice</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Not starting from the right index (generating duplicates)</div>
+                    <p>For subsets/combinations: start from <code>i+1</code> (or <code>i</code> for reuse). For permutations: use a <code>used</code> array. Getting this wrong creates duplicates or misses solutions.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Backtracking = <strong>choose → explore → un-choose</strong>. Memorize this pattern.</li>
+                    <li>Subsets: start from <code>i+1</code>, collect at every node. Permutations: use <code>used[]</code>, collect at leaves.</li>
+                    <li><strong>Draw the decision tree</strong> during interviews — it helps visualize the recursion and pruning.</li>
+                    <li>Pruning is the difference between "time limit exceeded" and "accepted." Identify invalid states early.</li>
+                    <li>Backtracking problems are <strong>medium-hard</strong> in interviews. They test recursion, state management, and optimization.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Backtracking = DFS on a decision tree. Choose → Explore → Un-choose.</li>
+                    <li>Pruning = skip branches that can't lead to valid solutions.</li>
+                    <li>Subsets: O(2ⁿ). Permutations: O(n!). Both are exponential — but pruning helps.</li>
+                    <li>Always push a COPY of path to results. Always pop after recursive call.</li>
+                    <li>Subsets start from <code>i+1</code>. Permutations use a <code>used</code> boolean array.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the backtracking template?</div>
+                            <div class="flashcard-back">1. Choose: add a candidate to the current path. 2. Explore: recurse with the updated path. 3. Un-choose: remove the candidate (backtrack). Plus: check base case at the start, and prune invalid candidates before choosing.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How many subsets does a set of n elements have?</div>
+                            <div class="flashcard-back">2ⁿ subsets. Each element has 2 choices: include or exclude. For n=3: 2³ = 8 subsets. For n=10: 1024 subsets. This is why subset generation is O(2ⁿ).</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is pruning in backtracking?</div>
+                            <div class="flashcard-back">Pruning means skipping (cutting off) branches of the decision tree that cannot possibly lead to a valid solution. It avoids exploring dead-end paths, significantly reducing the search space and runtime.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Subsets vs Permutations — what's the key difference in implementation?</div>
+                            <div class="flashcard-back">Subsets: iterate from <code>start</code> index forward, collect results at every node (all paths are valid). Permutations: iterate from 0, use a <code>used</code> array to track chosen elements, collect only when path length equals n (only complete paths are valid).</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">78</span><span class="lc-name"><a href="https://leetcode.com/problems/subsets/" target="_blank" rel="noopener">Subsets</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Backtracking</span></li>
+                    <li class="leetcode-item"><span class="lc-number">46</span><span class="lc-name"><a href="https://leetcode.com/problems/permutations/" target="_blank" rel="noopener">Permutations</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Backtracking</span></li>
+                    <li class="leetcode-item"><span class="lc-number">39</span><span class="lc-name"><a href="https://leetcode.com/problems/combination-sum/" target="_blank" rel="noopener">Combination Sum</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Backtracking</span></li>
+                    <li class="leetcode-item"><span class="lc-number">51</span><span class="lc-name"><a href="https://leetcode.com/problems/n-queens/" target="_blank" rel="noopener">N-Queens</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Constraint Backtracking</span></li>
+                    <li class="leetcode-item"><span class="lc-number">79</span><span class="lc-name"><a href="https://leetcode.com/problems/word-search/" target="_blank" rel="noopener">Word Search</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Grid Backtracking</span></li>
+                    <li class="leetcode-item"><span class="lc-number">37</span><span class="lc-name"><a href="https://leetcode.com/problems/sudoku-solver/" target="_blank" rel="noopener">Sudoku Solver</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Constraint Satisfaction</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circular Linked List - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 6</a><span class="separator">›</span><span class="current">Circular Linked List</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Circular Linked List</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 6</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="circular-linked-list">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is a Circular Linked List?</h2>
+                <p>A <strong>Circular Linked List</strong> is a linked list where the <strong>last node points back to the first node</strong> instead of null. It forms a continuous loop — there's no "end."</p>
+                <div class="callout tip">
+                    <div class="callout-title">🌍 Real-Life Analogy</div>
+                    <p>Think of people sitting in a <strong>circle</strong> playing a game (like musical chairs or hot potato). After the last person, you're back to the first — it's a continuous loop! A regular linked list is like people standing in a line with a clear start and end. A circular list is the circle — no end, just keep going around.</p>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How It Works</h2>
+
+                <div class="viz-container">
+                    <div class="viz-title">Circular Linked List Structure</div>
+                    <div class="ascii-diagram">
+Regular:  [10] → [20] → [30] → null
+
+Circular: [10] → [20] → [30] ─┐
+           ↑                    |
+           └────────────────────┘
+          (last node points to head)
+                    </div>
+                </div>
+
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>class Node {
+    constructor(data) {
+        this.data = data;
+        this.next = null;
+    }
+}
+
+class CircularLinkedList {
+    constructor() {
+        this.head = null;
+        this.size = 0;
+    }
+    
+    // Insert at end — O(n) or O(1) with tail
+    insert(data) {
+        const node = new Node(data);
+        if (!this.head) {
+            this.head = node;
+            node.next = node;  // Points to itself!
+        } else {
+            let curr = this.head;
+            while (curr.next !== this.head) curr = curr.next;
+            curr.next = node;
+            node.next = this.head;  // Complete the circle
+        }
+        this.size++;
+    }
+    
+    // Delete a value — O(n)
+    delete(data) {
+        if (!this.head) return;
+        
+        // If head is the target
+        if (this.head.data === data) {
+            if (this.head.next === this.head) {
+                this.head = null;  // Only one node
+            } else {
+                let last = this.head;
+                while (last.next !== this.head) last = last.next;
+                this.head = this.head.next;
+                last.next = this.head;
+            }
+            this.size--;
+            return;
+        }
+        
+        let curr = this.head;
+        while (curr.next !== this.head && curr.next.data !== data) {
+            curr = curr.next;
+        }
+        if (curr.next.data === data) {
+            curr.next = curr.next.next;
+            this.size--;
+        }
+    }
+    
+    // Traverse — must stop when we loop back to head
+    print() {
+        if (!this.head) return '(empty)';
+        let curr = this.head;
+        const result = [];
+        do {
+            result.push(curr.data);
+            curr = curr.next;
+        } while (curr !== this.head);
+        return result.join(' → ') + ' → (back to head)';
+    }
+}
+
+// Josephus Problem: n people in circle, every k-th eliminated
+function josephus(n, k) {
+    let people = Array.from({length: n}, (_, i) => i + 1);
+    let idx = 0;
+    while (people.length > 1) {
+        idx = (idx + k - 1) % people.length;
+        people.splice(idx, 1);
+    }
+    return people[0];  // Survivor
+}</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run</h2>
+                <p>Insert 10, 20, 30 into circular list, then traverse</p>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">insert(10): head=10, 10.next=10 (points to itself)</div><div class="step-state">[10] → (back to 10)</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">insert(20): 10.next=20, 20.next=10</div><div class="step-state">[10] → [20] → (back to 10)</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">insert(30): 20.next=30, 30.next=10</div><div class="step-state">[10] → [20] → [30] → (back to 10)</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Traverse: 10→20→30→back to head. Stop when curr===head.</div><div class="step-state">Output: 10 → 20 → 30 → (back to head) ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Operation</th><th>Time</th><th>Space</th></tr></thead>
+                    <tbody>
+                        <tr><td>Insert at head</td><td class="avg">O(n)*</td><td class="best">O(1)</td></tr>
+                        <tr><td>Insert at tail</td><td class="avg">O(n)*</td><td class="best">O(1)</td></tr>
+                        <tr><td>Delete</td><td class="avg">O(n)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Search</td><td class="avg">O(n)</td><td class="best">O(1)</td></tr>
+                        <tr><td>Traverse</td><td class="avg">O(n)</td><td class="best">O(1)</td></tr>
+                    </tbody>
+                </table>
+                <p class="text-muted">* O(1) if you maintain a tail pointer.</p>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Infinite loop during traversal</div>
+                    <pre><code>// ❌ Never-ending loop!
+let curr = head;
+while (curr) {           // Always true in circular list!
+    curr = curr.next;
+}
+
+// ✅ Use do-while, stop when back at head
+let curr = head;
+do {
+    // process curr
+    curr = curr.next;
+} while (curr !== head);</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting single-node edge case</div>
+                    <p>When there's only one node, it points to itself. Deleting it means setting head = null, not just updating pointers.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li><strong>Josephus Problem</strong> is the classic circular list interview question.</li>
+                    <li>Used in round-robin scheduling (CPU time slicing) and circular buffers.</li>
+                    <li>Traversal must use <code>do-while</code> or track the starting node to avoid infinite loops.</li>
+                    <li>Maintaining a <strong>tail pointer</strong> makes insertion O(1) at both head and tail.</li>
+                    <li>Can be singly circular or doubly circular (with prev pointers too).</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Last node's next → head. No null at the end.</li>
+                    <li>Traversal: use do-while, stop when curr === head.</li>
+                    <li>Used in: Josephus problem, round-robin scheduling, circular buffers.</li>
+                    <li>Single node: points to itself. Empty list: head = null.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How do you detect if a linked list is circular?</div>
+                            <div class="flashcard-back">Use the <strong>fast & slow pointer</strong> technique. If they meet, it's circular. OR simply traverse and check if any node's next equals head. In a properly constructed circular list, the last node's next IS head.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the Josephus Problem?</div>
+                            <div class="flashcard-back">N people stand in a circle. Every k-th person is eliminated. Find the last survivor. Classic circular list application. Can be solved with simulation O(nk) or math formula O(n): J(n,k) = (J(n-1,k) + k) % n.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">708</span><span class="lc-name"><a href="https://leetcode.com/problems/insert-into-a-sorted-circular-linked-list/" target="_blank" rel="noopener">Insert into Sorted Circular LL</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Circular LL insertion</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1823</span><span class="lc-name"><a href="https://leetcode.com/problems/find-the-winner-of-the-circular-game/" target="_blank" rel="noopener">Find the Winner (Josephus)</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Josephus problem</span></li>
+                    <li class="leetcode-item"><span class="lc-number">457</span><span class="lc-name"><a href="https://leetcode.com/problems/circular-array-loop/" target="_blank" rel="noopener">Circular Array Loop</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Cycle detection in circular</span></li>
+                    <li class="leetcode-item"><span class="lc-number">622</span><span class="lc-name"><a href="https://leetcode.com/problems/design-circular-queue/" target="_blank" rel="noopener">Design Circular Queue</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Circular structure</span></li>
+                    <li class="leetcode-item"><span class="lc-number">641</span><span class="lc-name"><a href="https://leetcode.com/problems/design-circular-deque/" target="_blank" rel="noopener">Design Circular Deque</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Circular structure</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

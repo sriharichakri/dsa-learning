@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Floyd-Warshall Algorithm - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 10</a><span class="separator">›</span><span class="current">Floyd-Warshall Algorithm</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Floyd-Warshall Algorithm</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 10</span>
+                    <span class="topic-badge difficulty-hard">Hard</span>
+                    <button class="topic-complete-btn" data-topic-id="floyd-warshall">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is the Floyd-Warshall Algorithm?</h2>
+                <p><strong>Floyd-Warshall</strong> computes the <strong>shortest paths between ALL pairs</strong> of vertices in a weighted graph. It works with negative edge weights and can detect negative cycles.</p>
+                <p>The key idea: for each pair (i, j), check whether going through an intermediate vertex <code>k</code> gives a shorter path: <code>dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])</code>.</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Floyd-Warshall considers each vertex as a potential "stepping stone" in a path. It iterates through ALL possible intermediate vertices k, and for each k, updates ALL pairs (i, j). Three nested loops — simple but O(V³). Best for small dense graphs where you need all-pairs shortest paths.</p>
+                </div>
+            </div>
+
+            <!-- Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">✈️ Flight Connection Optimizer</div>
+                    <p>Imagine you're building a travel price table for all city pairs. Initially, you only know direct flight prices. Then you ask: "What if we route through City A? City B? City C?" For each stopover city, you update all city pairs with cheaper routes. After considering ALL cities as potential stopovers, you have the cheapest routes between every pair.</p>
+                </div>
+                <ul>
+                    <li><strong>Road distance tables:</strong> The distance charts on road maps show all-pairs shortest distances.</li>
+                    <li><strong>Social network:</strong> Finding the shortest connection path between any two people.</li>
+                </ul>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How Floyd-Warshall Works</h2>
+                <div class="viz-container">
+                    <div class="viz-title">Floyd-Warshall on a 4-node graph</div>
+                    <div class="ascii-diagram">
+Graph:
+  0 --3→ 1       Initial distance matrix:
+  |       |       ┌───┬───┬───┬───┬───┐
+  7       2       │   │ 0 │ 1 │ 2 │ 3 │
+  ↓       ↓       ├───┼───┼───┼───┼───┤
+  2 ←1── 3       │ 0 │ 0 │ 3 │ ∞ │ 7 │
+  0 --8→ 3       │ 1 │ ∞ │ 0 │ ∞ │ 2 │
+                  │ 2 │ ∞ │ ∞ │ 0 │ 8 │
+After k=0:        │ 3 │ ∞ │ 1 │ ∞ │ 0 │
+  dist[1][2] via 0? 1→0→2 = ∞ (no edge 1→0)   └───┴───┴───┴───┴───┘
+
+After k=1:
+  dist[0][3] via 1? 0→1→3 = 3+2 = 5 < 7 ✅ Update!
+
+After k=3:
+  dist[0][2] via 3? 0→3→2 = 5+∞ = ∞. But 0→1→3→2 via earlier updates...
+  dist[1][2] via 3? 1→3→2 = 2+∞ = ∞
+
+Final: dist[0][1]=3, dist[0][3]=5, dist[1][3]=2, dist[3][1]=1
+                    </div>
+                </div>
+
+                <div class="code-header"><span>JavaScript — Floyd-Warshall Algorithm</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function floydWarshall(n, edges) {
+    // Initialize distance matrix
+    const dist = Array.from({length: n}, (_, i) =>
+        Array.from({length: n}, (_, j) => i === j ? 0 : Infinity)
+    );
+
+    // Fill direct edges
+    for (const [u, v, w] of edges) {
+        dist[u][v] = w;
+    }
+
+    // The core: try each vertex k as intermediate
+    for (let k = 0; k < n; k++) {
+        for (let i = 0; i < n; i++) {
+            for (let j = 0; j < n; j++) {
+                if (dist[i][k] + dist[k][j] < dist[i][j]) {
+                    dist[i][j] = dist[i][k] + dist[k][j];
+                }
+            }
+        }
+    }
+
+    // Check for negative cycles: if dist[i][i] < 0
+    for (let i = 0; i < n; i++) {
+        if (dist[i][i] < 0) return null; // Negative cycle!
+    }
+
+    return dist;
+}
+
+// Network Delay Time variant
+function networkDelayTime(times, n, k) {
+    const dist = floydWarshall(n, times.map(([u,v,w]) => [u-1,v-1,w]));
+    if (!dist) return -1;
+    let maxTime = 0;
+    for (let i = 0; i < n; i++) {
+        if (dist[k-1][i] === Infinity) return -1;
+        maxTime = Math.max(maxTime, dist[k-1][i]);
+    }
+    return maxTime;
+}</code></pre>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: 3-node graph</h2>
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Edges: (0,1,4), (1,2,1), (0,2,7). Init: dist[0][1]=4, dist[1][2]=1, dist[0][2]=7.</div><div class="step-state">dist = [[0,4,7],[∞,0,1],[∞,∞,0]]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">k=0: Check all (i,j) via vertex 0. No improvements (0 only helps paths FROM 0).</div><div class="step-state">No changes</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">k=1: dist[0][2] via 1 = dist[0][1]+dist[1][2] = 4+1 = 5 < 7. Update!</div><div class="step-state">dist[0][2] = 5 ✅</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">k=2: No further improvements. Final: shortest 0→2 is 5 (via vertex 1).</div><div class="step-state">dist = [[0,4,5],[∞,0,1],[∞,∞,0]] ✅</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Aspect</th><th>Floyd-Warshall</th><th>V × Dijkstra</th><th>V × Bellman-Ford</th></tr></thead>
+                    <tbody>
+                        <tr><td>Time</td><td>O(V³)</td><td class="best">O(V(V+E) log V)</td><td class="worst">O(V² × E)</td></tr>
+                        <tr><td>Space</td><td>O(V²)</td><td>O(V+E)</td><td class="best">O(V)</td></tr>
+                        <tr><td>Negative edges</td><td class="best">Yes</td><td class="worst">No</td><td class="best">Yes</td></tr>
+                        <tr><td>Best for</td><td>Dense, all-pairs</td><td>Sparse, all-pairs</td><td>Negative edges</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Wrong loop order (k must be outermost)</div>
+                    <p>The k-loop MUST be the outermost loop. <code>for k → for i → for j</code>. If k is inner, you'll use intermediate vertices that haven't been fully processed yet.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Integer overflow with Infinity + weight</div>
+                    <p>In languages with fixed-size integers, <code>Infinity + weight</code> can overflow. Always check <code>if (dist[i][k] !== Infinity)</code> before adding.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting diagonal initialization</div>
+                    <p>dist[i][i] should be 0 (distance from a node to itself). If you initialize the entire matrix to Infinity, the algorithm breaks.</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Perspective</h2>
+                <ul>
+                    <li>Floyd-Warshall appears in problems asking for <strong>all-pairs shortest paths</strong> with small n (n ≤ 200).</li>
+                    <li>"Network Delay Time" can be solved with Floyd-Warshall, Dijkstra, or Bellman-Ford — know trade-offs.</li>
+                    <li>The triple loop is easy to code but hard to optimize — O(V³) is fixed.</li>
+                    <li>For transitive closure (reachability), replace min/+ with OR/AND operations.</li>
+                    <li>Can reconstruct actual paths by maintaining a "next" matrix alongside distances.</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Floyd-Warshall: all-pairs shortest path using DP. dist[i][j] = min(dist[i][j], dist[i][k]+dist[k][j]).</li>
+                    <li>Three nested loops: k (intermediate) must be OUTERMOST.</li>
+                    <li>Time O(V³), Space O(V²). Best for small dense graphs.</li>
+                    <li>Handles negative edges. Detects negative cycles (dist[i][i] < 0).</li>
+                    <li>For sparse graphs with non-negative edges, running Dijkstra V times is faster.</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the recurrence relation for Floyd-Warshall?</div>
+                            <div class="flashcard-back"><code>dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])</code><br>For each intermediate vertex k, check if routing i→k→j is shorter than the current i→j path.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Why must k be the outermost loop?</div>
+                            <div class="flashcard-back">The DP state is: "shortest path from i to j using only vertices {0, 1, ..., k} as intermediates." We build up from using no intermediates to using all vertices. If k isn't outermost, we use intermediate vertices before they're properly considered.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">743</span><span class="lc-name"><a href="https://leetcode.com/problems/network-delay-time/" target="_blank" rel="noopener">Network Delay Time</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">All-pairs shortest path</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1334</span><span class="lc-name"><a href="https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance/" target="_blank" rel="noopener">Find the City With Smallest Neighbors</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Floyd-Warshall + filter</span></li>
+                    <li class="leetcode-item"><span class="lc-number">399</span><span class="lc-name"><a href="https://leetcode.com/problems/evaluate-division/" target="_blank" rel="noopener">Evaluate Division</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Graph path with weights</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1462</span><span class="lc-name"><a href="https://leetcode.com/problems/course-schedule-iv/" target="_blank" rel="noopener">Course Schedule IV</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Transitive closure</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1615</span><span class="lc-name"><a href="https://leetcode.com/problems/maximal-network-rank/" target="_blank" rel="noopener">Maximal Network Rank</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Graph properties</span></li>
+                </ul>
+            </div>
+
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

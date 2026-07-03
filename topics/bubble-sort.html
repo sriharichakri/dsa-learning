@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bubble Sort - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 4</a><span class="separator">›</span><span class="current">Bubble Sort</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Bubble Sort</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 4</span>
+                    <span class="topic-badge difficulty-easy">Easy</span>
+                    <button class="topic-complete-btn" data-topic-id="bubble-sort">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Introduction -->
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Bubble Sort?</h2>
+                <p>Bubble Sort is the <strong>simplest sorting algorithm</strong>. It works by repeatedly stepping through the list, comparing <strong>adjacent elements</strong>, and swapping them if they're in the wrong order. This process repeats until the list is sorted.</p>
+                <p>After each full pass through the array, the <strong>largest unsorted element "bubbles up"</strong> to its correct position at the end — just like air bubbles rising to the surface of water!</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 Key Insight</div>
+                    <p>Bubble Sort is rarely used in production (it's O(n²)), but it's <strong>essential to understand</strong> because it teaches the concept of pairwise comparisons and the idea of "sorted suffixes" — concepts that appear in many advanced algorithms.</p>
+                </div>
+            </div>
+
+            <!-- Analogy -->
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">🫧 Bubbles Rising in Water</div>
+                    <p>Drop a handful of differently-sized bubbles into a glass of water. The <strong>largest bubbles rise to the top first</strong>, followed by smaller ones. Each bubble "competes" with its neighbor and the bigger one floats up. That's exactly how Bubble Sort works — larger elements bubble up to the end of the array!</p>
+                </div>
+                <p>More real-world examples:</p>
+                <ul>
+                    <li><strong>Sorting students by height:</strong> Compare adjacent pairs and swap if the taller one is in front. Repeat until sorted.</li>
+                    <li><strong>Organizing playing cards:</strong> Sweep left to right, swapping out-of-order neighbors.</li>
+                    <li><strong>Ranking race times:</strong> Compare consecutive entries and push slower times down the list.</li>
+                </ul>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How Bubble Sort Works</h2>
+                <p>The algorithm makes multiple passes through the array. In each pass, it compares every pair of adjacent elements and swaps them if the left is greater than the right.</p>
+
+                <div class="viz-container">
+                    <div class="viz-title">Bubble Sort: Sorting [5, 3, 8, 1, 2]</div>
+                    <div class="ascii-diagram">
+Pass 1: Largest element (8) bubbles to the end
+  [5, 3, 8, 1, 2]   Compare 5,3 → Swap!
+  [3, 5, 8, 1, 2]   Compare 5,8 → OK
+  [3, 5, 8, 1, 2]   Compare 8,1 → Swap!
+  [3, 5, 1, 8, 2]   Compare 8,2 → Swap!
+  [3, 5, 1, 2, 8]   ✅ 8 is in place!
+
+Pass 2: Next largest (5) bubbles up
+  [3, 5, 1, 2, 8]   Compare 3,5 → OK
+  [3, 5, 1, 2, 8]   Compare 5,1 → Swap!
+  [3, 1, 5, 2, 8]   Compare 5,2 → Swap!
+  [3, 1, 2, 5, 8]   ✅ 5 is in place!
+
+Pass 3: Next largest (3) bubbles up
+  [3, 1, 2, 5, 8]   Compare 3,1 → Swap!
+  [1, 3, 2, 5, 8]   Compare 3,2 → Swap!
+  [1, 2, 3, 5, 8]   ✅ 3 is in place!
+
+Pass 4: Check remaining
+  [1, 2, 3, 5, 8]   Compare 1,2 → OK. No swaps!
+  ✅ Array is fully sorted!
+                    </div>
+                </div>
+
+                <div class="code-header"><span>JavaScript — Basic Bubble Sort</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function bubbleSort(arr) {
+    let n = arr.length;
+    for (let i = 0; i < n - 1; i++) {
+        for (let j = 0; j < n - 1 - i; j++) {
+            if (arr[j] > arr[j + 1]) {
+                // Swap adjacent elements
+                [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+            }
+        }
+    }
+    return arr;
+}</code></pre>
+
+                <div class="callout info">
+                    <div class="callout-title">💡 Why n - 1 - i?</div>
+                    <p>After each pass <code>i</code>, the last <code>i</code> elements are already sorted. So we don't need to compare them again. This is the "sorted suffix" property.</p>
+                </div>
+            </div>
+
+            <!-- Optimized Version -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚡</span> Optimized Bubble Sort (Early Termination)</h2>
+                <p>If during a complete pass we make <strong>no swaps</strong>, the array is already sorted — we can stop early!</p>
+
+                <div class="code-header"><span>JavaScript — Optimized with Flag</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function bubbleSortOptimized(arr) {
+    let n = arr.length;
+    for (let i = 0; i < n - 1; i++) {
+        let swapped = false;  // Flag to detect if any swap happened
+        
+        for (let j = 0; j < n - 1 - i; j++) {
+            if (arr[j] > arr[j + 1]) {
+                [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+                swapped = true;
+            }
+        }
+        
+        if (!swapped) break;  // No swaps = already sorted!
+    }
+    return arr;
+}
+
+// Best case: [1, 2, 3, 4, 5] → Only 1 pass, O(n)!</code></pre>
+
+                <div class="callout tip">
+                    <div class="callout-title">🎯 When Does Optimization Help?</div>
+                    <p>The optimized version makes Bubble Sort <strong>O(n) for already sorted arrays</strong>. It also helps for nearly sorted arrays, terminating early once everything is in place.</p>
+                </div>
+            </div>
+
+            <!-- Dry Run -->
+            <div class="section-card">
+                <h2><span class="section-icon">🔍</span> Dry Run: Sorting [4, 2, 7, 1, 3]</h2>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">Pass 1, j=0: Compare 4,2 → 4 > 2 → <strong>Swap!</strong></div><div class="step-state">[2, 4, 7, 1, 3] swapped=true</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">Pass 1, j=1: Compare 4,7 → 4 < 7 → No swap</div><div class="step-state">[2, 4, 7, 1, 3]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">Pass 1, j=2: Compare 7,1 → 7 > 1 → <strong>Swap!</strong></div><div class="step-state">[2, 4, 1, 7, 3]</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">4</div><div class="step-content"><div class="step-desc">Pass 1, j=3: Compare 7,3 → 7 > 3 → <strong>Swap!</strong></div><div class="step-state">[2, 4, 1, 3, 7] — 7 is in final position ✅</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">5</div><div class="step-content"><div class="step-desc">Pass 2, j=0: Compare 2,4 → OK. j=1: Compare 4,1 → <strong>Swap!</strong> j=2: Compare 4,3 → <strong>Swap!</strong></div><div class="step-state">[2, 1, 3, 4, 7] — 4 is in final position ✅</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">6</div><div class="step-content"><div class="step-desc">Pass 3, j=0: Compare 2,1 → <strong>Swap!</strong> j=1: Compare 2,3 → OK</div><div class="step-state">[1, 2, 3, 4, 7] — 3 is in final position ✅</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">7</div><div class="step-content"><div class="step-desc">Pass 4, j=0: Compare 1,2 → OK. No swaps → <strong>Break early!</strong></div><div class="step-state">[1, 2, 3, 4, 7] ✅ Sorted!</div></div></div>
+                </div>
+            </div>
+
+            <!-- Complexity -->
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Time & Space Complexity</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Case</th><th>Time</th><th>Why?</th></tr></thead>
+                    <tbody>
+                        <tr><td>Best (already sorted, optimized)</td><td class="best">O(n)</td><td>One pass, no swaps, early termination</td></tr>
+                        <tr><td>Average</td><td class="worst">O(n²)</td><td>Roughly n²/2 comparisons on average</td></tr>
+                        <tr><td>Worst (reverse sorted)</td><td class="worst">O(n²)</td><td>Every pair needs swapping: n(n-1)/2 swaps</td></tr>
+                        <tr><td>Space</td><td class="best">O(1)</td><td>In-place — only uses a temp variable for swapping</td></tr>
+                    </tbody>
+                </table>
+                <div class="callout info">
+                    <div class="callout-title">💡 Stability</div>
+                    <p>Bubble Sort is a <strong>stable sort</strong> — equal elements maintain their relative order. This matters when sorting objects by multiple criteria.</p>
+                </div>
+            </div>
+
+            <!-- Common Mistakes -->
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting the Optimization Flag</div>
+                    <p>Without the <code>swapped</code> flag, Bubble Sort always does n-1 passes, even for a sorted array. This turns best case from O(n) to O(n²).</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Wrong Inner Loop Bound</div>
+                    <pre><code>// ❌ WRONG: Goes out of bounds
+for (let j = 0; j < n; j++) { arr[j] vs arr[j+1] }
+
+// ✅ RIGHT: Stop at n - 1 - i
+for (let j = 0; j < n - 1 - i; j++) { ... }</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Using Bubble Sort for Large Data</div>
+                    <p>Bubble Sort is O(n²). For n = 10,000 that's 100 million operations. Use Merge Sort or Quick Sort for large datasets.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Confusing Bubble Sort with Selection Sort</div>
+                    <p>Bubble Sort swaps <strong>adjacent elements</strong> repeatedly. Selection Sort finds the <strong>minimum</strong> and places it at the front. Different mechanisms!</p>
+                </div>
+            </div>
+
+            <!-- Interview Tips -->
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Tips</h2>
+                <ul>
+                    <li><strong>Know when NOT to use it:</strong> Interviewers may ask you to sort — don't use Bubble Sort! Use it only if asked specifically.</li>
+                    <li><strong>Explain the optimization:</strong> Always mention the <code>swapped</code> flag. It shows you understand best-case improvements.</li>
+                    <li><strong>Compare with other sorts:</strong> Be ready to explain why Merge Sort (O(n log n)) and Quick Sort are preferred.</li>
+                    <li><strong>Stable sort:</strong> If asked about stability, Bubble Sort preserves order of equal elements.</li>
+                    <li><strong>In-place:</strong> Bubble Sort uses O(1) extra space — good when memory is constrained.</li>
+                </ul>
+            </div>
+
+            <!-- Real-world usage -->
+            <div class="section-card">
+                <h2><span class="section-icon">🏗️</span> Where Bubble Sort Appears</h2>
+                <ul>
+                    <li><strong>Teaching:</strong> First sorting algorithm taught in CS courses worldwide</li>
+                    <li><strong>Nearly sorted data:</strong> Optimized Bubble Sort is efficient for data that's almost sorted (like a leaderboard with one position change)</li>
+                    <li><strong>Embedded systems:</strong> Tiny memory footprint, simple to implement in hardware</li>
+                    <li><strong>Detection of sorted arrays:</strong> One pass with no swaps = sorted (useful as a check)</li>
+                </ul>
+            </div>
+
+            <!-- Quick Revision -->
+            <div class="quick-notes">
+                <h3>📝 Quick Revision Notes</h3>
+                <ul>
+                    <li>Bubble Sort = compare & swap adjacent elements, largest bubbles to end each pass</li>
+                    <li>Worst/Average: O(n²) | Best (optimized): O(n) | Space: O(1)</li>
+                    <li>Optimized version uses a <code>swapped</code> flag — stops early if no swaps in a pass</li>
+                    <li>Stable sort — equal elements keep their original relative order</li>
+                    <li>After pass <code>i</code>, the last <code>i+1</code> elements are in their final positions</li>
+                </ul>
+            </div>
+
+            <!-- Flash Cards -->
+            <div class="section-card">
+                <h2><span class="section-icon">🃏</span> Flash Cards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">What is the best case time complexity of optimized Bubble Sort?</div>
+                            <div class="flashcard-back">O(n) — when the array is already sorted. The swapped flag detects no swaps in the first pass and terminates.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">Is Bubble Sort stable? What does that mean?</div>
+                            <div class="flashcard-back">Yes, it's stable. Equal elements maintain their original relative order. It only swaps when left > right, not when left == right.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">After pass i in Bubble Sort, what is guaranteed?</div>
+                            <div class="flashcard-back">The last (i+1) elements are in their final sorted positions. The largest i+1 elements have "bubbled up" to the end.</div>
+                        </div>
+                    </div>
+                    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">How does the swapped flag optimization work?</div>
+                            <div class="flashcard-back">Set swapped = false before each pass. Set to true on any swap. If still false after a complete pass, the array is sorted — break out of the loop.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeetCode Problems -->
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems (LeetCode)</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">912</span><span class="lc-name"><a href="https://leetcode.com/problems/sort-an-array/" target="_blank" rel="noopener">Sort an Array</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Sorting</span></li>
+                    <li class="leetcode-item"><span class="lc-number">75</span><span class="lc-name"><a href="https://leetcode.com/problems/sort-colors/" target="_blank" rel="noopener">Sort Colors</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Dutch Flag</span></li>
+                    <li class="leetcode-item"><span class="lc-number">283</span><span class="lc-name"><a href="https://leetcode.com/problems/move-zeroes/" target="_blank" rel="noopener">Move Zeroes</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Swap</span></li>
+                    <li class="leetcode-item"><span class="lc-number">1051</span><span class="lc-name"><a href="https://leetcode.com/problems/height-checker/" target="_blank" rel="noopener">Height Checker</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Sorting</span></li>
+                    <li class="leetcode-item"><span class="lc-number">88</span><span class="lc-name"><a href="https://leetcode.com/problems/merge-sorted-array/" target="_blank" rel="noopener">Merge Sorted Array</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Merging</span></li>
+                    <li class="leetcode-item"><span class="lc-number">169</span><span class="lc-name"><a href="https://leetcode.com/problems/majority-element/" target="_blank" rel="noopener">Majority Element</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Sorting / Boyer-Moore</span></li>
+                    <li class="leetcode-item"><span class="lc-number">242</span><span class="lc-name"><a href="https://leetcode.com/problems/valid-anagram/" target="_blank" rel="noopener">Valid Anagram</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Sorting / HashMap</span></li>
+                    <li class="leetcode-item"><span class="lc-number">349</span><span class="lc-name"><a href="https://leetcode.com/problems/intersection-of-two-arrays/" target="_blank" rel="noopener">Intersection of Two Arrays</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Sorting + Two Pointers</span></li>
+                    <li class="leetcode-item"><span class="lc-number">976</span><span class="lc-name"><a href="https://leetcode.com/problems/largest-perimeter-triangle/" target="_blank" rel="noopener">Largest Perimeter Triangle</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Sorting + Greedy</span></li>
+                    <li class="leetcode-item"><span class="lc-number">147</span><span class="lc-name"><a href="https://leetcode.com/problems/insertion-sort-list/" target="_blank" rel="noopener">Insertion Sort List</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Sorting Variants</span></li>
+                </ul>
+            </div>
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

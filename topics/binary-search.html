@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Search - DSA Mastery</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<div id="app">
+    <div id="sidebar"></div>
+    <div class="sidebar-overlay"></div>
+    <main id="main-content">
+        <div id="header"></div>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span class="separator">›</span><a href="../index.html">Phase 3</a><span class="separator">›</span><span class="current">Binary Search</span></div>
+        <article class="topic-content">
+            <div class="topic-header">
+                <h1>Binary Search</h1>
+                <div class="topic-meta">
+                    <span class="topic-badge phase">Phase 3</span>
+                    <span class="topic-badge difficulty-medium">Medium</span>
+                    <button class="topic-complete-btn" data-topic-id="binary-search">☐ Mark Complete</button>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📖</span> What is Binary Search?</h2>
+                <p>Binary Search is a <strong>divide and conquer</strong> algorithm that finds a target value in a <strong>sorted</strong> collection by repeatedly cutting the search space in half.</p>
+                <p>Instead of checking every element (O(n)), you <strong>eliminate half the remaining elements</strong> with each comparison — making it O(log n).</p>
+                <div class="callout info">
+                    <div class="callout-title">💡 The Power of Halving</div>
+                    <p>In an array of 1,000,000 elements, linear search might need 1,000,000 checks. Binary search needs at most <strong>20 checks</strong>. That's the power of O(log n)!</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">🌍</span> Real-Life Analogy</h2>
+                <div class="callout tip">
+                    <div class="callout-title">📚 Finding a Word in a Dictionary</div>
+                    <p>You want to find "Mango" in a dictionary. Do you start at page 1? No! You open somewhere in the <strong>middle</strong>. If you see "Paper" — too far right. You go to the middle of the <strong>left half</strong>. See "Lemon" — too far left. You go right. A few flips and you find "Mango"!</p>
+                </div>
+                <ul>
+                    <li><strong>Number guessing game:</strong> "Think of a number 1-100. I'll guess it in 7 tries." Always guess the middle!</li>
+                    <li><strong>Phone book:</strong> Looking up a name by opening to the middle and narrowing down</li>
+                    <li><strong>Library bookshelf:</strong> Books sorted by call number, jump to approximate section</li>
+                </ul>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚙️</span> How Binary Search Works</h2>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function binarySearch(arr, target) {
+    let left = 0;
+    let right = arr.length - 1;
+    
+    while (left <= right) {
+        let mid = Math.floor((left + right) / 2);
+        
+        if (arr[mid] === target) {
+            return mid;           // Found it!
+        } else if (arr[mid] < target) {
+            left = mid + 1;       // Target is in right half
+        } else {
+            right = mid - 1;      // Target is in left half
+        }
+    }
+    return -1; // Not found
+}</code></pre>
+
+                <div class="viz-container">
+                    <div class="viz-title">Binary Search: Finding 23 in [2, 5, 8, 12, 16, 23, 38, 56, 72, 91]</div>
+                    <div class="ascii-diagram">
+Step 1:  [2, 5, 8, 12, 16, 23, 38, 56, 72, 91]
+          L               M                   R
+          arr[mid]=16 &lt; 23 → search RIGHT half
+
+Step 2:  [2, 5, 8, 12, 16, 23, 38, 56, 72, 91]
+                              L       M       R
+          arr[mid]=56 > 23 → search LEFT half
+
+Step 3:  [2, 5, 8, 12, 16, 23, 38, 56, 72, 91]
+                              L   M   R
+          arr[mid]=23 === 23 → FOUND at index 5! ✅
+                    </div>
+                </div>
+
+                <div class="dry-run">
+                    <div class="dry-run-step"><div class="step-num">1</div><div class="step-content"><div class="step-desc">left=0, right=9, mid=4 → arr[4]=16 < 23 → go right</div><div class="step-state">left=5, right=9</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">2</div><div class="step-content"><div class="step-desc">left=5, right=9, mid=7 → arr[7]=56 > 23 → go left</div><div class="step-state">left=5, right=6</div></div></div>
+                    <div class="dry-run-step"><div class="step-num">3</div><div class="step-content"><div class="step-desc">left=5, right=6, mid=5 → arr[5]=23 === 23 → <strong>Found!</strong></div><div class="step-state">return 5 ✅</div></div></div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⭐</span> Binary Search Variants</h2>
+                
+                <h3>Lower Bound (First occurrence ≥ target)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function lowerBound(arr, target) {
+    let left = 0, right = arr.length;
+    while (left < right) {
+        let mid = Math.floor((left + right) / 2);
+        if (arr[mid] < target) left = mid + 1;
+        else right = mid;
+    }
+    return left;
+}</code></pre>
+
+                <h3>Upper Bound (First occurrence > target)</h3>
+                <div class="code-header"><span>JavaScript</span><button class="copy-btn">Copy</button></div>
+                <pre><code>function upperBound(arr, target) {
+    let left = 0, right = arr.length;
+    while (left < right) {
+        let mid = Math.floor((left + right) / 2);
+        if (arr[mid] <= target) left = mid + 1;
+        else right = mid;
+    }
+    return left;
+}</code></pre>
+
+                <h3>Binary Search on Answer</h3>
+                <p>Sometimes you don't search an array — you search a <strong>range of possible answers</strong>.</p>
+                <div class="code-header"><span>Example: Koko Eating Bananas</span><button class="copy-btn">Copy</button></div>
+                <pre><code>// Find minimum eating speed to finish all piles in h hours
+function minEatingSpeed(piles, h) {
+    let left = 1;
+    let right = Math.max(...piles);
+    
+    while (left < right) {
+        let mid = Math.floor((left + right) / 2);
+        let hours = piles.reduce((sum, p) => sum + Math.ceil(p / mid), 0);
+        if (hours <= h) right = mid;    // Can go slower
+        else left = mid + 1;            // Too slow, eat faster
+    }
+    return left;
+}</code></pre>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⏱️</span> Complexity</h2>
+                <table class="complexity-table">
+                    <thead><tr><th>Aspect</th><th>Complexity</th><th>Why?</th></tr></thead>
+                    <tbody>
+                        <tr><td>Time (worst/avg)</td><td class="best">O(log n)</td><td>Halving the search space each step: n → n/2 → n/4 → ... → 1</td></tr>
+                        <tr><td>Time (best)</td><td class="best">O(1)</td><td>Target is at the middle on first check</td></tr>
+                        <tr><td>Space (iterative)</td><td class="best">O(1)</td><td>Just a few variables</td></tr>
+                        <tr><td>Space (recursive)</td><td class="best">O(log n)</td><td>log n stack frames</td></tr>
+                    </tbody>
+                </table>
+                <div class="callout info">
+                    <div class="callout-title">💡 Why O(log n)?</div>
+                    <p>How many times can you halve n before reaching 1? That's log₂(n). For n=1,000,000: log₂(1,000,000) ≈ 20. So at most 20 comparisons!</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">⚠️</span> Common Mistakes</h2>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Integer Overflow in Mid Calculation</div>
+                    <pre><code>// ❌ Can overflow for large left + right
+let mid = (left + right) / 2;
+
+// ✅ Safe calculation
+let mid = left + Math.floor((right - left) / 2);</code></pre>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Wrong Loop Condition</div>
+                    <p><code>left &lt;= right</code> (inclusive) vs <code>left &lt; right</code> (exclusive). Using the wrong one causes off-by-one errors or infinite loops.</p>
+                </div>
+                <div class="callout danger">
+                    <div class="callout-title">❌ Forgetting the Sorted Prerequisite</div>
+                    <p>Binary search <strong>only works on sorted data</strong>. If the array isn't sorted, sort it first (O(n log n)) or use linear search.</p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">💼</span> Interview Tips</h2>
+                <ul>
+                    <li><strong>When to use:</strong> "sorted array," "find minimum/maximum that satisfies condition," "search in rotated array"</li>
+                    <li><strong>Pattern recognition:</strong> If the problem has a monotonic condition (all false then all true), binary search works</li>
+                    <li><strong>Always clarify:</strong> Is the array sorted? Ascending or descending? Duplicates?</li>
+                    <li><strong>Binary Search on Answer:</strong> When the answer lies in a range and you can check if a value is valid → binary search!</li>
+                </ul>
+            </div>
+
+            <div class="quick-notes">
+                <h3>📝 Quick Revision</h3>
+                <ul>
+                    <li>Binary search = halve the search space each step. O(log n).</li>
+                    <li>Requires <strong>sorted input</strong> or a monotonic condition.</li>
+                    <li>Use <code>left + (right - left) / 2</code> to avoid overflow.</li>
+                    <li><code>left &lt;= right</code> for exact match, <code>left &lt; right</code> for bounds.</li>
+                    <li>"Binary Search on Answer" searches a range of possible solutions.</li>
+                </ul>
+            </div>
+
+            <div class="section-card">
+                <h2><span class="section-icon">📝</span> Practice Problems</h2>
+                <ul class="leetcode-list">
+                    <li class="leetcode-item"><span class="lc-number">704</span><span class="lc-name"><a href="https://leetcode.com/problems/binary-search/" target="_blank">Binary Search</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Basic BS</span></li>
+                    <li class="leetcode-item"><span class="lc-number">35</span><span class="lc-name"><a href="https://leetcode.com/problems/search-insert-position/" target="_blank">Search Insert Position</a></span><span class="lc-difficulty easy">Easy</span><span class="lc-pattern">Lower Bound</span></li>
+                    <li class="leetcode-item"><span class="lc-number">34</span><span class="lc-name"><a href="https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/" target="_blank">First and Last Position</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Bounds</span></li>
+                    <li class="leetcode-item"><span class="lc-number">33</span><span class="lc-name"><a href="https://leetcode.com/problems/search-in-rotated-sorted-array/" target="_blank">Search in Rotated Sorted Array</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Modified BS</span></li>
+                    <li class="leetcode-item"><span class="lc-number">153</span><span class="lc-name"><a href="https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/" target="_blank">Find Minimum in Rotated Sorted Array</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Modified BS</span></li>
+                    <li class="leetcode-item"><span class="lc-number">875</span><span class="lc-name"><a href="https://leetcode.com/problems/koko-eating-bananas/" target="_blank">Koko Eating Bananas</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">BS on Answer</span></li>
+                    <li class="leetcode-item"><span class="lc-number">74</span><span class="lc-name"><a href="https://leetcode.com/problems/search-a-2d-matrix/" target="_blank">Search a 2D Matrix</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">2D BS</span></li>
+                    <li class="leetcode-item"><span class="lc-number">981</span><span class="lc-name"><a href="https://leetcode.com/problems/time-based-key-value-store/" target="_blank">Time Based Key-Value Store</a></span><span class="lc-difficulty medium">Medium</span><span class="lc-pattern">Design + BS</span></li>
+                    <li class="leetcode-item"><span class="lc-number">410</span><span class="lc-name"><a href="https://leetcode.com/problems/split-array-largest-sum/" target="_blank">Split Array Largest Sum</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">BS on Answer</span></li>
+                    <li class="leetcode-item"><span class="lc-number">4</span><span class="lc-name"><a href="https://leetcode.com/problems/median-of-two-sorted-arrays/" target="_blank">Median of Two Sorted Arrays</a></span><span class="lc-difficulty hard">Hard</span><span class="lc-pattern">Advanced BS</span></li>
+                </ul>
+            </div>
+        </article>
+        <footer class="site-footer"><p>DSA Mastery — Built for learners, by learners.</p></footer>
+    </main>
+</div>
+<script src="../assets/data/curriculum.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>
